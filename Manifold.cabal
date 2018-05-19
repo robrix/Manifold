@@ -1,0 +1,19 @@
+name:                Manifold
+version:             0.0.0.0
+synopsis:            Another experiment in dependently typed languages, this time with some quantitative type theory smooshed in.
+-- description:
+homepage:            https://github.com/robrix/Manifold
+license:             BSD3
+license-file:        LICENSE
+author:              Rob Rix
+maintainer:          rob.rix@me.com
+copyright:           2018 Rob Rix
+category:            Language
+build-type:          Simple
+cabal-version:       >=1.10
+
+library
+  -- exposed-modules:
+  build-depends:       base >=4.11 && <4.12
+  hs-source-dirs:      src
+  default-language:    Haskell2010
