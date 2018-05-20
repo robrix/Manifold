@@ -2,12 +2,12 @@
 module Manifold.Judgement where
 
 import Control.Monad.Effect
-import Control.Monad.Effect.Exception
 import Control.Monad.Effect.Reader
 import Data.Semiring (zero)
 import Manifold.Context
 import Manifold.Presyntax
 import Manifold.Proof
+import Manifold.Unification
 
 typeFormation :: ( Members '[ Exc (Some (Proposition usage))
                             , Proposition usage
@@ -43,25 +43,6 @@ typing (Infer term) = case unTerm term of
   _ -> noRuleTo (Infer term)
 
 
-unification :: ( Eq usage
-               , Members '[ Exc (Some (Unify usage))
-                          , Unify usage
-                          ] effects
-               )
-            => Unify usage result
-            -> Proof usage effects result
-unification (Unify actual expected)
-  | actual == expected = pure expected
-  | otherwise          = noRuleTo (Unify actual expected)
-
-runUnification :: ( Eq usage
-                  , Member (Exc (Some (Unify usage))) effects
-                  )
-               => Proof usage (Unify usage ': effects) a
-               -> Proof usage effects a
-runUnification = refine unification
-
-
 -- | Extend the context with a local assumption.
 (>-) :: Member (Reader (Context usage)) effects => Constraint usage -> Proof usage effects a -> Proof usage effects a
 constraint >- proof = local (:> constraint) proof
@@ -86,10 +67,3 @@ infer = send . Infer
 data Check usage result where
   Check :: Term usage -> Type usage -> Check usage (Type usage)
   Infer :: Term usge                -> Check usage (Type usage)
-
-
-unify :: Member (Unify usage) effects => Type usage -> Type usage -> Proof usage effects (Type usage)
-unify actual expected = send (Unify actual expected)
-
-data Unify usage result where
-  Unify :: Type usage -> Type usage -> Unify usage (Type usage)
