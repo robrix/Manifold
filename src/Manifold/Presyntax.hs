@@ -45,3 +45,6 @@ instance Foldable Type where
 
 newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
   deriving (Eq, Ord, Show)
+
+instance Foldable Term where
+  foldMap f = bifoldMap f (foldMap f) . unTerm
