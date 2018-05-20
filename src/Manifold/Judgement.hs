@@ -8,7 +8,7 @@ import Data.Semiring (zero)
 import Manifold.Context
 import Manifold.Presyntax
 
-typeFormation :: ( Members '[ Exc (SomeProposition usage)
+typeFormation :: ( Members '[ Exc (Some (Proposition usage))
                             , Proposition usage
                             , Reader (Context usage)
                             ] effects
@@ -35,16 +35,16 @@ isType :: Member (Proposition usage) effects => Type usage -> Eff effects ()
 isType = send . IsType
 
 
-cannotProve :: Member (Exc (SomeProposition usage)) effects => Proposition usage result -> Eff effects a
-cannotProve = throwError . SomeProposition
+cannotProve :: Member (Exc (Some proposition)) effects => proposition result -> Eff effects a
+cannotProve = throwError . Some
 
 
 data Proposition usage result where
   (:==:) :: Type usage -> Type usage -> Proposition usage ()
   IsType :: Type usage -> Proposition usage ()
 
-data SomeProposition usage where
-  SomeProposition :: Proposition usage result -> SomeProposition usage
+data Some proposition where
+  Some :: proposition result -> Some proposition
 
 
 data Check usage result where
