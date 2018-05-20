@@ -18,6 +18,7 @@ library
                      , Manifold.Judgement
                      , Manifold.Name
                      , Manifold.Presyntax
+                     , Manifold.Purpose
   build-depends:       base >=4.11 && <4.12
                      , semirings-modules
   hs-source-dirs:      src
