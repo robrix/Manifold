@@ -15,7 +15,7 @@ unify :: Member (Unify usage) effects => Type usage -> Type usage -> Proof usage
 unify actual expected = send (Unify actual expected)
 
 unification :: ( Eq usage
-               , Members '[ Exc (Some (Unify usage))
+               , Members '[ Exc (Error usage)
                           , Fresh
                           , State (Substitution (Type usage))
                           , Unify usage
@@ -52,10 +52,10 @@ unification (Unify actual expected)
     (ExL a1, ExL a2)                                     -> ExL <$> unify a1 a2
     (ExR a1, ExR a2)                                     -> ExR <$> unify a1 a2
     (Ann a1 t1, Ann a2 t2)                               -> Ann <$> unify a1 a2 <*> unify t1 t2
-    _                                                    -> noRuleTo (Unify actual expected)
+    _                                                    -> cannotUnify actual expected
 
 runUnification :: ( Eq usage
-                  , Members '[ Exc (Some (Unify usage))
+                  , Members '[ Exc (Error usage)
                              , Fresh
                              , State (Substitution (Type usage))
                              ] effects

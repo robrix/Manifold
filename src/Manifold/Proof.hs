@@ -1,20 +1,31 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving, TypeOperators #-}
 module Manifold.Proof where
 
 import Control.Monad.Effect
-import Control.Monad.Effect.Exception
+import qualified Control.Monad.Effect.Exception as Exception
 import Manifold.Name
+import Manifold.Presyntax
 
 newtype Proof usage effects a = Proof { runProof :: Eff effects a }
   deriving (Applicative, Effectful, Functor, Monad)
 
 
-noRuleTo :: Member (Exc (Some (proposition usage))) effects => proposition usage result -> Proof usage effects a
-noRuleTo = throwError . Some
+freeVariable :: Member (Exc (Error usage)) effects => Name -> Proof usage effects a
+freeVariable = throwError . FreeVariable
 
-data Some proposition where
-  Some :: proposition result -> Some proposition
+cannotUnify :: Member (Exc (Error usage)) effects => Type usage -> Type usage -> Proof usage effects a
+cannotUnify t1 t2 = throwError (CannotUnify t1 t2)
 
+noRuleToCheckIsType :: Member (Exc (Error usage)) effects => Term usage -> Proof usage effects a
+noRuleToCheckIsType = throwError . NoRuleToCheckIsType
 
-data Error where
-  FreeVariable :: Name -> Error
+throwError :: Member (Exc (Error usage)) effects => Error usage -> Proof usage effects a
+throwError = Exception.throwError
+
+data Error usage where
+  FreeVariable :: Name -> Error usage
+  CannotUnify :: Type usage -> Type usage -> Error usage
+  NoRuleToCheckIsType :: Term usage -> Error usage
+
+runError :: Proof usage (Exc (Error usage) ': effects) a -> Proof usage effects (Either (Error usage) a)
+runError = Exception.runError

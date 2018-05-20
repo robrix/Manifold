@@ -8,7 +8,7 @@ import Manifold.Context
 import Manifold.Presyntax
 import Manifold.Proof
 
-typeFormation :: ( Members '[ Exc (Some (CheckIsType usage))
+typeFormation :: ( Members '[ Exc (Error usage)
                             , CheckIsType usage
                             , Reader (Context usage)
                             ] effects
@@ -26,7 +26,7 @@ typeFormation (CheckIsType tm) = Type <$> case unTerm tm of
     pure ((name, usage) ::: _S' :-> _T')
   _S :* _T -> (:*) <$> checkIsType _S <*> checkIsType _T
   Ann tm ty -> Ann <$> checkIsType tm <*> checkIsType ty
-  _ -> noRuleTo (CheckIsType tm)
+  _ -> noRuleToCheckIsType tm
 
 
 -- | Extend the context with a local assumption.
@@ -46,7 +46,7 @@ data PropositionalEquality usage result where
 data CheckIsType usage result where
   CheckIsType :: Term usage -> CheckIsType usage (Type usage)
 
-runCheckIsType :: ( Members '[ Exc (Some (CheckIsType usage))
+runCheckIsType :: ( Members '[ Exc (Error usage)
                              , Reader (Context usage)
                              ] effects
                   , Monoid usage
