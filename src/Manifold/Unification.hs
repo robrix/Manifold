@@ -14,6 +14,7 @@ unify actual expected = send (Unify actual expected)
 
 unification :: ( Eq usage
                , Members '[ Exc (Some (Unify usage))
+                          , State (Substitution (Type usage))
                           , Unify usage
                           ] effects
                )
@@ -21,7 +22,9 @@ unification :: ( Eq usage
             -> Proof usage effects result
 unification (Unify actual expected)
   | actual == expected = pure expected
-  | otherwise          = noRuleTo (Unify actual expected)
+  | otherwise          = case (unType actual, unType expected) of
+    (Var n1, _) -> n1 >-> expected
+    _ -> noRuleTo (Unify actual expected)
 
 runUnification :: ( Eq usage
                   , Member (Exc (Some (Unify usage))) effects
