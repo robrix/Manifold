@@ -1,17 +1,17 @@
 {-# LANGUAGE DeriveFoldable, GeneralizedNewtypeDeriving #-}
 module Manifold.Substitution where
 
-import Data.Maybe (isNothing)
+import qualified Data.Map as Map
 import Manifold.Name
 
-newtype Substitution term = Substitution { getSubstitution :: [(Name, term)] }
+newtype Substitution term = Substitution { getSubstitution :: Map.Map Name term }
   deriving (Eq, Foldable, Ord, Show)
 
-instance Semigroup (Substitution term) where
-  Substitution as <> Substitution bs = Substitution (as <> filter (isNothing . flip lookup as . fst) bs)
+instance Substitutable term => Semigroup (Substitution term) where
+  a <> b = Substitution (Map.unionWith const (Map.map (apply b) (getSubstitution a)) (getSubstitution b))
 
-instance Monoid (Substitution term) where
-  mempty = Substitution []
+instance Substitutable term => Monoid (Substitution term) where
+  mempty = Substitution Map.empty
 
 
 class Substitutable s where
