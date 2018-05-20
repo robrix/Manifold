@@ -12,3 +12,5 @@ infixl 5 :>
 data Constraint usage = Name ::: Type
 
 infix 6 :::
+
+data Binding usage = Name :@ usage
