@@ -2,8 +2,9 @@
 module Manifold.Judgement where
 
 import Control.Monad.Effect
+import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
-import Data.Semiring (zero)
+import Data.Semiring (Semiring(..), zero)
 import Manifold.Context
 import Manifold.Presyntax
 import Manifold.Proof
@@ -29,8 +30,10 @@ typing :: ( Eq usage
           , Members '[ Check usage
                      , Exc (Some (Check usage))
                      , Exc (Some (Unify usage))
+                     , Fresh
                      , Reader (Context usage)
                      ] effects
+          , Semiring usage
           )
        => Check usage result
        -> Proof usage effects result
