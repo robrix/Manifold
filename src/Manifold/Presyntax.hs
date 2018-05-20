@@ -6,14 +6,6 @@ import Data.Bifunctor
 import Data.Bitraversable
 import Manifold.Name
 
-data Constraint usage = Binding usage ::: Type usage
-  deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
-
-infix 5 :::
-
-type Binding usage = (Name, usage)
-
-
 data Expr usage recur
   = Bool
   | T
@@ -26,11 +18,20 @@ data Expr usage recur
   | If recur recur recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
+
 newtype Type usage = Type { unType :: Expr usage (Type usage) }
   deriving (Eq, Ord, Show)
 
 newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
   deriving (Eq, Ord, Show)
+
+
+data Constraint usage = Binding usage ::: Type usage
+  deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
+
+infix 5 :::
+
+type Binding usage = (Name, usage)
 
 
 instance Bifoldable Expr where
