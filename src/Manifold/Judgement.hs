@@ -24,9 +24,9 @@ typeFormation :: ( Members '[ Exc (Some (CheckIsType usage))
 typeFormation (CheckIsType ty) = case unType ty of
   UnitType -> pure ()
   BoolType -> pure ()
-  (x, _) ::: _S :-> _T -> do
+  (name, _) ::: _S :-> _T -> do
     checkIsType _S
-    (x, zero) ::: _S >- checkIsType _T
+    (name, zero) ::: _S >- checkIsType _T
   _ -> noRuleTo (CheckIsType ty)
 
 
