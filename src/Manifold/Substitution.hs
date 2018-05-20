@@ -12,3 +12,7 @@ instance Semigroup (Substitution term) where
 
 instance Monoid (Substitution term) where
   mempty = Substitution []
+
+
+class Substitutable s where
+  apply :: Substitution s -> s -> s
