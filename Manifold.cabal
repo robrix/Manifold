@@ -18,6 +18,7 @@ library
                      , Manifold.Judgement
                      , Manifold.Name
                      , Manifold.Presyntax
+                     , Manifold.Proof
                      , Manifold.Purpose
                      , Manifold.Substitution
                      , Manifold.Unification
