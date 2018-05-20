@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, TypeOperators #-}
 module Manifold.Type.Checking where
 
 import Control.Monad.Effect
@@ -82,3 +82,18 @@ infer = send . Infer
 data Check usage result where
   Check :: Term usage -> Type usage -> Check usage (Type usage)
   Infer :: Term usage               -> Check usage (Type usage)
+
+runCheck :: ( Eq usage
+            , Members '[ CheckIsType usage
+                       , Exc (Some (Check usage))
+                       , Exc (Some (Unify usage))
+                       , Fresh
+                       , Reader (Context usage)
+                       , State (Substitution (Type usage))
+                       ] effects
+            , Monoid usage
+            , Semiring usage
+            )
+         => Proof usage (Check usage ': effects) a
+         -> Proof usage effects a
+runCheck = refine typing
