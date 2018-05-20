@@ -42,10 +42,10 @@ typing (Check term expected) = do
   runUnification $ unify actual expected
 typing (Infer term) = case unTerm term of
   Unit -> pure (Type UnitType)
-  T -> pure (Type BoolType)
-  F -> pure (Type BoolType)
   UnitType -> pure (Type TypeType)
   BoolType -> pure (Type TypeType)
+  T -> pure (Type BoolType)
+  F -> pure (Type BoolType)
   TypeType -> pure (Type TypeType)
   _ -> noRuleTo (Infer term)
 
