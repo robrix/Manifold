@@ -6,6 +6,7 @@ import Data.Bifunctor
 import Data.Bitraversable
 import Data.Functor.Foldable
 import Data.Maybe (fromMaybe)
+import Data.Semiring (Unital(..))
 import Manifold.Name
 import Manifold.Substitution
 
@@ -62,6 +63,13 @@ instance Substitutable (Type usage) where
 
 newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
   deriving (Eq, Ord, Show)
+
+lam :: Unital usage => Type usage -> (Term usage -> Term usage) -> Term usage
+lam ty f = Term (Abs ((name, one) ::: ty) body)
+  where name = maybe (I 0) prime (maxBV body)
+        body = f (Term (Var name))
+        prime (I i) = I (succ i)
+        prime (N s) = N (s <> "ʹ")
 
 maxBV :: (Recursive t, Base t ~ Expr usage) => t -> Maybe Name
 maxBV = cata $ \case
