@@ -61,8 +61,8 @@ runUnification :: ( Eq usage
                              ] effects
                   , Semiring usage
                   )
-               => Proof usage (Unify usage ': effects) (Type usage)
-               -> Proof usage effects (Type usage)
+               => Proof usage (Unify usage ': effects) a
+               -> Proof usage effects a
 runUnification = refine unification
 
 
