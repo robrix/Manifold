@@ -5,5 +5,6 @@ import Manifold.Type
 
 data Context
   = Empty
+  | Context :> Constraint
 
 data Constraint = Name ::: Type
