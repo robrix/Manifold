@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable #-}
 module Manifold.Presyntax where
 
 import Manifold.Name
@@ -20,7 +21,7 @@ data Expr usage recur
   | Abs (Constraint usage) recur
   | App recur recur
   | If recur recur recur
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 newtype Type usage = Type { unType :: Expr usage (Type usage) }
   deriving (Eq, Ord, Show)
