@@ -2,7 +2,7 @@ module Manifold.Type where
 
 import Manifold.Name
 
-data Constraint usage = Binding usage ::: Type
+data Constraint usage = Binding usage ::: Type usage
 
 infix 6 :::
 
@@ -11,6 +11,6 @@ data Binding usage = Name :@ usage
 infix 7 :@
 
 
-data Type
+data Type usage
   = Bool
   | Type
