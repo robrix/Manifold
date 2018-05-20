@@ -21,7 +21,7 @@ data SomeProposition usage where
 typeFormation :: Monoid usage => Proposition usage result -> Proof usage ()
 typeFormation prop = case prop of
   IsType (Type Bool) -> pure ()
-  IsType (Type (((x, _) ::: _S) :-> _T)) -> do
+  IsType (Type ((x, _) ::: _S :-> _T)) -> do
     isType _S
     (x, zero) ::: _S >- isType _T
   other -> throwError (SomeProposition other)
