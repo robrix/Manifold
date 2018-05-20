@@ -15,6 +15,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Manifold.Context
                      , Manifold.Erasure
+                     , Manifold.Judgement
                      , Manifold.Name
                      , Manifold.Presyntax
   build-depends:       base >=4.11 && <4.12
