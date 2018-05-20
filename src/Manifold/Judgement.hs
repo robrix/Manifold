@@ -23,6 +23,7 @@ typeFormation prop = case prop of
     (x, zero) ::: _S >- isType _T
   other -> cannotProve other
 
+
 -- | Extend the context with a local assumption.
 (>-) :: Member (Reader (Context usage)) effects => Constraint usage -> Eff effects a -> Eff effects a
 constraint >- proof = local (:> constraint) proof
