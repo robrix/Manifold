@@ -1,0 +1,3 @@
+[submodule "vendor/semirings-modules"]
+	path = vendor/semirings-modules
+	url = https://github.com/robrix/semirings-modules.git
