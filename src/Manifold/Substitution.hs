@@ -8,6 +8,9 @@ newtype Substitution term = Substitution { getSubstitution :: Map.Map Name term 
   deriving (Eq, Foldable, Ord, Show)
 
 
+singletonSubst :: Name -> term -> Substitution term
+singletonSubst name = Substitution . Map.singleton name
+
 lookupSubst :: Name -> Substitution term -> Maybe term
 lookupSubst name = Map.lookup name . getSubstitution
 
