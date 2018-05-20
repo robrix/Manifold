@@ -22,7 +22,8 @@ data Expr usage recur
   | If recur recur recur
   | Type usage :* Type usage
   | Pair recur recur
-  | Nth Int recur
+  | ExL recur
+  | ExR recur
   | Ann recur (Type usage)
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
@@ -48,7 +49,8 @@ instance Substitutable (Type usage) where
     If c t e                        -> Type (If (apply subst c) (apply subst t) (apply subst e))
     a :* b                          -> Type (apply subst a :* apply subst b)
     Pair a b                        -> Type (Pair (apply subst a) (apply subst b))
-    Nth i a                         -> Type (Nth i (apply subst a))
+    ExL a                           -> Type (ExL (apply subst a))
+    ExR a                           -> Type (ExR (apply subst a))
     Ann a t                         -> Type (Ann (apply subst a) (apply subst t))
 
 
@@ -79,7 +81,8 @@ instance Bifoldable Expr where
     If c t e     -> g c <> g t <> g e
     a :* b       -> foldMap f a <> foldMap f b
     Pair a b     -> g a <> g b
-    Nth _ a      -> g a
+    ExL a        -> g a
+    ExR a        -> g a
     Ann a t      -> g a <> foldMap f t
 
 instance Bifunctor Expr where
@@ -97,7 +100,8 @@ instance Bifunctor Expr where
     If c t e     -> If (g c) (g t) (g e)
     a :* b       -> fmap f a :* fmap f b
     Pair a b     -> Pair (g a) (g b)
-    Nth i a      -> Nth i (g a)
+    ExL a        -> ExL (g a)
+    ExR a        -> ExR (g a)
     Ann a t      -> Ann (g a) (fmap f t)
 
 instance Bitraversable Expr where
@@ -115,7 +119,8 @@ instance Bitraversable Expr where
     If c t e     -> If <$> g c <*> g t <*> g e
     a :* b       -> (:*) <$> traverse f a <*> traverse f b
     Pair a b     -> Pair <$> g a <*> g b
-    Nth i a      -> Nth i <$> g a
+    ExL a        -> ExL <$> g a
+    ExR a        -> ExR <$> g a
     Ann a t      -> Ann <$> g a <*> traverse f t
 
 
