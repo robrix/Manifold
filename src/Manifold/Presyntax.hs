@@ -23,4 +23,5 @@ data Type usage
 data Term
   = T
   | F
+  | Var Name
   deriving (Eq, Ord, Show)
