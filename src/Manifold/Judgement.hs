@@ -73,5 +73,9 @@ data Check usage result where
   Infer :: Term usge                -> Check usage (Type usage)
 
 
+data Unify usage result where
+  Unify :: Type usage -> Type usage -> Unify usage (Type usage)
+
+
 newtype Proof usage effects a = Proof { runProof :: Eff effects a }
   deriving (Applicative, Effectful, Functor, Monad)
