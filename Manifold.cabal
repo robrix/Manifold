@@ -19,6 +19,7 @@ library
                      , Manifold.Name
                      , Manifold.Proof
                      , Manifold.Purpose
+                     , Manifold.REPL
                      , Manifold.Substitution
                      , Manifold.Type.Checking
                      , Manifold.Type.Formation
