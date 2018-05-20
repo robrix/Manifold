@@ -22,10 +22,10 @@ noRuleToCheckIsType = throwError . NoRuleToCheckIsType
 throwError :: Member (Exc (Error usage)) effects => Error usage -> Proof usage effects a
 throwError = Exception.throwError
 
-data Error usage where
-  FreeVariable :: Name -> Error usage
-  CannotUnify :: Type usage -> Type usage -> Error usage
-  NoRuleToCheckIsType :: Term usage -> Error usage
+data Error usage
+  = FreeVariable Name
+  | CannotUnify (Type usage) (Type usage)
+  | NoRuleToCheckIsType (Term usage)
 
 runError :: Proof usage (Exc (Error usage) ': effects) a -> Proof usage effects (Either (Error usage) a)
 runError = Exception.runError
