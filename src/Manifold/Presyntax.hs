@@ -1,9 +1,10 @@
-{-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase #-}
+{-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase, TypeFamilies #-}
 module Manifold.Presyntax where
 
 import Data.Bifoldable
 import Data.Bifunctor
 import Data.Bitraversable
+import Data.Functor.Foldable
 import Data.Maybe (fromMaybe)
 import Manifold.Name
 import Manifold.Substitution
@@ -34,6 +35,11 @@ infixl 7 :*
 newtype Type usage = Type { unType :: Expr usage (Type usage) }
   deriving (Eq, Ord, Show)
 
+type instance Base (Type usage) = Expr usage
+
+instance Recursive   (Type usage) where project = unType
+instance Corecursive (Type usage) where embed   =   Type
+
 instance Substitutable (Type usage) where
   apply subst ty = case unType ty of
     Unit                            -> Type Unit
@@ -56,6 +62,11 @@ instance Substitutable (Type usage) where
 
 newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
   deriving (Eq, Ord, Show)
+
+type instance Base (Term usage) = Expr usage
+
+instance Recursive   (Term usage) where project = unTerm
+instance Corecursive (Term usage) where embed   =   Term
 
 
 data Constraint usage = Binding usage ::: Type usage
