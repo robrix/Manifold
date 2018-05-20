@@ -21,14 +21,14 @@ typeFormation :: ( Members '[ Exc (Some (CheckIsType usage))
                  )
               => CheckIsType usage result
               -> Proof usage effects result
-typeFormation (CheckIsType ty) = Type <$> case unType ty of
+typeFormation (CheckIsType tm) = Type <$> case unTerm tm of
   UnitType -> pure UnitType
   BoolType -> pure BoolType
   (name, usage) ::: _S :-> _T -> do
     _S' <- checkIsType _S
-    _T' <- (name, zero) ::: _S >- checkIsType _T
+    _T' <- (name, zero) ::: _S' >- checkIsType _T
     pure ((name, usage) ::: _S' :-> _T')
-  _ -> noRuleTo (CheckIsType ty)
+  _ -> noRuleTo (CheckIsType tm)
 
 
 typing :: ( Eq usage
@@ -58,7 +58,7 @@ typing (Infer term) = Type <$> case unTerm term of
   Var name -> contextFind name <$> ask >>= maybe (noRuleTo (Infer term)) (pure . unType . constraintType)
   (name, _) ::: ty :-> body -> do
     ty' <- checkIsType ty
-    ((name, zero) ::: ty' >- check body (Type TypeType)) $> TypeType
+    ((name, zero) ::: ty' >- checkIsType body) $> TypeType
   Abs ((name, usage) ::: ty) body -> do
     ty' <- checkIsType ty
     body' <- (name, usage) ::: ty' >- infer body
@@ -75,7 +75,7 @@ typing (Infer term) = Type <$> case unTerm term of
     t' <- infer t
     e' <- infer e
     unType <$> runUnification (unify t' e')
-  a :* b -> check a (Type TypeType) *> check b (Type TypeType) $> TypeType
+  a :* b -> checkIsType a *> checkIsType b $> TypeType
   Pair a b -> (:*) <$> infer a <*> infer b
   ExL a -> do
     t1 <- Var . I <$> fresh
@@ -87,17 +87,17 @@ typing (Infer term) = Type <$> case unTerm term of
     t2 <- Var . I <$> fresh
     _ <- check a (Type (Type t1 :* Type t2))
     pure t2
-  Ann tm ty -> unType <$> check tm ty
+  Ann tm ty -> checkIsType ty >>= fmap unType . check tm
 
 
 -- | Extend the context with a local assumption.
-(>-) :: Member (Reader (Context usage)) effects => Constraint usage -> Proof usage effects a -> Proof usage effects a
+(>-) :: Member (Reader (Context usage)) effects => Constraint usage (Type usage) -> Proof usage effects a -> Proof usage effects a
 constraint >- proof = local (:> constraint) proof
 
 infixl 1 >-
 
 
-checkIsType :: Member (CheckIsType usage) effects => Type usage -> Proof usage effects (Type usage)
+checkIsType :: Member (CheckIsType usage) effects => Term usage -> Proof usage effects (Type usage)
 checkIsType = send . CheckIsType
 
 
@@ -105,7 +105,7 @@ data PropositionalEquality usage result where
   (:==:) :: Type usage -> Type usage -> PropositionalEquality usage (Type usage)
 
 data CheckIsType usage result where
-  CheckIsType :: Type usage -> CheckIsType usage (Type usage)
+  CheckIsType :: Term usage -> CheckIsType usage (Type usage)
 
 
 check :: Member (Check usage) effects => Term usage -> Type usage -> Proof usage effects (Type usage)

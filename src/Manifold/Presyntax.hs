@@ -18,15 +18,15 @@ data Expr usage recur
   | F
   | TypeType
   | Var Name
-  | Constraint usage :-> recur
-  | Abs (Constraint usage) recur
+  | Constraint usage recur :-> recur
+  | Abs (Constraint usage recur) recur
   | App recur recur
   | If recur recur recur
   | recur :* recur
   | Pair recur recur
   | ExL recur
   | ExR recur
-  | Ann recur (Type usage)
+  | Ann recur recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 infixr 0 :->
@@ -64,7 +64,7 @@ instance Substitutable (Type usage) where
 newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
   deriving (Eq, Ord, Show)
 
-lam :: Unital usage => Type usage -> (Term usage -> Term usage) -> Term usage
+lam :: Unital usage => Term usage -> (Term usage -> Term usage) -> Term usage
 lam ty f = Term (Abs ((name, one) ::: ty) body)
   where name = maybe (I 0) prime (maxBV body)
         body = f (Term (Var name))
@@ -73,8 +73,8 @@ lam ty f = Term (Abs ((name, one) ::: ty) body)
 
 maxBV :: (Recursive t, Base t ~ Expr usage) => t -> Maybe Name
 maxBV = cata $ \case
-  (name, _) ::: ty :-> _ -> max (Just name) (maxBV ty)
-  Abs ((name, _) ::: ty) _ -> max (Just name) (maxBV ty)
+  (name, _) ::: ty :-> _ -> max (Just name) ty
+  Abs ((name, _) ::: ty) _ -> max (Just name) ty
   other -> foldr max Nothing other
 
 type instance Base (Term usage) = Expr usage
@@ -83,15 +83,24 @@ instance Recursive   (Term usage) where project = unTerm
 instance Corecursive (Term usage) where embed   =   Term
 
 
-data Constraint usage = Binding usage ::: Type usage
+data Constraint usage recur = Binding usage ::: recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
+
+instance Bifoldable Constraint where
+  bifoldMap f g ((_, usage) ::: ty) = f usage <> g ty
+
+instance Bifunctor Constraint where
+  bimap f g ((name, usage) ::: ty) = (name, f usage) ::: g ty
+
+instance Bitraversable Constraint where
+  bitraverse f g ((name, usage) ::: ty) = (:::) . (,) name <$> f usage <*> g ty
 
 infix 5 :::
 
-constraintName :: Constraint usage -> Name
+constraintName :: Constraint usage recur -> Name
 constraintName ((name, _) ::: _) = name
 
-constraintType :: Constraint usage -> Type usage
+constraintType :: Constraint usage recur -> recur
 constraintType (_ ::: ty) = ty
 
 type Binding usage = (Name, usage)
@@ -106,15 +115,15 @@ instance Bifoldable Expr where
     F            -> mempty
     TypeType     -> mempty
     Var _        -> mempty
-    var :-> body -> foldMap f var <> g body
-    Abs var body -> foldMap f var <> g body
+    var :-> body -> bifoldMap f g var <> g body
+    Abs var body -> bifoldMap f g var <> g body
     App f a      -> g f <> g a
     If c t e     -> g c <> g t <> g e
     a :* b       -> g a <> g b
     Pair a b     -> g a <> g b
     ExL a        -> g a
     ExR a        -> g a
-    Ann a t      -> g a <> foldMap f t
+    Ann a t      -> g a <> g t
 
 instance Bifunctor Expr where
   bimap f g = \case
@@ -125,15 +134,15 @@ instance Bifunctor Expr where
     F            -> F
     TypeType     -> TypeType
     Var name     -> Var name
-    var :-> body -> fmap f var :-> g body
-    Abs var body -> Abs (fmap f var) (g body)
+    var :-> body -> bimap f g var :-> g body
+    Abs var body -> Abs (bimap f g var) (g body)
     App f a      -> App (g f) (g a)
     If c t e     -> If (g c) (g t) (g e)
     a :* b       -> g a :* g b
     Pair a b     -> Pair (g a) (g b)
     ExL a        -> ExL (g a)
     ExR a        -> ExR (g a)
-    Ann a t      -> Ann (g a) (fmap f t)
+    Ann a t      -> Ann (g a) (g t)
 
 instance Bitraversable Expr where
   bitraverse f g = \case
@@ -144,15 +153,15 @@ instance Bitraversable Expr where
     F            -> pure F
     TypeType     -> pure TypeType
     Var name     -> pure (Var name)
-    var :-> body -> (:->) <$> traverse f var <*> g body
-    Abs var body -> Abs <$> traverse f var <*> g body
+    var :-> body -> (:->) <$> bitraverse f g var <*> g body
+    Abs var body -> Abs <$> bitraverse f g var <*> g body
     App f a      -> App <$> g f <*> g a
     If c t e     -> If <$> g c <*> g t <*> g e
     a :* b       -> (:*) <$> g a <*> g b
     Pair a b     -> Pair <$> g a <*> g b
     ExL a        -> ExL <$> g a
     ExR a        -> ExR <$> g a
-    Ann a t      -> Ann <$> g a <*> traverse f t
+    Ann a t      -> Ann <$> g a <*> g t
 
 
 instance Foldable Type where

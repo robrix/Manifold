@@ -8,13 +8,13 @@ import Manifold.Presyntax
 
 data Context usage
   = Empty
-  | Context usage :> Constraint usage
+  | Context usage :> Constraint usage (Type usage)
   deriving (Eq, Ord, Show)
 
 infixl 5 :>
 
 
-contextFind :: Name -> Context usage -> Maybe (Constraint usage)
+contextFind :: Name -> Context usage -> Maybe (Constraint usage (Type usage))
 contextFind name (context :> constraint)
   | constraintName constraint == name = Just constraint
   | otherwise                         = contextFind name context
