@@ -4,6 +4,7 @@ module Manifold.Judgement where
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
+import Data.Functor (($>))
 import Data.Semiring (Semiring(..), zero)
 import Manifold.Context
 import Manifold.Presyntax
@@ -28,6 +29,7 @@ typeFormation (CheckIsType ty) = case unType ty of
 
 typing :: ( Eq usage
           , Members '[ Check usage
+                     , CheckIsType usage
                      , Exc (Some (Check usage))
                      , Exc (Some (Unify usage))
                      , Fresh
@@ -47,6 +49,7 @@ typing (Infer term) = Type <$> case unTerm term of
   T -> pure BoolType
   F -> pure BoolType
   TypeType -> pure TypeType
+  a :* b -> checkIsType a *> checkIsType b $> TypeType
   Pair a b -> (:*) <$> infer a <*> infer b
   Ann tm ty -> unType <$> check tm ty
   _ -> noRuleTo (Infer term)
