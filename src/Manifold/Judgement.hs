@@ -40,6 +40,18 @@ typing (Infer term) = case unTerm term of
   _ -> noRuleTo (Infer term)
 
 
+unification :: ( Eq usage
+               , Members '[ Exc (Some (Unify usage))
+                          , Unify usage
+                          ] effects
+               )
+            => Unify usage result
+            -> Proof usage effects result
+unification (Unify actual expected)
+  | actual == expected = pure expected
+  | otherwise          = noRuleTo (Unify actual expected)
+
+
 -- | Extend the context with a local assumption.
 (>-) :: Member (Reader (Context usage)) effects => Constraint usage -> Proof usage effects a -> Proof usage effects a
 constraint >- proof = local (:> constraint) proof
