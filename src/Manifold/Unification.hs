@@ -49,6 +49,7 @@ unification (Unify actual expected)
     (If c1 t1 e1, If c2 t2 e2)                           -> If <$> unify c1 c2 <*> unify t1 t2 <*> unify e1 e2
     (a1 :* b1, a2 :* b2)                                 -> (:*) <$> unify a1 a2 <*> unify b1 b2
     (Nth i1 a1, Nth i2 a2) | i1 == i2                    -> Nth i2 <$> unify a1 a2
+    (Ann a1 t1, Ann a2 t2)                               -> Ann <$> unify a1 a2 <*> unify t1 t2
     _                                                    -> noRuleTo (Unify actual expected)
 
 runUnification :: ( Eq usage

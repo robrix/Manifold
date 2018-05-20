@@ -22,6 +22,7 @@ data Expr usage recur
   | If recur recur recur
   | recur :* recur
   | Nth Int recur
+  | Ann recur (Type usage)
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 infixr 0 :->
@@ -46,6 +47,7 @@ instance Substitutable (Type usage) where
     If c t e                        -> Type (If (apply subst c) (apply subst t) (apply subst e))
     a :* b                          -> Type (apply subst a :* apply subst b)
     Nth i a                         -> Type (Nth i (apply subst a))
+    Ann a t                         -> Type (Ann (apply subst a) (apply subst t))
 
 
 newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
@@ -75,6 +77,7 @@ instance Bifoldable Expr where
     If c t e     -> g c <> g t <> g e
     a :* b       -> g a <> g b
     Nth _ a      -> g a
+    Ann a t      -> g a <> foldMap f t
 
 instance Bifunctor Expr where
   bimap f g = \case
@@ -91,6 +94,7 @@ instance Bifunctor Expr where
     If c t e     -> If (g c) (g t) (g e)
     a :* b       -> g a :* g b
     Nth i a      -> Nth i (g a)
+    Ann a t      -> Ann (g a) (fmap f t)
 
 instance Bitraversable Expr where
   bitraverse f g = \case
@@ -107,6 +111,7 @@ instance Bitraversable Expr where
     If c t e     -> If <$> g c <*> g t <*> g e
     a :* b       -> (:*) <$> g a <*> g b
     Nth i a      -> Nth i <$> g a
+    Ann a t      -> Ann <$> g a <*> traverse f t
 
 
 instance Foldable Type where
