@@ -5,6 +5,7 @@ import Manifold.Presyntax
 
 data Proposition usage
   = Type usage :=: Type usage
+  | Check (Type usage)
 
 data Judgement usage
   = Assumptions usage :- [Proposition usage]
