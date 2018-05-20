@@ -2,15 +2,10 @@ module Manifold.Presyntax where
 
 import Manifold.Name
 
-data Constraint usage = Binding usage ::: Type usage
+data Constraint usage = (Name, usage) ::: Type usage
   deriving (Eq, Ord, Show)
 
 infix 6 :::
-
-data Binding usage = Name :@ usage
-  deriving (Eq, Ord, Show)
-
-infix 7 :@
 
 
 data Type usage
