@@ -4,6 +4,7 @@ module Manifold.Expr where
 import Data.Bifoldable
 import Data.Bifunctor
 import Data.Bitraversable
+import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable
 import Data.Maybe (fromMaybe)
 import Data.Semiring (Unital(..))
@@ -34,7 +35,10 @@ infixl 7 :*
 
 
 newtype Type usage = Type { unType :: Expr usage (Type usage) }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord)
+
+instance Show usage => Show (Type usage) where
+  showsPrec d = showsUnaryWith showsPrec "Type" d . cata Silent
 
 type instance Base (Type usage) = Expr usage
 
@@ -62,7 +66,10 @@ instance Substitutable (Type usage) where
 
 
 newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord)
+
+instance Show usage => Show (Term usage) where
+  showsPrec d = showsUnaryWith showsPrec "Term" d . cata Silent
 
 lam :: Unital usage => Term usage -> (Term usage -> Term usage) -> Term usage
 lam ty f = Term (Abs ((name, one) ::: ty) body)
@@ -182,3 +189,9 @@ instance Functor Term where
 
 instance Traversable Term where
   traverse f = fmap Term . bitraverse f (traverse f) . unTerm
+
+
+newtype Silent usage = Silent { unSilent :: Expr usage (Silent usage) }
+
+instance Show usage => Show (Silent usage) where
+  showsPrec d = showsPrec d . unSilent
