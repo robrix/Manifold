@@ -1,3 +1,6 @@
 [submodule "vendor/semirings-modules"]
 	path = vendor/semirings-modules
 	url = https://github.com/robrix/semirings-modules.git
+[submodule "vendor/effects"]
+	path = vendor/effects
+	url = https://github.com/joshvera/effects.git
