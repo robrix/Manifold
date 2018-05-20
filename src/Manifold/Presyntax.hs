@@ -7,7 +7,8 @@ import Data.Bitraversable
 import Manifold.Name
 
 data Expr usage recur
-  = Bool
+  = Unit
+  | Bool
   | T
   | F
   | Set
@@ -40,6 +41,7 @@ type Binding usage = (Name, usage)
 
 instance Bifoldable Expr where
   bifoldMap f g = \case
+    Unit         -> mempty
     Bool         -> mempty
     T            -> mempty
     F            -> mempty
@@ -53,6 +55,7 @@ instance Bifoldable Expr where
 
 instance Bifunctor Expr where
   bimap f g = \case
+    Unit         -> Unit
     Bool         -> Bool
     T            -> T
     F            -> F
@@ -66,6 +69,7 @@ instance Bifunctor Expr where
 
 instance Bitraversable Expr where
   bitraverse f g = \case
+    Unit         -> pure Unit
     Bool         -> pure Bool
     T            -> pure T
     F            -> pure F
