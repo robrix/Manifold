@@ -1,4 +1,4 @@
-module Manifold.Type where
+module Manifold.Presyntax where
 
 import Manifold.Name
 

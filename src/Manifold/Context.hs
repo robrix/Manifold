@@ -1,6 +1,6 @@
 module Manifold.Context where
 
-import Manifold.Type
+import Manifold.Presyntax
 
 data Context usage
   = Empty

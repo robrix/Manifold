@@ -16,7 +16,7 @@ library
   exposed-modules:     Manifold.Context
                      , Manifold.Erasure
                      , Manifold.Name
-                     , Manifold.Type
+                     , Manifold.Presyntax
   build-depends:       base >=4.11 && <4.12
                      , semirings-modules
   hs-source-dirs:      src
