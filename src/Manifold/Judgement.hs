@@ -38,6 +38,7 @@ typing :: ( Eq usage
                      , Reader (Context usage)
                      , State (Substitution (Type usage))
                      ] effects
+          , Monoid usage
           , Semiring usage
           )
        => Check usage result
@@ -52,6 +53,9 @@ typing (Infer term) = Type <$> case unTerm term of
   T -> pure BoolType
   F -> pure BoolType
   TypeType -> pure TypeType
+  (name, _) ::: ty :-> body -> do
+    checkIsType ty
+    unType <$> ((name, zero) ::: ty >- check body (Type TypeType))
   If c t e -> do
     _ <- check c (Type BoolType)
     t' <- infer t
