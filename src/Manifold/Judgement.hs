@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving #-}
 module Manifold.Judgement where
 
 import Control.Monad.Effect
@@ -52,3 +52,7 @@ data Some proposition where
 data Check usage result where
   Check :: Term usage -> Type usage -> Check usage (Type usage)
   Infer :: Term usge                -> Check usage (Type usage)
+
+
+newtype Proof usage effects a = Proof { runProof :: Eff effects a }
+  deriving (Applicative, Effectful, Functor, Monad)
