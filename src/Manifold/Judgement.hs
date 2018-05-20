@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving, TypeOperators #-}
 module Manifold.Judgement where
 
 import Control.Monad.Effect
@@ -35,7 +35,7 @@ typing :: ( Eq usage
        -> Proof usage effects result
 typing (Check term expected) = do
   actual <- infer term
-  refine unification $ unify actual expected
+  runUnification $ unify actual expected
 typing (Infer term) = case unTerm term of
   T -> pure (Type Bool)
   F -> pure (Type Bool)
@@ -52,6 +52,13 @@ unification :: ( Eq usage
 unification (Unify actual expected)
   | actual == expected = pure expected
   | otherwise          = noRuleTo (Unify actual expected)
+
+runUnification :: ( Eq usage
+                  , Member (Exc (Some (Unify usage))) effects
+                  )
+               => Proof usage (Unify usage ': effects) a
+               -> Proof usage effects a
+runUnification = refine unification
 
 
 -- | Extend the context with a local assumption.
