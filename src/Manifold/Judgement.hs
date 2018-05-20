@@ -73,18 +73,11 @@ checkIsType :: Member (Proposition usage) effects => Type usage -> Proof usage e
 checkIsType = send . CheckIsType
 
 
-noRuleTo :: Member (Exc (Some (proposition usage))) effects => proposition usage result -> Proof usage effects a
-noRuleTo = throwError . Some
-
-
 data PropositionalEquality usage result where
   (:==:) :: Type usage -> Type usage -> PropositionalEquality usage (Type usage)
 
 data Proposition usage result where
   CheckIsType :: Type usage -> Proposition usage ()
-
-data Some proposition where
-  Some :: proposition result -> Some proposition
 
 
 infer :: Member (Check usage) effects => Term usage -> Proof usage effects (Type usage)
