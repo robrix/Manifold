@@ -26,6 +26,7 @@ data Error usage
   = FreeVariable Name
   | CannotUnify (Type usage) (Type usage)
   | NoRuleToCheckIsType (Term usage)
+  deriving (Eq, Ord, Show)
 
 runError :: Proof usage (Exc (Error usage) ': effects) a -> Proof usage effects (Either (Error usage) a)
 runError = Exception.runError
