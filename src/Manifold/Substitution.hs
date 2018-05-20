@@ -7,6 +7,10 @@ import Manifold.Name
 newtype Substitution term = Substitution { getSubstitution :: Map.Map Name term }
   deriving (Eq, Foldable, Ord, Show)
 
+deleteSubst :: Name -> Substitution term -> Substitution term
+deleteSubst name = Substitution . Map.delete name . getSubstitution
+
+
 instance Substitutable term => Semigroup (Substitution term) where
   a <> b = Substitution (Map.unionWith const (Map.map (apply b) (getSubstitution a)) (getSubstitution b))
 
