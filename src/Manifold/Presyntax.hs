@@ -20,7 +20,7 @@ data Expr usage recur
   | Abs (Constraint usage) recur
   | App recur recur
   | If recur recur recur
-  | recur :* recur
+  | Type usage :* Type usage
   | Pair recur recur
   | Nth Int recur
   | Ann recur (Type usage)
@@ -77,7 +77,7 @@ instance Bifoldable Expr where
     Abs var body -> foldMap f var <> g body
     App f a      -> g f <> g a
     If c t e     -> g c <> g t <> g e
-    a :* b       -> g a <> g b
+    a :* b       -> foldMap f a <> foldMap f b
     Pair a b     -> g a <> g b
     Nth _ a      -> g a
     Ann a t      -> g a <> foldMap f t
@@ -95,7 +95,7 @@ instance Bifunctor Expr where
     Abs var body -> Abs (fmap f var) (g body)
     App f a      -> App (g f) (g a)
     If c t e     -> If (g c) (g t) (g e)
-    a :* b       -> g a :* g b
+    a :* b       -> fmap f a :* fmap f b
     Pair a b     -> Pair (g a) (g b)
     Nth i a      -> Nth i (g a)
     Ann a t      -> Ann (g a) (fmap f t)
@@ -113,7 +113,7 @@ instance Bitraversable Expr where
     Abs var body -> Abs <$> traverse f var <*> g body
     App f a      -> App <$> g f <*> g a
     If c t e     -> If <$> g c <*> g t <*> g e
-    a :* b       -> (:*) <$> g a <*> g b
+    a :* b       -> (:*) <$> traverse f a <*> traverse f b
     Pair a b     -> Pair <$> g a <*> g b
     Nth i a      -> Nth i <$> g a
     Ann a t      -> Ann <$> g a <*> traverse f t
