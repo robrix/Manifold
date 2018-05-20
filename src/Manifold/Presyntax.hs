@@ -8,15 +8,17 @@ data Constraint usage = (Name, usage) ::: Type usage
 infix 5 :::
 
 
-data Type usage
+data Expr usage recur
   = Bool
-  | Type
-  | Constraint usage :-> Type usage
+  | T
+  | F
+  | Set
+  | Constraint usage :-> recur
+  | Var Name
   deriving (Eq, Ord, Show)
 
+newtype Type usage = Type { unType :: Expr usage (Type usage) }
+  deriving (Eq, Ord, Show)
 
-data Term
-  = T
-  | F
-  | Var Name
+newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
   deriving (Eq, Ord, Show)
