@@ -75,7 +75,7 @@ typing (Infer term) = Type <$> case unTerm term of
     t' <- infer t
     e' <- infer e
     unType <$> runUnification (unify t' e')
-  a :* b -> checkIsType a *> checkIsType b $> TypeType
+  a :* b -> check a (Type TypeType) *> check b (Type TypeType) $> TypeType
   Pair a b -> (:*) <$> infer a <*> infer b
   ExL a -> do
     t1 <- Var . I <$> fresh
