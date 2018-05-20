@@ -24,16 +24,18 @@ typeFormation (CheckIsType ty) = case unType ty of
   _ -> noRuleTo (CheckIsType ty)
 
 
-typing :: Members '[ Check usage
-                   , Exc (Some (Check usage))
-                   , Reader (Context usage)
-                   , Unify usage
-                   ] effects
+typing :: ( Eq usage
+          , Members '[ Check usage
+                     , Exc (Some (Check usage))
+                     , Exc (Some (Unify usage))
+                     , Reader (Context usage)
+                     ] effects
+          )
        => Check usage result
        -> Proof usage effects result
 typing (Check term expected) = do
   actual <- infer term
-  unify actual expected
+  runUnify $ unify actual expected
 typing (Infer term) = case unTerm term of
   T -> pure (Type Bool)
   F -> pure (Type Bool)
