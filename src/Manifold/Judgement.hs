@@ -26,14 +26,14 @@ typeFormation (CheckIsType ty) = case unType ty of
 
 typing :: Members '[ Check usage
                    , Exc (Some (Check usage))
-                   , PropositionalEquality usage
                    , Reader (Context usage)
+                   , Unify usage
                    ] effects
        => Check usage result
        -> Proof usage effects result
 typing (Check term expected) = do
   actual <- infer term
-  send (expected :==: actual)
+  unify actual expected
 typing (Infer term) = case unTerm term of
   T -> pure (Type Bool)
   F -> pure (Type Bool)
@@ -72,6 +72,9 @@ data Check usage result where
   Check :: Term usage -> Type usage -> Check usage (Type usage)
   Infer :: Term usge                -> Check usage (Type usage)
 
+
+unify :: Member (Unify usage) effects => Type usage -> Type usage -> Proof usage effects (Type usage)
+unify actual expected = send (Unify actual expected)
 
 data Unify usage result where
   Unify :: Type usage -> Type usage -> Unify usage (Type usage)
