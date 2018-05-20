@@ -97,3 +97,6 @@ runCheck :: ( Eq usage
          => Proof usage (Check usage ': effects) a
          -> Proof usage effects a
 runCheck = refine typing
+
+runContext :: Proof usage (Reader (Context usage) ': effects) a -> Proof usage effects a
+runContext = runReader Empty
