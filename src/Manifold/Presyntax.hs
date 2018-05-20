@@ -5,7 +5,7 @@ import Manifold.Name
 data Constraint usage = (Name, usage) ::: Type usage
   deriving (Eq, Ord, Show)
 
-infix 6 :::
+infix 5 :::
 
 
 data Type usage
