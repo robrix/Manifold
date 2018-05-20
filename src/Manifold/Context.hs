@@ -9,7 +9,7 @@ data Context usage
 
 infixl 5 :>
 
-data Constraint usage = Name ::: Type
+data Constraint usage = Binding usage ::: Type
 
 infix 6 :::
 
