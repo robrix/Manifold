@@ -1,5 +1,8 @@
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 module Manifold.Context where
 
+import Data.Module.Class
+import Data.Semiring (Semiring(..))
 import Manifold.Presyntax
 
 data Context usage
@@ -17,3 +20,8 @@ instance (Eq usage, Semigroup usage) => Semigroup (Context usage) where
     , t1 == t2
     = (ctx1 <> ctx2) :> name1 :@ (u1 <> u2) ::: t1
   _ <> _ = error "adding inequal contexts"
+
+
+instance (Eq usage, Semiring usage) => Module usage (Context usage) where
+  _  ><< Empty = Empty
+  u1 ><< (ctx :> name :@ u2 ::: t) = u1 ><< (ctx :> name :@ (u1 >< u2) ::: t)
