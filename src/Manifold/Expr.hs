@@ -71,6 +71,12 @@ newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
 instance Show usage => Show (Term usage) where
   showsPrec d = showsUnaryWith showsPrec "Term" d . cata Silent
 
+type instance Base (Term usage) = Expr usage
+
+instance Recursive   (Term usage) where project = unTerm
+instance Corecursive (Term usage) where embed   =   Term
+
+
 lam :: Unital usage => Term usage -> (Term usage -> Term usage) -> Term usage
 lam ty f = Term (Abs ((name, one) ::: ty) body)
   where name = maybe (I 0) prime (maxBV body)
@@ -83,11 +89,6 @@ maxBV = cata $ \case
   (name, _) ::: ty :-> _ -> max (Just name) ty
   Abs ((name, _) ::: ty) _ -> max (Just name) ty
   other -> foldr max Nothing other
-
-type instance Base (Term usage) = Expr usage
-
-instance Recursive   (Term usage) where project = unTerm
-instance Corecursive (Term usage) where embed   =   Term
 
 
 data Constraint usage recur = Binding usage ::: recur
