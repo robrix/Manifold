@@ -2,10 +2,12 @@
 module Manifold.Type.Checking where
 
 import Control.Monad.Effect
+import Control.Monad.Effect.Exception
 import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
 import Data.Functor (($>))
 import Data.Semiring (Semiring(..), zero)
+import GHC.Generics ((:+:)(..))
 import Manifold.Context
 import Manifold.Name
 import Manifold.Presyntax
@@ -100,3 +102,10 @@ runCheck = refine typing
 
 runContext :: Proof usage (Reader (Context usage) ': effects) a -> Proof usage effects a
 runContext = runReader Empty
+
+runErrors :: Proof usage (Exc (Some (Unify usage)) ': Exc (Some (Check usage)) ': Exc (Some (CheckIsType usage)) ': effects) a -> Proof usage effects (Either (Some (Unify usage :+: Check usage :+: CheckIsType usage)) a)
+runErrors = fmap reassoc . runError . runError . runError
+  where reassoc (Left (Some checkIsType)) = Left (Some (R1 (R1 checkIsType)))
+        reassoc (Right (Left (Some check))) = Left (Some (R1 (L1 check)))
+        reassoc (Right (Right (Left (Some unify)))) = Left (Some (L1 unify))
+        reassoc (Right (Right (Right a))) = Right a
