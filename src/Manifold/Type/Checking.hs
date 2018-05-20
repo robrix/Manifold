@@ -38,7 +38,7 @@ typing (Infer term) = Type <$> case unTerm term of
   T -> pure BoolType
   F -> pure BoolType
   TypeType -> pure TypeType
-  Var name -> contextFind name <$> ask >>= maybe (throwError (FreeVariable name)) (pure . unType . constraintType)
+  Var name -> contextFind name <$> ask >>= maybe (freeVariable name) (pure . unType . constraintType)
   (name, _) ::: ty :-> body -> do
     ty' <- checkIsType ty
     ((name, zero) ::: ty' >- checkIsType body) $> TypeType
