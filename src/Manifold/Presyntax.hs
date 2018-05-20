@@ -18,6 +18,7 @@ data Expr usage recur
   | App recur recur
   | If recur recur recur
   | recur :* recur
+  | Nth Int recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 infixr 0 :->
@@ -52,6 +53,7 @@ instance Bifoldable Expr where
     App f a      -> g f <> g a
     If c t e     -> g c <> g t <> g e
     a :* b       -> g a <> g b
+    Nth _ a      -> g a
 
 instance Bifunctor Expr where
   bimap f g = \case
@@ -66,6 +68,7 @@ instance Bifunctor Expr where
     App f a      -> App (g f) (g a)
     If c t e     -> If (g c) (g t) (g e)
     a :* b       -> g a :* g b
+    Nth i a      -> Nth i (g a)
 
 instance Bitraversable Expr where
   bitraverse f g = \case
@@ -80,6 +83,7 @@ instance Bitraversable Expr where
     App f a      -> App <$> g f <*> g a
     If c t e     -> If <$> g c <*> g t <*> g e
     a :* b       -> (:*) <$> g a <*> g b
+    Nth i a      -> Nth i <$> g a
 
 
 instance Foldable Type where
