@@ -55,6 +55,7 @@ typing (Infer term) = Type <$> case unTerm term of
   T -> pure BoolType
   F -> pure BoolType
   TypeType -> pure TypeType
+  Var name -> contextFind name <$> ask >>= maybe (noRuleTo (Infer term)) (pure . unType . constraintType)
   (name, _) ::: ty :-> body -> do
     ty' <- checkIsType ty
     ((name, zero) ::: ty' >- check body (Type TypeType)) $> TypeType
@@ -87,7 +88,6 @@ typing (Infer term) = Type <$> case unTerm term of
     _ <- check a (Type (Type t1 :* Type t2))
     pure t2
   Ann tm ty -> unType <$> check tm ty
-  _ -> noRuleTo (Infer term)
 
 
 -- | Extend the context with a local assumption.
