@@ -21,12 +21,13 @@ typeFormation :: ( Members '[ Exc (Some (CheckIsType usage))
                  )
               => CheckIsType usage result
               -> Proof usage effects result
-typeFormation (CheckIsType ty) = case unType ty of
-  UnitType -> pure ()
-  BoolType -> pure ()
-  (name, _) ::: _S :-> _T -> do
-    checkIsType _S
-    (name, zero) ::: _S >- checkIsType _T
+typeFormation (CheckIsType ty) = Type <$> case unType ty of
+  UnitType -> pure UnitType
+  BoolType -> pure BoolType
+  (name, usage) ::: _S :-> _T -> do
+    _S' <- checkIsType _S
+    _T' <- (name, zero) ::: _S >- checkIsType _T
+    pure ((name, usage) ::: _S' :-> _T')
   _ -> noRuleTo (CheckIsType ty)
 
 
@@ -92,7 +93,7 @@ constraint >- proof = local (:> constraint) proof
 infixl 1 >-
 
 
-checkIsType :: Member (CheckIsType usage) effects => Type usage -> Proof usage effects ()
+checkIsType :: Member (CheckIsType usage) effects => Type usage -> Proof usage effects (Type usage)
 checkIsType = send . CheckIsType
 
 
@@ -100,7 +101,7 @@ data PropositionalEquality usage result where
   (:==:) :: Type usage -> Type usage -> PropositionalEquality usage (Type usage)
 
 data CheckIsType usage result where
-  CheckIsType :: Type usage -> CheckIsType usage ()
+  CheckIsType :: Type usage -> CheckIsType usage (Type usage)
 
 
 check :: Member (Check usage) effects => Term usage -> Type usage -> Proof usage effects (Type usage)
