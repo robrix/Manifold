@@ -22,6 +22,7 @@ typeFormation :: ( Members '[ Exc (Some (CheckIsType usage))
               => CheckIsType usage result
               -> Proof usage effects ()
 typeFormation (CheckIsType ty) = case unType ty of
+  UnitType -> pure ()
   BoolType -> pure ()
   (x, _) ::: _S :-> _T -> do
     checkIsType _S
