@@ -20,7 +20,7 @@ typeFormation :: ( Members '[ Exc (Some (CheckIsType usage))
                  , Monoid usage
                  )
               => CheckIsType usage result
-              -> Proof usage effects ()
+              -> Proof usage effects result
 typeFormation (CheckIsType ty) = case unType ty of
   UnitType -> pure ()
   BoolType -> pure ()
