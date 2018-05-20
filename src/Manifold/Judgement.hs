@@ -39,8 +39,10 @@ cannotProve :: Member (Exc (Some proposition)) effects => proposition result -> 
 cannotProve = throwError . Some
 
 
+data PropositionalEquality usage result where
+  (:==:) :: Type usage -> Type usage -> PropositionalEquality usage ()
+
 data Proposition usage result where
-  (:==:) :: Type usage -> Type usage -> Proposition usage ()
   IsType :: Type usage -> Proposition usage ()
 
 data Some proposition where
