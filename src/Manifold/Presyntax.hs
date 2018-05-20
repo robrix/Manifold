@@ -11,7 +11,7 @@ import Manifold.Substitution
 data Expr usage recur
   = Unit
   | UnitType
-  | Bool
+  | BoolType
   | T
   | F
   | Set
@@ -35,7 +35,7 @@ instance Substitutable (Type usage) where
   apply subst ty = case unType ty of
     Unit                            -> Type Unit
     UnitType                        -> Type UnitType
-    Bool                            -> Type Bool
+    BoolType                        -> Type BoolType
     T                               -> Type T
     F                               -> Type F
     Set                             -> Type Set
@@ -64,7 +64,7 @@ instance Bifoldable Expr where
   bifoldMap f g = \case
     Unit         -> mempty
     UnitType     -> mempty
-    Bool         -> mempty
+    BoolType     -> mempty
     T            -> mempty
     F            -> mempty
     Set          -> mempty
@@ -80,7 +80,7 @@ instance Bifunctor Expr where
   bimap f g = \case
     Unit         -> Unit
     UnitType     -> UnitType
-    Bool         -> Bool
+    BoolType     -> BoolType
     T            -> T
     F            -> F
     Set          -> Set
@@ -96,7 +96,7 @@ instance Bitraversable Expr where
   bitraverse f g = \case
     Unit         -> pure Unit
     UnitType     -> pure UnitType
-    Bool         -> pure Bool
+    BoolType     -> pure BoolType
     T            -> pure T
     F            -> pure F
     Set          -> pure Set

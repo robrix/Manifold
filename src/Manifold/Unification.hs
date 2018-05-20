@@ -31,7 +31,7 @@ unification (Unify actual expected)
     (t1, Var n2)                                         -> n2 >-> Type t1 $> t1
     (Unit, Unit)                                         -> pure Unit
     (UnitType, UnitType)                                 -> pure UnitType
-    (Bool, Bool)                                         -> pure Bool
+    (BoolType, BoolType)                                 -> pure BoolType
     (T, T)                                               -> pure T
     (F, F)                                               -> pure F
     (Set, Set)                                           -> pure Set

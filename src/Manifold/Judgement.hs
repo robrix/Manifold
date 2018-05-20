@@ -19,7 +19,7 @@ typeFormation :: ( Members '[ Exc (Some (Proposition usage))
               => Proposition usage result
               -> Proof usage effects ()
 typeFormation (CheckIsType ty) = case unType ty of
-  Bool -> pure ()
+  BoolType -> pure ()
   (x, _) ::: _S :-> _T -> do
     checkIsType _S
     (x, zero) ::: _S >- checkIsType _T
@@ -42,8 +42,8 @@ typing (Check term expected) = do
   runUnification $ unify actual expected
 typing (Infer term) = case unTerm term of
   Unit -> pure (Type UnitType)
-  T -> pure (Type Bool)
-  F -> pure (Type Bool)
+  T -> pure (Type BoolType)
+  F -> pure (Type BoolType)
   _ -> noRuleTo (Infer term)
 
 
