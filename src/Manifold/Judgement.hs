@@ -24,6 +24,7 @@ typeFormation :: ( Members '[ Exc (Some (CheckIsType usage))
 typeFormation (CheckIsType tm) = Type <$> case unTerm tm of
   UnitType -> pure UnitType
   BoolType -> pure BoolType
+  TypeType -> pure TypeType
   (name, usage) ::: _S :-> _T -> do
     _S' <- checkIsType _S
     _T' <- (name, zero) ::: _S' >- checkIsType _T
