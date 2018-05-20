@@ -7,4 +7,6 @@ data Context usage
   = Empty
   | Context usage :> Constraint usage
 
+infixl 5 :>
+
 data Constraint usage = Name ::: Type
