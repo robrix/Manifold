@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving, TypeOperators #-}
 module Manifold.Judgement where
 
 import Control.Monad.Effect
@@ -90,6 +90,9 @@ unify actual expected = send (Unify actual expected)
 
 data Unify usage result where
   Unify :: Type usage -> Type usage -> Unify usage (Type usage)
+
+runUnify :: (Eq usage, Member (Exc (Some (Unify usage))) effects) => Proof usage (Unify usage ': effects) a -> Proof usage effects a
+runUnify = relay pure (\ unify yield -> runUnify (unification unify) >>= yield)
 
 
 newtype Proof usage effects a = Proof { runProof :: Eff effects a }
