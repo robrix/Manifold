@@ -5,6 +5,7 @@ import Control.Monad.Effect
 import Control.Monad.Effect.Exception
 import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
+import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Data.Semiring (Semiring(..), zero)
 import GHC.Generics ((:+:)(..))
@@ -109,3 +110,6 @@ runErrors = fmap reassoc . runError . runError . runError
         reassoc (Right (Left (Some check))) = Left (Some (R1 (L1 check)))
         reassoc (Right (Right (Left (Some unify)))) = Left (Some (L1 unify))
         reassoc (Right (Right (Right a))) = Right a
+
+runSubstitution :: Proof usage (State (Substitution (Type usage)) ': effects) a -> Proof usage effects (a, Substitution (Type usage))
+runSubstitution = runState mempty
