@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, TypeOperators #-}
 module Manifold.Type.Formation where
 
 import Control.Monad.Effect
@@ -45,3 +45,12 @@ data PropositionalEquality usage result where
 
 data CheckIsType usage result where
   CheckIsType :: Term usage -> CheckIsType usage (Type usage)
+
+runCheckIsType :: ( Members '[ Exc (Some (CheckIsType usage))
+                             , Reader (Context usage)
+                             ] effects
+                  , Monoid usage
+                  )
+               => Proof usage (CheckIsType usage ': effects) a
+               -> Proof usage effects a
+runCheckIsType = refine typeFormation
