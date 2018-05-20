@@ -10,13 +10,13 @@ import Manifold.Presyntax
 import Manifold.Proof
 import Manifold.Unification
 
-typeFormation :: ( Members '[ Exc (Some (Proposition usage))
-                            , Proposition usage
+typeFormation :: ( Members '[ Exc (Some (CheckIsType usage))
+                            , CheckIsType usage
                             , Reader (Context usage)
                             ] effects
                  , Monoid usage
                  )
-              => Proposition usage result
+              => CheckIsType usage result
               -> Proof usage effects ()
 typeFormation (CheckIsType ty) = case unType ty of
   BoolType -> pure ()
@@ -59,15 +59,15 @@ constraint >- proof = local (:> constraint) proof
 infixl 1 >-
 
 
-checkIsType :: Member (Proposition usage) effects => Type usage -> Proof usage effects ()
+checkIsType :: Member (CheckIsType usage) effects => Type usage -> Proof usage effects ()
 checkIsType = send . CheckIsType
 
 
 data PropositionalEquality usage result where
   (:==:) :: Type usage -> Type usage -> PropositionalEquality usage (Type usage)
 
-data Proposition usage result where
-  CheckIsType :: Type usage -> Proposition usage ()
+data CheckIsType usage result where
+  CheckIsType :: Type usage -> CheckIsType usage ()
 
 
 check :: Member (Check usage) effects => Term usage -> Type usage -> Proof usage effects (Type usage)
