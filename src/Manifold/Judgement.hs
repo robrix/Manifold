@@ -7,6 +7,7 @@ import Control.Monad.Effect.Reader
 import Data.Semiring (zero)
 import Manifold.Context
 import Manifold.Presyntax
+import Manifold.Proof
 
 typeFormation :: ( Members '[ Exc (Some (Proposition usage))
                             , Proposition usage
@@ -99,7 +100,3 @@ unify actual expected = send (Unify actual expected)
 
 data Unify usage result where
   Unify :: Type usage -> Type usage -> Unify usage (Type usage)
-
-
-newtype Proof usage effects a = Proof { runProof :: Eff effects a }
-  deriving (Applicative, Effectful, Functor, Monad)
