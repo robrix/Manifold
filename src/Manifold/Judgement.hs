@@ -23,7 +23,7 @@ typeFormation prop = case prop of
   IsType (Type Bool) -> pure ()
   IsType (Type (((x, _) ::: _S) :-> _T)) -> do
     isType _S
-    ((x, zero) ::: _S) >- isType _T
+    (x, zero) ::: _S >- isType _T
   other -> throwError (SomeProposition other)
 
 type Proof usage = Eff '[Reader (Context usage), Proposition usage, Exc (SomeProposition usage)]
