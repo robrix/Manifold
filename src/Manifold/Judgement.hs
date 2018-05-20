@@ -41,6 +41,7 @@ typing (Check term expected) = do
   actual <- infer term
   runUnification $ unify actual expected
 typing (Infer term) = case unTerm term of
+  Unit -> pure (Type Unit)
   T -> pure (Type Bool)
   F -> pure (Type Bool)
   _ -> noRuleTo (Infer term)
