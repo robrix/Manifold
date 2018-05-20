@@ -3,6 +3,8 @@ module Manifold.Unification where
 
 import Control.Monad.Effect
 import Control.Monad.Effect.State
+import Data.Functor (($>))
+import Manifold.Name
 import Manifold.Presyntax
 import Manifold.Proof
 import Manifold.Substitution
@@ -31,3 +33,7 @@ runUnification = fmap (uncurry (flip apply)) . runState mempty . refine unificat
 
 data Unify usage result where
   Unify :: Type usage -> Type usage -> Unify usage (Type usage)
+
+
+(>->) :: Member (State (Substitution (Type usage))) effects => Name -> Type usage -> Proof usage effects (Type usage)
+name >-> sub = modify' (<> singletonSubst name sub) $> sub
