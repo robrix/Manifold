@@ -16,9 +16,11 @@ data Expr usage recur
   | Abs (Constraint usage) recur
   | App recur recur
   | If recur recur recur
+  | recur :* recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 infixr 0 :->
+infixl 7 :*
 
 
 newtype Type usage = Type { unType :: Expr usage (Type usage) }
@@ -47,6 +49,7 @@ instance Bifoldable Expr where
     Abs var body -> foldMap f var <> g body
     App f a      -> g f <> g a
     If c t e     -> g c <> g t <> g e
+    a :* b       -> g a <> g b
 
 instance Bifunctor Expr where
   bimap f g = \case
@@ -59,6 +62,7 @@ instance Bifunctor Expr where
     Abs var body -> Abs (fmap f var) (g body)
     App f a      -> App (g f) (g a)
     If c t e     -> If (g c) (g t) (g e)
+    a :* b       -> g a :* g b
 
 instance Bitraversable Expr where
   bitraverse f g = \case
@@ -71,6 +75,7 @@ instance Bitraversable Expr where
     Abs var body -> Abs <$> traverse f var <*> g body
     App f a      -> App <$> g f <*> g a
     If c t e     -> If <$> g c <*> g t <*> g e
+    a :* b       -> (:*) <$> g a <*> g b
 
 
 instance Foldable Type where
