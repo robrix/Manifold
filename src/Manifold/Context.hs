@@ -10,3 +10,5 @@ data Context usage
 infixl 5 :>
 
 data Constraint usage = Name ::: Type
+
+infix 6 :::
