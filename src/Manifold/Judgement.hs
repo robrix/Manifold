@@ -24,6 +24,22 @@ typeFormation (CheckIsType ty) = case unType ty of
   _ -> noRuleTo (CheckIsType ty)
 
 
+typing :: Members '[ Check usage
+                   , Exc (Some (Check usage))
+                   , PropositionalEquality usage
+                   , Reader (Context usage)
+                   ] effects
+       => Check usage result
+       -> Proof usage effects result
+typing (Check term expected) = do
+  actual <- infer term
+  send (expected :==: actual)
+typing (Infer term) = case unTerm term of
+  T -> pure (Type Bool)
+  F -> pure (Type Bool)
+  _ -> noRuleTo (Infer term)
+
+
 -- | Extend the context with a local assumption.
 (>-) :: Member (Reader (Context usage)) effects => Constraint usage -> Proof usage effects a -> Proof usage effects a
 constraint >- proof = local (:> constraint) proof
