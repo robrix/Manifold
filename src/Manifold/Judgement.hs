@@ -47,6 +47,7 @@ typing (Infer term) = case unTerm term of
   T -> pure (Type BoolType)
   F -> pure (Type BoolType)
   TypeType -> pure (Type TypeType)
+  Ann tm ty -> check tm ty
   _ -> noRuleTo (Infer term)
 
 
