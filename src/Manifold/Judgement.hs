@@ -64,6 +64,11 @@ typing (Infer term) = Type <$> case unTerm term of
     t2 <- Var . I <$> fresh
     _ <- check a (Type (Type t1 :* Type t2))
     pure t1
+  ExR a -> do
+    t1 <- Var . I <$> fresh
+    t2 <- Var . I <$> fresh
+    _ <- check a (Type (Type t1 :* Type t2))
+    pure t2
   Ann tm ty -> unType <$> check tm ty
   _ -> noRuleTo (Infer term)
 
