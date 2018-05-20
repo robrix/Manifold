@@ -9,3 +9,6 @@ newtype Substitution term = Substitution { getSubstitution :: [(Name, term)] }
 
 instance Semigroup (Substitution term) where
   Substitution as <> Substitution bs = Substitution (as <> filter (isNothing . flip lookup as . fst) bs)
+
+instance Monoid (Substitution term) where
+  mempty = Substitution []
