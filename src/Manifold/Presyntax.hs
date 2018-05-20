@@ -4,7 +4,9 @@ module Manifold.Presyntax where
 import Data.Bifoldable
 import Data.Bifunctor
 import Data.Bitraversable
+import Data.Maybe (fromMaybe)
 import Manifold.Name
+import Manifold.Substitution
 
 data Expr usage recur
   = Unit
@@ -27,6 +29,22 @@ infixl 7 :*
 
 newtype Type usage = Type { unType :: Expr usage (Type usage) }
   deriving (Eq, Ord, Show)
+
+instance Substitutable (Type usage) where
+  apply subst ty = case unType ty of
+    Unit                            -> Type Unit
+    Bool                            -> Type Bool
+    T                               -> Type T
+    F                               -> Type F
+    Set                             -> Type Set
+    Var name                        -> fromMaybe (Type (Var name)) (lookupSubst name subst)
+    (name, usage) ::: ty :-> body   -> Type ((name, usage) ::: apply subst ty :-> apply (deleteSubst name subst) body)
+    Abs ((name, usage) ::: ty) body -> Type (Abs ((name, usage) ::: apply subst ty) (apply (deleteSubst name subst) body))
+    App f a                         -> Type (App (apply subst f) (apply subst a))
+    If c t e                        -> Type (If (apply subst c) (apply subst t) (apply subst e))
+    a :* b                          -> Type (apply subst a :* apply subst b)
+    Nth i a                         -> Type (Nth i (apply subst a))
+
 
 newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
   deriving (Eq, Ord, Show)
