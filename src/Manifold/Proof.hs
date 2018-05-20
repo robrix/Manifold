@@ -3,6 +3,8 @@ module Manifold.Proof where
 
 import Control.Monad.Effect
 import qualified Control.Monad.Effect.Exception as Exception
+import Control.Monad.Effect.Reader
+import Manifold.Context
 import Manifold.Name
 import Manifold.Presyntax
 
@@ -30,3 +32,6 @@ data Error usage
 
 runError :: Proof usage (Exc (Error usage) ': effects) a -> Proof usage effects (Either (Error usage) a)
 runError = Exception.runError
+
+runContext :: Proof usage (Reader (Context usage) ': effects) a -> Proof usage effects a
+runContext = runReader Empty

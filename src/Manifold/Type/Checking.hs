@@ -97,8 +97,5 @@ runCheck :: ( Eq usage
          -> Proof usage effects a
 runCheck = refine typing
 
-runContext :: Proof usage (Reader (Context usage) ': effects) a -> Proof usage effects a
-runContext = runReader Empty
-
 runSubstitution :: Proof usage (State (Substitution (Type usage)) ': effects) a -> Proof usage effects (a, Substitution (Type usage))
 runSubstitution = runState mempty
