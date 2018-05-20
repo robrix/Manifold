@@ -73,4 +73,4 @@ infer = send . Infer
 
 data Check usage result where
   Check :: Term usage -> Type usage -> Check usage (Type usage)
-  Infer :: Term usge                -> Check usage (Type usage)
+  Infer :: Term usage               -> Check usage (Type usage)
