@@ -68,6 +68,9 @@ data Proposition usage result where
   CheckIsType :: Type usage -> Proposition usage ()
 
 
+check :: Member (Check usage) effects => Term usage -> Type usage -> Proof usage effects (Type usage)
+check tm ty = send (Check tm ty)
+
 infer :: Member (Check usage) effects => Term usage -> Proof usage effects (Type usage)
 infer = send . Infer
 
