@@ -3,10 +3,11 @@ module Manifold.Presyntax where
 
 import Data.Bifoldable
 import Data.Bifunctor
+import Data.Bitraversable
 import Manifold.Name
 
 data Constraint usage = Binding usage ::: Type usage
-  deriving (Eq, Foldable, Functor, Ord, Show)
+  deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 infix 5 :::
 
@@ -18,8 +19,8 @@ data Expr usage recur
   | T
   | F
   | Set
-  | Constraint usage :-> recur
   | Var Name
+  | Constraint usage :-> recur
   | Abs (Constraint usage) recur
   | App recur recur
   | If recur recur recur
@@ -31,8 +32,8 @@ instance Bifoldable Expr where
     T            -> mempty
     F            -> mempty
     Set          -> mempty
-    var :-> body -> foldMap f var <> g body
     Var _        -> mempty
+    var :-> body -> foldMap f var <> g body
     Abs var body -> foldMap f var <> g body
     App f a      -> g f <> g a
     If c t e     -> g c <> g t <> g e
@@ -43,11 +44,23 @@ instance Bifunctor Expr where
     T            -> T
     F            -> F
     Set          -> Set
-    var :-> body -> fmap f var :-> g body
     Var name     -> Var name
+    var :-> body -> fmap f var :-> g body
     Abs var body -> Abs (fmap f var) (g body)
     App f a      -> App (g f) (g a)
     If c t e     -> If (g c) (g t) (g e)
+
+instance Bitraversable Expr where
+  bitraverse f g = \case
+    Bool         -> pure Bool
+    T            -> pure T
+    F            -> pure F
+    Set          -> pure Set
+    Var name     -> pure (Var name)
+    var :-> body -> (:->) <$> traverse f var <*> g body
+    Abs var body -> Abs <$> traverse f var <*> g body
+    App f a      -> App <$> g f <*> g a
+    If c t e     -> If <$> g c <*> g t <*> g e
 
 
 newtype Type usage = Type { unType :: Expr usage (Type usage) }
@@ -59,6 +72,9 @@ instance Foldable Type where
 instance Functor Type where
   fmap f = Type . bimap f (fmap f) . unType
 
+instance Traversable Type where
+  traverse f = fmap Type . bitraverse f (traverse f) . unType
+
 
 newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
   deriving (Eq, Ord, Show)
@@ -68,3 +84,6 @@ instance Foldable Term where
 
 instance Functor Term where
   fmap f = Term . bimap f (fmap f) . unTerm
+
+instance Traversable Term where
+  traverse f = fmap Term . bitraverse f (traverse f) . unTerm
