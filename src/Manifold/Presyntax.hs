@@ -18,6 +18,8 @@ data Expr usage recur
   | If recur recur recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
+infixr 0 :->
+
 
 newtype Type usage = Type { unType :: Expr usage (Type usage) }
   deriving (Eq, Ord, Show)
