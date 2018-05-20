@@ -29,5 +29,7 @@ typeFormation prop = case prop of
 type Proof usage = Eff '[Reader (Context usage), Proposition usage, Exc (SomeProposition usage)]
 
 infixl 1 >-
+
+-- | Extend the context with a local assumption.
 (>-) :: Member (Reader (Context usage)) effects => Constraint usage -> Eff effects a -> Eff effects a
 constraint >- proof = local (:> constraint) proof
