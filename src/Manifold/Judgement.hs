@@ -7,6 +7,7 @@ import Control.Monad.Effect.Reader
 import Data.Functor (($>))
 import Data.Semiring (Semiring(..), zero)
 import Manifold.Context
+import Manifold.Name
 import Manifold.Presyntax
 import Manifold.Proof
 import Manifold.Substitution
@@ -58,6 +59,11 @@ typing (Infer term) = Type <$> case unTerm term of
     unType <$> runUnification (unify t' e')
   a :* b -> checkIsType a *> checkIsType b $> TypeType
   Pair a b -> (:*) <$> infer a <*> infer b
+  ExL a -> do
+    t1 <- Var . I <$> fresh
+    t2 <- Var . I <$> fresh
+    _ <- check a (Type (Type t1 :* Type t2))
+    pure t1
   Ann tm ty -> unType <$> check tm ty
   _ -> noRuleTo (Infer term)
 
