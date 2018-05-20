@@ -26,6 +26,13 @@ data Expr usage recur
   | If recur recur recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
+newtype Type usage = Type { unType :: Expr usage (Type usage) }
+  deriving (Eq, Ord, Show)
+
+newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
+  deriving (Eq, Ord, Show)
+
+
 instance Bifoldable Expr where
   bifoldMap f g = \case
     Bool         -> mempty
@@ -63,9 +70,6 @@ instance Bitraversable Expr where
     If c t e     -> If <$> g c <*> g t <*> g e
 
 
-newtype Type usage = Type { unType :: Expr usage (Type usage) }
-  deriving (Eq, Ord, Show)
-
 instance Foldable Type where
   foldMap f = bifoldMap f (foldMap f) . unType
 
@@ -75,9 +79,6 @@ instance Functor Type where
 instance Traversable Type where
   traverse f = fmap Type . bitraverse f (traverse f) . unType
 
-
-newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
-  deriving (Eq, Ord, Show)
 
 instance Foldable Term where
   foldMap f = bifoldMap f (foldMap f) . unTerm
