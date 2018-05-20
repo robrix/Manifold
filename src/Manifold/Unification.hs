@@ -57,12 +57,13 @@ unification (Unify actual expected)
 runUnification :: ( Eq usage
                   , Members '[ Exc (Some (Unify usage))
                              , Fresh
+                             , State (Substitution (Type usage))
                              ] effects
                   , Semiring usage
                   )
-               => Proof usage (Unify usage ': State (Substitution (Type usage)) ': effects) (Type usage)
+               => Proof usage (Unify usage ': effects) (Type usage)
                -> Proof usage effects (Type usage)
-runUnification = fmap (uncurry (flip apply)) . runState mempty . refine unification
+runUnification = refine unification
 
 
 data Unify usage result where

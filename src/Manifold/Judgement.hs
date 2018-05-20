@@ -9,6 +9,7 @@ import Data.Semiring (Semiring(..), zero)
 import Manifold.Context
 import Manifold.Presyntax
 import Manifold.Proof
+import Manifold.Substitution
 import Manifold.Unification
 
 typeFormation :: ( Members '[ Exc (Some (CheckIsType usage))
@@ -34,6 +35,7 @@ typing :: ( Eq usage
                      , Exc (Some (Unify usage))
                      , Fresh
                      , Reader (Context usage)
+                     , State (Substitution (Type usage))
                      ] effects
           , Semiring usage
           )
