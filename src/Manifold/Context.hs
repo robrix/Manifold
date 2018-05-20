@@ -24,4 +24,4 @@ instance (Eq usage, Semigroup usage) => Semigroup (Context usage) where
 
 instance (Eq usage, Semiring usage) => Module usage (Context usage) where
   _  ><< Empty = Empty
-  u1 ><< (ctx :> ((name, u2) ::: t)) = u1 ><< (ctx :> ((name, u1 >< u2) ::: t))
+  u1 ><< (ctx :> ((name, u2) ::: t)) = (u1 ><< ctx) :> ((name, u1 >< u2) ::: t)
