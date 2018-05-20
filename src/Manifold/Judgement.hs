@@ -49,6 +49,9 @@ data Some proposition where
   Some :: proposition result -> Some proposition
 
 
+infer :: Member (Check usage) effects => Term usage -> Proof usage effects (Type usage)
+infer = send . Infer
+
 data Check usage result where
   Check :: Term usage -> Type usage -> Check usage (Type usage)
   Infer :: Term usge                -> Check usage (Type usage)
