@@ -63,6 +63,12 @@ instance Substitutable (Type usage) where
 newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
   deriving (Eq, Ord, Show)
 
+maxBV :: (Recursive t, Base t ~ Expr usage) => t -> Maybe Name
+maxBV = cata $ \case
+  (name, _) ::: ty :-> _ -> max (Just name) (maxBV ty)
+  Abs ((name, _) ::: ty) _ -> max (Just name) (maxBV ty)
+  other -> foldr max Nothing other
+
 type instance Base (Term usage) = Expr usage
 
 instance Recursive   (Term usage) where project = unTerm
