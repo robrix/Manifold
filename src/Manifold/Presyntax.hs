@@ -17,6 +17,7 @@ data Expr usage recur
   | Set
   | Constraint usage :-> recur
   | Var Name
+  | Abs (Constraint usage) recur
   deriving (Eq, Ord, Show)
 
 newtype Type usage = Type { unType :: Expr usage (Type usage) }
