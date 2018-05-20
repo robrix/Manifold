@@ -24,6 +24,7 @@ unification (Unify actual expected)
   | actual == expected = pure expected
   | otherwise          = case (unType actual, unType expected) of
     (Var n1, _) -> n1 >-> expected
+    (_, Var n2) -> n2 >-> actual
     _ -> noRuleTo (Unify actual expected)
 
 runUnification :: ( Eq usage
