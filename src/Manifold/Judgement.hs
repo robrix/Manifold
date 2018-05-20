@@ -49,6 +49,11 @@ typing (Infer term) = Type <$> case unTerm term of
   T -> pure BoolType
   F -> pure BoolType
   TypeType -> pure TypeType
+  If c t e -> do
+    _ <- check c (Type BoolType)
+    t' <- infer t
+    e' <- infer e
+    unType <$> runUnification (unify t' e')
   a :* b -> checkIsType a *> checkIsType b $> TypeType
   Pair a b -> (:*) <$> infer a <*> infer b
   Ann tm ty -> unType <$> check tm ty
