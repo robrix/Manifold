@@ -3,6 +3,7 @@ module Manifold.Context where
 
 import Data.Module.Class
 import Data.Semiring (Semiring(..))
+import Manifold.Name
 import Manifold.Presyntax
 
 data Context usage
@@ -11,6 +12,13 @@ data Context usage
   deriving (Eq, Ord, Show)
 
 infixl 5 :>
+
+
+contextFind :: Name -> Context usage -> Maybe (Constraint usage)
+contextFind name (context :> constraint)
+  | fst (constraintBinding constraint) == name = Just constraint
+  | otherwise                                  = contextFind name context
+contextFind _    Empty                         = Nothing
 
 
 instance (Eq usage, Semigroup usage) => Semigroup (Context usage) where
