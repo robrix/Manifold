@@ -8,9 +8,14 @@ import Data.Semiring (zero)
 import Manifold.Context
 import Manifold.Presyntax
 
-type Proof usage = Eff '[Reader (Context usage), Proposition usage, Exc (SomeProposition usage)]
-
-typeFormation :: Monoid usage => Proposition usage result -> Proof usage ()
+typeFormation :: ( Members '[ Exc (SomeProposition usage)
+                            , Proposition usage
+                            , Reader (Context usage)
+                            ] effects
+                 , Monoid usage
+                 )
+              => Proposition usage result
+              -> Eff effects ()
 typeFormation prop = case prop of
   IsType (Type Bool) -> pure ()
   IsType (Type ((x, _) ::: _S :-> _T)) -> do
