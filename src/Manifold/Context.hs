@@ -3,8 +3,8 @@ module Manifold.Context where
 
 import Data.Module.Class
 import Data.Semiring (Semiring(..))
+import Manifold.Expr
 import Manifold.Name
-import Manifold.Presyntax
 
 data Context usage
   = Empty

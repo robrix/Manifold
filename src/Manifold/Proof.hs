@@ -5,8 +5,8 @@ import Control.Monad.Effect
 import qualified Control.Monad.Effect.Exception as Exception
 import Control.Monad.Effect.Reader
 import Manifold.Context
+import Manifold.Expr
 import Manifold.Name
-import Manifold.Presyntax
 
 newtype Proof usage effects a = Proof { runProof :: Eff effects a }
   deriving (Applicative, Effectful, Functor, Monad)

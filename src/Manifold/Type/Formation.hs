@@ -5,7 +5,7 @@ import Control.Monad.Effect
 import Control.Monad.Effect.Reader
 import Data.Semiring (zero)
 import Manifold.Context
-import Manifold.Presyntax
+import Manifold.Expr
 import Manifold.Proof
 
 typeFormation :: ( Members '[ Exc (Error usage)

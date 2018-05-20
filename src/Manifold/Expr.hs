@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase, TypeFamilies #-}
-module Manifold.Presyntax where
+module Manifold.Expr where
 
 import Data.Bifoldable
 import Data.Bifunctor

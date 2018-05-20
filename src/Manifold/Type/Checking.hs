@@ -8,8 +8,8 @@ import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Data.Semiring (Semiring(..), zero)
 import Manifold.Context
+import Manifold.Expr
 import Manifold.Name
-import Manifold.Presyntax
 import Manifold.Proof
 import Manifold.Substitution
 import Manifold.Type.Formation

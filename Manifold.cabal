@@ -15,8 +15,8 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Manifold.Context
                      , Manifold.Erasure
+                     , Manifold.Expr
                      , Manifold.Name
-                     , Manifold.Presyntax
                      , Manifold.Proof
                      , Manifold.Purpose
                      , Manifold.Substitution
