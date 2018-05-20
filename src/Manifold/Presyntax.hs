@@ -15,3 +15,8 @@ data Type usage
   = Bool
   | Type
   | Constraint usage :-> Type usage
+
+
+data Term
+  = T
+  | F
