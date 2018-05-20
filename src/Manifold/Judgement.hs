@@ -40,7 +40,7 @@ noRuleTo = throwError . Some
 
 
 data PropositionalEquality usage result where
-  (:==:) :: Type usage -> Type usage -> PropositionalEquality usage ()
+  (:==:) :: Type usage -> Type usage -> PropositionalEquality usage (Type usage)
 
 data Proposition usage result where
   CheckIsType :: Type usage -> Proposition usage ()
