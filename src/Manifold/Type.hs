@@ -1,3 +1,4 @@
 module Manifold.Type where
 
-type Type = ()
+data Type
+  = Bool
