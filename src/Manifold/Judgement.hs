@@ -56,8 +56,8 @@ typing (Infer term) = Type <$> case unTerm term of
   F -> pure BoolType
   TypeType -> pure TypeType
   (name, _) ::: ty :-> body -> do
-    checkIsType ty
-    unType <$> ((name, zero) ::: ty >- check body (Type TypeType))
+    ty' <- checkIsType ty
+    ((name, zero) ::: ty' >- check body (Type TypeType)) $> TypeType
   App f a -> do
     n <- I <$> fresh
     t1 <- Var . I <$> fresh
