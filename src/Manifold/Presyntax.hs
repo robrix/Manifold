@@ -29,6 +29,10 @@ data Expr usage recur
 infixr 0 :->
 infixl 7 :*
 
+(.*) :: Type usage -> Type usage -> Type usage
+(.*) = fmap Type . (:*)
+infixl 7 .*
+
 
 newtype Type usage = Type { unType :: Expr usage (Type usage) }
   deriving (Eq, Ord, Show)
