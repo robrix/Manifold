@@ -45,3 +45,8 @@ data Proposition usage result where
 
 data SomeProposition usage where
   SomeProposition :: Proposition usage result -> SomeProposition usage
+
+
+data Check usage result where
+  Check :: Term usage -> Type usage -> Check usage (Type usage)
+  Infer :: Term usge                -> Check usage (Type usage)
