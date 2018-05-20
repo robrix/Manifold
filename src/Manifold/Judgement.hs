@@ -47,6 +47,7 @@ typing (Infer term) = Type <$> case unTerm term of
   T -> pure BoolType
   F -> pure BoolType
   TypeType -> pure TypeType
+  Pair a b -> (:*) <$> infer a <*> infer b
   Ann tm ty -> unType <$> check tm ty
   _ -> noRuleTo (Infer term)
 
