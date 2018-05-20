@@ -19,6 +19,7 @@ library
                      , Manifold.Name
                      , Manifold.Presyntax
                      , Manifold.Purpose
+                     , Manifold.Substitution
   build-depends:       base >=4.11 && <4.12
                      , effects
                      , semirings-modules
