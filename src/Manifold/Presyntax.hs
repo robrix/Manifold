@@ -14,7 +14,7 @@ data Expr usage recur
   | BoolType
   | T
   | F
-  | Set
+  | TypeType
   | Var Name
   | Constraint usage :-> recur
   | Abs (Constraint usage) recur
@@ -38,7 +38,7 @@ instance Substitutable (Type usage) where
     BoolType                        -> Type BoolType
     T                               -> Type T
     F                               -> Type F
-    Set                             -> Type Set
+    TypeType                        -> Type TypeType
     Var name                        -> fromMaybe (Type (Var name)) (lookupSubst name subst)
     (name, usage) ::: ty :-> body   -> Type ((name, usage) ::: apply subst ty :-> apply (deleteSubst name subst) body)
     Abs ((name, usage) ::: ty) body -> Type (Abs ((name, usage) ::: apply subst ty) (apply (deleteSubst name subst) body))
@@ -67,7 +67,7 @@ instance Bifoldable Expr where
     BoolType     -> mempty
     T            -> mempty
     F            -> mempty
-    Set          -> mempty
+    TypeType     -> mempty
     Var _        -> mempty
     var :-> body -> foldMap f var <> g body
     Abs var body -> foldMap f var <> g body
@@ -83,7 +83,7 @@ instance Bifunctor Expr where
     BoolType     -> BoolType
     T            -> T
     F            -> F
-    Set          -> Set
+    TypeType     -> TypeType
     Var name     -> Var name
     var :-> body -> fmap f var :-> g body
     Abs var body -> Abs (fmap f var) (g body)
@@ -99,7 +99,7 @@ instance Bitraversable Expr where
     BoolType     -> pure BoolType
     T            -> pure T
     F            -> pure F
-    Set          -> pure Set
+    TypeType     -> pure TypeType
     Var name     -> pure (Var name)
     var :-> body -> (:->) <$> traverse f var <*> g body
     Abs var body -> Abs <$> traverse f var <*> g body

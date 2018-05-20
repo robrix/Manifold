@@ -34,7 +34,7 @@ unification (Unify actual expected)
     (BoolType, BoolType)                                 -> pure BoolType
     (T, T)                                               -> pure T
     (F, F)                                               -> pure F
-    (Set, Set)                                           -> pure Set
+    (TypeType, TypeType)                                 -> pure TypeType
     ((n1, u1) ::: t1 :-> b1, (n2, u2) ::: t2 :-> b2)     -> do
       n' <- I <$> fresh
       t' <- unify t1 t2
