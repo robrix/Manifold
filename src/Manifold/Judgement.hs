@@ -40,14 +40,14 @@ typing :: ( Eq usage
 typing (Check term expected) = do
   actual <- infer term
   runUnification $ unify actual expected
-typing (Infer term) = case unTerm term of
-  Unit -> pure (Type UnitType)
-  UnitType -> pure (Type TypeType)
-  BoolType -> pure (Type TypeType)
-  T -> pure (Type BoolType)
-  F -> pure (Type BoolType)
-  TypeType -> pure (Type TypeType)
-  Ann tm ty -> check tm ty
+typing (Infer term) = Type <$> case unTerm term of
+  Unit -> pure UnitType
+  UnitType -> pure TypeType
+  BoolType -> pure TypeType
+  T -> pure BoolType
+  F -> pure BoolType
+  TypeType -> pure TypeType
+  Ann tm ty -> unType <$> check tm ty
   _ -> noRuleTo (Infer term)
 
 
