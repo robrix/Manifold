@@ -35,7 +35,7 @@ typing :: ( Eq usage
        -> Proof usage effects result
 typing (Check term expected) = do
   actual <- infer term
-  runUnify $ unify actual expected
+  refine unification $ unify actual expected
 typing (Infer term) = case unTerm term of
   T -> pure (Type Bool)
   F -> pure (Type Bool)
@@ -92,9 +92,6 @@ unify actual expected = send (Unify actual expected)
 
 data Unify usage result where
   Unify :: Type usage -> Type usage -> Unify usage (Type usage)
-
-runUnify :: (Eq usage, Member (Exc (Some (Unify usage))) effects) => Proof usage (Unify usage ': effects) a -> Proof usage effects a
-runUnify = relay pure (\ unify yield -> runUnify (unification unify) >>= yield)
 
 
 newtype Proof usage effects a = Proof { runProof :: Eff effects a }
