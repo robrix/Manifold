@@ -14,3 +14,4 @@ infix 7 :@
 data Type usage
   = Bool
   | Type
+  | Constraint usage :-> Type usage
