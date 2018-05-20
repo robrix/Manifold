@@ -16,7 +16,7 @@ typeFormation prop = case prop of
   IsType (Type ((x, _) ::: _S :-> _T)) -> do
     isType _S
     (x, zero) ::: _S >- isType _T
-  other -> throwError (SomeProposition other)
+  other -> cannotProve other
 
 -- | Extend the context with a local assumption.
 (>-) :: Member (Reader (Context usage)) effects => Constraint usage -> Eff effects a -> Eff effects a
@@ -27,6 +27,10 @@ infixl 1 >-
 
 isType :: Member (Proposition usage) effects => Type usage -> Eff effects ()
 isType = send . IsType
+
+
+cannotProve :: Member (Exc (SomeProposition usage)) effects => Proposition usage result -> Eff effects a
+cannotProve = throwError . SomeProposition
 
 
 data Proposition usage result where
