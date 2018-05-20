@@ -16,9 +16,9 @@ infixl 5 :>
 
 contextFind :: Name -> Context usage -> Maybe (Constraint usage)
 contextFind name (context :> constraint)
-  | fst (constraintBinding constraint) == name = Just constraint
-  | otherwise                                  = contextFind name context
-contextFind _    Empty                         = Nothing
+  | constraintName constraint == name = Just constraint
+  | otherwise                         = contextFind name context
+contextFind _    Empty                = Nothing
 
 
 instance (Eq usage, Semigroup usage) => Semigroup (Context usage) where

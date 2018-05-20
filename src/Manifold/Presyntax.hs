@@ -69,10 +69,16 @@ instance Recursive   (Term usage) where project = unTerm
 instance Corecursive (Term usage) where embed   =   Term
 
 
-data Constraint usage = (:::) { constraintBinding :: Binding usage, constraintType :: Type usage }
+data Constraint usage = Binding usage ::: Type usage
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 infix 5 :::
+
+constraintName :: Constraint usage -> Name
+constraintName ((name, _) ::: _) = name
+
+constraintType :: Constraint usage -> Type usage
+constraintType (_ ::: ty) = ty
 
 type Binding usage = (Name, usage)
 
