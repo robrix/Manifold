@@ -14,3 +14,5 @@ data Constraint usage = Binding usage ::: Type
 infix 6 :::
 
 data Binding usage = Name :@ usage
+
+infix 7 :@
