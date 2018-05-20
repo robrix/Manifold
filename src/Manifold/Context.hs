@@ -3,8 +3,8 @@ module Manifold.Context where
 import Manifold.Name
 import Manifold.Type
 
-data Context
+data Context usage
   = Empty
-  | Context :> Constraint
+  | Context usage :> Constraint usage
 
-data Constraint = Name ::: Type
+data Constraint usage = Name ::: Type
