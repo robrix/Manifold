@@ -33,7 +33,7 @@ meta = colon
   <|> (long "quit" <|> short 'q' <?> "quit") $> pure ()
   <|> (typeOf <$> ((long "type" <|> short 't') *> term) <?> "type of")
   <?> "command; use :? for help")
-  where typeOf term = sendREPL (TypeOf term) >>= output . show >> repl
+  where typeOf term = sendREPL (TypeOf term) >>= output . either show show >> repl
 
 short :: Char -> Parser.Parser Trifecta.Parser String
 short = symbol . (:[])
@@ -47,16 +47,16 @@ sendREPL = send
 
 data REPL usage result where
   Help :: REPL usage ()
-  TypeOf :: Term usage -> REPL usage (Type usage)
+  TypeOf :: Term usage -> REPL usage (Either (Error usage) (Type usage))
 
-runREPL :: Members '[Check usage, Prompt] effects => Proof usage (REPL usage ': effects) a -> Proof usage effects a
+runREPL :: (Eq usage, Members '[CheckIsType usage, Exc (Error usage), Fresh, Prompt, Reader (Context usage), State (Substitution (Type usage))] effects, Monoid usage, Semiring usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
 runREPL = relay pure (\ repl yield -> case repl of
   Help -> output (unlines
     [ ":help, :h, :?     - print this help text"
     , ":quit, :q         - exit the REPL"
     , ":type, :t <expr>  - print the type of <expr>"
     ]) >>= yield
-  TypeOf term -> infer term >>= yield)
+  TypeOf term -> (runCheck (Right <$> infer term) `catchError` (pure . Left)) >>= yield)
 
 
 prompt :: (Effectful m, Member Prompt effects) => m effects (Maybe String)
@@ -93,5 +93,5 @@ settings = Settings
   }
 
 
-runIO :: (Eq usage, Monoid usage, Semiring usage) => Proof usage '[REPL usage, Check usage, CheckIsType usage, Reader (Context usage), Fresh, State (Substitution (Type usage)), Exc (Error usage), Prompt] a -> IO (Either (Error usage) (a, Substitution (Type usage)))
-runIO = runPrompt "λ: " . runError . runSubstitution . runFresh 0 . runContext . runCheckIsType . runCheck . runREPL
+runIO :: (Eq usage, Monoid usage, Semiring usage) => Proof usage '[REPL usage, CheckIsType usage, Reader (Context usage), Fresh, State (Substitution (Type usage)), Exc (Error usage), Prompt] a -> IO (Either (Error usage) (a, Substitution (Type usage)))
+runIO = runPrompt "λ: " . runError . runSubstitution . runFresh 0 . runContext . runCheckIsType . runREPL
