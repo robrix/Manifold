@@ -16,23 +16,24 @@ import Manifold.Type.Formation
 import System.Console.Haskeline
 import Text.Trifecta as Trifecta
 
-repl :: Members '[Prompt, REPL usage] effects => Proof usage effects ()
+repl :: (Members '[Prompt, REPL usage] effects, Show usage) => Proof usage effects ()
 repl = prompt >>= maybe repl handleInput
 
-handleInput :: Members '[Prompt, REPL usage] effects => String -> Proof usage effects ()
+handleInput :: (Members '[Prompt, REPL usage] effects, Show usage) => String -> Proof usage effects ()
 handleInput str = case Parser.parseString command str of
   Left err -> output err *> repl
   Right action -> action
 
-command :: Members '[Prompt, REPL usage] effects => Parser.Parser Trifecta.Parser (Proof usage effects ())
+command :: (Members '[Prompt, REPL usage] effects, Show usage) => Parser.Parser Trifecta.Parser (Proof usage effects ())
 command = whole meta <?> "command"
 
-meta :: Members '[Prompt, REPL usage] effects => Parser.Parser Trifecta.Parser (Proof usage effects ())
+meta :: (Members '[Prompt, REPL usage] effects, Show usage) => Parser.Parser Trifecta.Parser (Proof usage effects ())
 meta = colon
   *> ((long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
   <|> (long "quit" <|> short 'q' <?> "quit") $> pure ()
-  -- <|> (TypeOf <$> ((long "type" <|> short 't') *> expr) <?> "type of")
+  <|> (typeOf <$> ((long "type" <|> short 't') *> term) <?> "type of")
   <?> "command; use :? for help")
+  where typeOf term = sendREPL (TypeOf term) >>= output . show >> repl
 
 short :: Char -> Parser.Parser Trifecta.Parser String
 short = symbol . (:[])
