@@ -12,7 +12,7 @@ import Manifold.Term
 import Manifold.Type
 
 checkIsType :: ( Members '[ Exc (Error (Binding usage))
-                          , Reader (Context usage (Type (Binding usage)))
+                          , Reader (Context (Binding usage) (Type (Binding usage)))
                           ] effects
                , Monoid usage
                )
@@ -24,7 +24,8 @@ checkIsType term = case unTerm term of
   Intro TypeT -> pure (tintro TypeT)
   Intro (var ::: _S :-> _T) -> do
     _S' <- checkIsType _S
-    _T' <- Binding var zero ::: _S' >- checkIsType _T
-    pure (Binding var zero ::: _S' .-> _T')
+    let binding = Binding var zero
+    _T' <- binding ::: _S' >- checkIsType _T
+    pure (binding ::: _S' .-> _T')
   Intro (_S :* _T) -> (.*) <$> checkIsType _S <*> checkIsType _T
   _ -> noRuleToCheckIsType term

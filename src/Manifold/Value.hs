@@ -8,24 +8,24 @@ import Manifold.Expr.Intro
 import Manifold.Name
 import Manifold.Term
 
-newtype Value usage = Value { unValue :: Intro (Name, Context usage (Value usage)) Term (Value usage) }
+newtype Value = Value { unValue :: Intro (Name, Context Name Value) Term Value }
   deriving (Eq, Ord)
 
-instance Show usage => Show (Value usage) where
+instance Show Value where
   showsPrec d = showsUnaryWith showsPrec "Value" d . cata Silent
 
-type instance Base (Value usage) = Intro (Name, Context usage (Value usage)) Term
+type instance Base Value = Intro (Name, Context Name Value) Term
 
-instance Recursive   (Value usage) where project = unValue
-instance Corecursive (Value usage) where embed   =   Value
+instance Recursive   Value where project = unValue
+instance Corecursive Value where embed   =   Value
 
 
-newtype Silent usage = Silent { unSilent :: Intro (Name, Context usage (Value usage)) Term (Silent usage) }
+newtype Silent = Silent { unSilent :: Intro (Name, Context Name Value) Term Silent }
 
-type instance Base (Silent usage) = Intro (Name, Context usage (Value usage)) Term
+type instance Base Silent = Intro (Name, Context Name Value) Term
 
-instance Recursive   (Silent usage) where project = unSilent
-instance Corecursive (Silent usage) where embed   =   Silent
+instance Recursive   Silent where project = unSilent
+instance Corecursive Silent where embed   =   Silent
 
-instance Show usage => Show (Silent usage) where
+instance Show Silent where
   showsPrec d = showsPrec d . unSilent

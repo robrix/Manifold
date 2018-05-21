@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, ScopedTypeVariables, TypeApplications, TypeOperators #-}
 module Manifold.Type.Checking where
 
 import Control.Monad.Effect
@@ -21,7 +21,7 @@ import Manifold.Unification
 check :: ( Eq usage
          , Members '[ Exc (Error (Binding usage))
                     , Fresh
-                    , Reader (Context usage (Type (Binding usage)))
+                    , Reader (Context (Binding usage) (Type (Binding usage)))
                     , State (Substitution (Type (Binding usage)))
                     ] effects
          , Monoid usage
@@ -36,7 +36,7 @@ check term expected = do
 infer :: ( Eq usage
          , Members '[ Exc (Error (Binding usage))
                     , Fresh
-                    , Reader (Context usage (Type (Binding usage)))
+                    , Reader (Context (Binding usage) (Type (Binding usage)))
                     , State (Substitution (Type (Binding usage)))
                     ] effects
          , Monoid usage
@@ -52,15 +52,16 @@ infer term = case unTerm term of
     | Bool _                <- i -> pure boolT
     | Abs (var ::: ty) body <- i -> do
       ty' <- checkIsType ty
-      body' <- Binding var zero ::: ty' >- infer body
-      pure (Binding var zero ::: ty' .-> body')
+      let binding = Binding var zero
+      body' <- binding ::: ty' >- infer body
+      pure (binding ::: ty' .-> body')
     | Pair a b              <- i -> (.*) <$> infer a <*> infer b
     | UnitT                 <- i -> pure typeT
     | BoolT                 <- i -> pure typeT
     | TypeT                 <- i -> pure typeT
     | var ::: ty :-> body   <- i -> do
-      ty' <- checkIsType ty
-      Binding var zero ::: ty' >- checkIsType body $> typeT
+      (ty' :: Type (Binding usage)) <- checkIsType ty
+      Binding var (zero @usage) ::: ty' >- checkIsType body $> typeT
     | a :* b                <- i -> checkIsType a *> checkIsType b $> typeT
   Elim e
     | ExL a    <- e -> do

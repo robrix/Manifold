@@ -3,8 +3,6 @@ module Manifold.Eval where
 
 import Control.Monad.Effect
 import Control.Monad.Effect.Reader
-import Data.Semiring (zero)
-import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Expr
@@ -13,11 +11,9 @@ import Manifold.Proof
 import Manifold.Term
 import Manifold.Value
 
-eval :: ( Member (Reader (Context usage (Value usage))) effects
-        , Monoid usage
-        )
+eval :: Member (Reader (Context Name Value)) effects
      => Term
-     -> Proof usage effects (Value usage)
+     -> Proof usage effects Value
 eval (Term term) = case term of
   -- FIXME: no failable patterns
   Var name -> do
@@ -49,7 +45,7 @@ eval (Term term) = case term of
       -- FIXME: use the env
       -- FIXME: pi types
       a' <- eval a
-      Binding name zero ::: a' >- eval body
+      name ::: a' >- eval body
     If c t e -> do
       Value (Bool b) <- eval c
       if b then
@@ -57,5 +53,5 @@ eval (Term term) = case term of
       else
         eval e
 
-askEnv :: Member (Reader (Context usage (Value usage))) effects => Proof usage effects (Context usage (Value usage))
+askEnv :: Member (Reader (Context Name Value)) effects => Proof usage effects (Context Name Value)
 askEnv = ask

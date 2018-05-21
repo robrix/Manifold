@@ -37,15 +37,15 @@ runError :: Proof usage (Exc (Error var) ': effects) a -> Proof usage effects (E
 runError = Exception.runError
 
 
-runContext :: Proof usage (Reader (Context usage recur) ': effects) a -> Proof usage effects a
+runContext :: Proof usage (Reader (Context var recur) ': effects) a -> Proof usage effects a
 runContext = runReader emptyContext
 
-askContext :: Member (Reader (Context usage (Type (Binding usage)))) effects => Proof usage effects (Context usage (Type (Binding usage)))
+askContext :: Member (Reader (Context (Binding usage) (Type (Binding usage)))) effects => Proof usage effects (Context (Binding usage) (Type (Binding usage)))
 askContext = ask
 
 
 -- | Extend the context with a local assumption.
-(>-) :: Member (Reader (Context usage recur)) effects => Constraint (Binding usage) recur -> Proof usage effects a -> Proof usage effects a
+(>-) :: Member (Reader (Context var recur)) effects => Constraint var recur -> Proof usage effects a -> Proof usage effects a
 constraint >- proof = local (|> constraint) proof
 
 infixl 1 >-

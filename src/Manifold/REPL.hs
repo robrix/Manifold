@@ -8,6 +8,7 @@ import Data.Functor (($>))
 import Manifold.Binding
 import Manifold.Context
 import Manifold.Eval
+import Manifold.Name
 import Manifold.Prompt
 import Manifold.Proof
 import Manifold.Parser as Parser
@@ -46,7 +47,7 @@ sendREPL = send
 data REPL usage result where
   Help :: REPL usage ()
   TypeOf :: Term -> REPL usage (Either (Error (Binding usage)) (Type (Binding usage)))
-  Eval :: Term -> REPL usage (Either (Error (Binding usage)) (Value usage))
+  Eval :: Term -> REPL usage (Either (Error (Binding usage)) Value)
 
 runREPL :: (Eq usage, Member Prompt effects, Monoid usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
 runREPL = interpret (\case
@@ -59,10 +60,10 @@ runREPL = interpret (\case
   Eval term -> fmap (uncurry (flip apply)) <$> runCheck (infer term) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
 
 
-runCheck :: Proof usage (Reader (Context usage (Type (Binding usage))) ': Fresh ': State (Substitution (Type (Binding usage))) ': Exc (Error (Binding usage)) ': effects) a -> Proof usage effects (Either (Error (Binding usage)) (a, Substitution (Type (Binding usage))))
+runCheck :: Proof usage (Reader (Context (Binding usage) (Type (Binding usage))) ': Fresh ': State (Substitution (Type (Binding usage))) ': Exc (Error (Binding usage)) ': effects) a -> Proof usage effects (Either (Error (Binding usage)) (a, Substitution (Type (Binding usage))))
 runCheck = runError . runSubstitution . runFresh 0 . runContext
 
-runEval :: Proof usage (Reader (Context usage (Value usage)) ': effects) a -> Proof usage effects a
+runEval :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
 runEval = runContext
 
 runIO :: (Eq usage, Monoid usage) => Proof usage '[REPL usage, Prompt] a -> IO a
