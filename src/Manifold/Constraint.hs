@@ -5,7 +5,7 @@ import Data.Bifoldable
 import Data.Bifunctor
 import Manifold.Name
 
-data Constraint usage recur = Binding usage ::: recur
+data Constraint usage recur = (Name, usage) ::: recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 instance Bifoldable Constraint where
@@ -21,6 +21,3 @@ constraintName (var ::: _) = name var
 
 constraintValue :: Constraint usage recur -> recur
 constraintValue (_ ::: ty) = ty
-
-
-type Binding usage = (Name, usage)
