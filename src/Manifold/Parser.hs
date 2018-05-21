@@ -52,8 +52,7 @@ term = annotation
                                        <*> some constraint <* dot
                                        <*> term
                                        <?> "lambda"
-        constraint = parens (make <$> name <* colon <*> type')
-          where make name ty = (name, zero) ::: ty
+        constraint = parens ((:::) . flip (,) zero <$> name <* colon <*> type')
 
 
 type' :: (Monad m, TokenParsing m) => m (Type usage)
