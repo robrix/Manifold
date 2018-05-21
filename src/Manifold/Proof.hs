@@ -36,9 +36,6 @@ data Error var
 runError :: Proof usage (Exc (Error var) ': effects) a -> Proof usage effects (Either (Error var) a)
 runError = Exception.runError
 
-catchError :: Member (Exc (Error usage)) effects => Proof usage effects a -> (Error usage -> Proof usage effects a) -> Proof usage effects a
-catchError = Exception.catchError
-
 
 runContext :: Proof usage (Reader (Context usage recur) ': effects) a -> Proof usage effects a
 runContext = runReader emptyContext
