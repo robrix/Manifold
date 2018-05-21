@@ -25,6 +25,9 @@ eval (Term term) = case term of
   Var name -> do
     Just value <- fmap constraintValue . contextLookup name <$> askEnv
     pure value
+  Let ((name, _) ::: _) val body -> do
+    val' <- eval val
+    (name, zero) ::: val' >- eval body
   (name, _) ::: _ :-> body -> Closure name body . contextFilter (((&&) <$> (/= name) <*> (`elem` freeVariables body)) . constraintName) <$> ask
   Abs ((name, _) ::: _) body -> Closure name body . contextFilter (((&&) <$> (/= name) <*> (`elem` freeVariables body)) . constraintName) <$> ask
   App f a -> do
