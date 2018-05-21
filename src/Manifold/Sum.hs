@@ -16,3 +16,8 @@ instance {-# OVERLAPPABLE #-} Element t (t ': ts) where
   inject = Here
   project (Here t) = Just t
   project _        = Nothing
+
+instance {-# OVERLAPPABLE #-} Element t ts => Element t (t' ': ts) where
+  inject = There . inject
+  project (There t) = project t
+  project _         = Nothing
