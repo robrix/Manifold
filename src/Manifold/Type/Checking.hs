@@ -48,7 +48,7 @@ infer term = Type <$> case unTerm term of
   T -> pure BoolType
   F -> pure BoolType
   TypeType -> pure TypeType
-  Var name -> contextFind name <$> askContext >>= maybe (freeVariable name) (pure . unType . constraintValue)
+  Var name -> contextLookup name <$> askContext >>= maybe (freeVariable name) (pure . unType . constraintValue)
   (name, _) ::: ty :-> body -> do
     ty' <- checkIsType ty
     ((name, zero) ::: ty' >- checkIsType body) $> TypeType

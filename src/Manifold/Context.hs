@@ -14,11 +14,11 @@ data Context usage recur
 infixl 5 :>
 
 
-contextFind :: Name -> Context usage recur -> Maybe (Constraint usage recur)
-contextFind name (context :> constraint)
+contextLookup :: Name -> Context usage recur -> Maybe (Constraint usage recur)
+contextLookup name (context :> constraint)
   | constraintName constraint == name = Just constraint
-  | otherwise                         = contextFind name context
-contextFind _    Empty                = Nothing
+  | otherwise                         = contextLookup name context
+contextLookup _    Empty              = Nothing
 
 
 contextFilter :: (Constraint usage recur -> Bool) -> Context usage recur -> Context usage recur
