@@ -3,6 +3,7 @@ module Manifold.Sum
 ( Sum
 , Element(..)
 , decompose
+, weaken
 ) where
 
 data Sum ts a where
@@ -28,6 +29,9 @@ instance {-# OVERLAPPABLE #-} Element t ts => Element t (t' ': ts) where
 decompose :: Sum (t ': ts) a -> Either (t a) (Sum ts a)
 decompose (Here t) = Left t
 decompose (There ts) = Right ts
+
+weaken :: Sum ts a -> Sum (t ': ts) a
+weaken = There
 
 
 instance (Foldable t, Foldable (Sum ts)) => Foldable (Sum (t ': ts)) where
