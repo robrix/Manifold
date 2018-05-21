@@ -10,17 +10,17 @@ data REPL usage result where
   TypeOf :: Term usage -> REPL usage (Type usage)
 
 
-prompt :: Member Prompt effects => Eff effects (Maybe String)
+prompt :: (Effectful m, Member Prompt effects) => m effects (Maybe String)
 prompt = send Prompt
 
-output :: Member Prompt effects => String -> Eff effects ()
+output :: (Effectful m, Member Prompt effects) => String -> m effects ()
 output = send . Output
 
 data Prompt result where
   Prompt :: Prompt (Maybe String)
   Output :: String -> Prompt ()
 
-runPrompt :: String -> Eff '[Prompt] a -> IO a
+runPrompt :: Effectful m => String -> m '[Prompt] a -> IO a
 runPrompt prompt action = do
   prefs <- readPrefs "~/.local/Manifold/repl_prefs"
   runInputTWithPrefs prefs settings (runM (reinterpret (\case
@@ -33,7 +33,7 @@ cyan = "\ESC[1;36m\STX"
 plain :: String
 plain = "\ESC[0m\STX"
 
-sendInputT :: Member (InputT IO) effects => InputT IO a -> Eff effects a
+sendInputT :: (Effectful m, Member (InputT IO) effects) => InputT IO a -> m effects a
 sendInputT = send
 
 settings :: Settings IO
