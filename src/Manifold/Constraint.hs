@@ -9,10 +9,10 @@ data Constraint usage recur = (Name, usage) ::: recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 instance Bifoldable Constraint where
-  bifoldMap f g ((_, usage) ::: ty) = f usage <> g ty
+  bifoldMap f g (var ::: ty) = foldMap f var <> g ty
 
 instance Bifunctor Constraint where
-  bimap f g ((name, usage) ::: ty) = (name, f usage) ::: g ty
+  bimap f g (var ::: ty) = fmap f var ::: g ty
 
 infix 5 :::
 
