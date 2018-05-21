@@ -37,7 +37,7 @@ catchError :: Member (Exc (Error usage)) effects => Proof usage effects a -> (Er
 catchError = Exception.catchError
 
 
-runContext :: Proof usage (Reader (Context usage (Type usage)) ': effects) a -> Proof usage effects a
+runContext :: Proof usage (Reader (Context usage recur) ': effects) a -> Proof usage effects a
 runContext = runReader Empty
 
 askContext :: Member (Reader (Context usage (Type usage))) effects => Proof usage effects (Context usage (Type usage))
