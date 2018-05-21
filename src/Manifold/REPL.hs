@@ -25,14 +25,14 @@ handleInput str = case Parser.parseString command str of
   Right action -> action
 
 command :: Members '[Prompt, REPL usage] effects => Parser.Parser Trifecta.Parser (Proof usage effects ())
-command = whiteSpace *> (colon *> meta) <* eof <?> "command"
+command = whole meta <?> "command"
 
 meta :: Members '[Prompt, REPL usage] effects => Parser.Parser Trifecta.Parser (Proof usage effects ())
-meta
-  =   (long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
+meta = colon
+  *> ((long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
   <|> (long "quit" <|> short 'q' <?> "quit") $> pure ()
   -- <|> (TypeOf <$> ((long "type" <|> short 't') *> expr) <?> "type of")
-  <?> "command; use :? for help"
+  <?> "command; use :? for help")
 
 short :: Char -> Parser.Parser Trifecta.Parser String
 short = symbol . (:[])
