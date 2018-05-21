@@ -2,7 +2,7 @@
 module Manifold.Type.Formation where
 
 import Control.Monad.Effect
-import Control.Monad.Effect.State
+import Control.Monad.Effect.Reader
 import Data.Semiring (zero)
 import Manifold.Context
 import Manifold.Expr
@@ -10,7 +10,7 @@ import Manifold.Proof
 
 typeFormation :: ( Members '[ Exc (Error usage)
                             , CheckIsType usage
-                            , State (Context usage)
+                            , Reader (Context usage)
                             ] effects
                  , Monoid usage
                  )
@@ -30,8 +30,8 @@ typeFormation (CheckIsType tm) = Type <$> case unTerm tm of
 
 
 -- | Extend the context with a local assumption.
-(>-) :: Member (State (Context usage)) effects => Constraint usage (Type usage) -> Proof usage effects a -> Proof usage effects a
-constraint >- proof = localState (:> constraint) proof
+(>-) :: Member (Reader (Context usage)) effects => Constraint usage (Type usage) -> Proof usage effects a -> Proof usage effects a
+constraint >- proof = local (:> constraint) proof
 
 infixl 1 >-
 
@@ -47,7 +47,7 @@ data CheckIsType usage result where
   CheckIsType :: Term usage -> CheckIsType usage (Type usage)
 
 runCheckIsType :: ( Members '[ Exc (Error usage)
-                             , State (Context usage)
+                             , Reader (Context usage)
                              ] effects
                   , Monoid usage
                   )
