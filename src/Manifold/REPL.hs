@@ -1,13 +1,21 @@
 {-# LANGUAGE DataKinds, FlexibleContexts, GADTs, LambdaCase, TypeOperators #-}
 module Manifold.REPL where
 
+import Control.Applicative (Alternative(..))
 import Control.Monad.Effect
+import Data.Functor (($>))
 import Manifold.Expr
 import Manifold.Proof
 import Manifold.Parser as Parser
 import Manifold.Type.Checking
 import System.Console.Haskeline
 import Text.Trifecta as Trifecta
+meta :: Members '[Prompt, REPL usage] effects => Parser.Parser Trifecta.Parser (Proof usage effects ())
+meta
+  =   (long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
+  <|> (long "quit" <|> short 'q' <?> "quit") $> pure ()
+  <?> "command; use :? for help"
+
 short :: Char -> Parser.Parser Trifecta.Parser String
 short = symbol . (:[])
 
