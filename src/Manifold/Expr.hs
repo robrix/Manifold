@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase, TypeFamilies, UndecidableInstances #-}
+{-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase, TypeFamilies #-}
 module Manifold.Expr where
 
 import Data.Bifoldable
@@ -271,12 +271,12 @@ instance Functor Term where
   fmap f = Term . bimap (bimap f (fmap f)) (fmap f) . unTerm
 
 
-newtype Silent f usage = Silent { unSilent :: f (Constraint usage (Silent f usage)) (Silent f usage) }
+newtype Silent usage = Silent { unSilent :: Expr (Constraint usage (Silent usage)) (Silent usage) }
 
-type instance Base (Silent f usage) = f (Constraint usage (Silent f usage))
+type instance Base (Silent usage) = Expr (Constraint usage (Silent usage))
 
-instance Functor (f (Constraint usage (Silent f usage))) => Recursive   (Silent f usage) where project = unSilent
-instance Functor (f (Constraint usage (Silent f usage))) => Corecursive (Silent f usage) where embed   =   Silent
+instance Recursive   (Silent usage) where project = unSilent
+instance Corecursive (Silent usage) where embed   =   Silent
 
-instance Show (f (Constraint usage (Silent f usage)) (Silent f usage)) => Show (Silent f usage) where
+instance Show usage => Show (Silent usage) where
   showsPrec d = showsPrec d . unSilent
