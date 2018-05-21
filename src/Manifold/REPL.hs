@@ -5,7 +5,6 @@ import Control.Applicative (Alternative(..))
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
 import Data.Functor (($>))
-import Data.Semiring (Semiring(..))
 import Manifold.Context
 import Manifold.Eval
 import Manifold.Prompt
@@ -48,7 +47,7 @@ data REPL usage result where
   TypeOf :: Term usage -> REPL usage (Either (Error usage) (Type usage))
   Eval :: Term usage -> REPL usage (Either (Error usage) (Value usage))
 
-runREPL :: (Eq usage, Member Prompt effects, Monoid usage, Semiring usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
+runREPL :: (Eq usage, Member Prompt effects, Monoid usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
 runREPL = interpret (\case
   Help -> output (unlines
     [ ":help, :h, :?     - print this help text"
@@ -65,5 +64,5 @@ runCheck = runError . runSubstitution . runFresh 0 . runContext
 runEval :: Proof usage (Reader (Context usage (Value usage)) ': effects) a -> Proof usage effects a
 runEval = runContext
 
-runIO :: (Eq usage, Monoid usage, Semiring usage) => Proof usage '[REPL usage, Prompt] a -> IO a
+runIO :: (Eq usage, Monoid usage) => Proof usage '[REPL usage, Prompt] a -> IO a
 runIO = runPrompt "λ: " . runREPL
