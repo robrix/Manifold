@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleInstances, GADTs, MultiParamTypeClasses, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, FlexibleInstances, GADTs, MultiParamTypeClasses, TypeOperators #-}
 module Manifold.Sum
 ( Sum
 , Element(..)
@@ -28,3 +28,8 @@ instance {-# OVERLAPPABLE #-} Element t ts => Element t (t' ': ts) where
 decompose :: Sum (t ': ts) a -> Either (t a) (Sum ts a)
 decompose (Here t) = Left t
 decompose (There ts) = Right ts
+
+
+instance (Functor t, Functor (Sum ts)) => Functor (Sum (t ': ts)) where
+  fmap f (Here t) = Here (fmap f t)
+  fmap f (There ts) = There (fmap f ts)
