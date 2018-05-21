@@ -15,10 +15,11 @@ infixl 5 :>
 
 
 contextLookup :: Name -> Context usage recur -> Maybe (Constraint usage recur)
-contextLookup name (context :> constraint)
-  | constraintName constraint == name = Just constraint
-  | otherwise                         = contextLookup name context
-contextLookup _    Empty              = Nothing
+contextLookup name = go
+  where go (context :> constraint)
+          | constraintName constraint == name = Just constraint
+          | otherwise                         = contextLookup name context
+        go Empty                              = Nothing
 
 
 contextFilter :: (Constraint usage recur -> Bool) -> Context usage recur -> Context usage recur
