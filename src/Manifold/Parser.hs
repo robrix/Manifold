@@ -37,6 +37,11 @@ term
   <|> (true  <$ preword "true")
   <|> (false <$ preword "false")
 
+type' :: TokenParsing m => m (Type usage)
+type'
+  =   (chainl1 type' ((.*) <$ symbolic '*') <?> "product type")
+  <|> (boolT <$ preword "Bool")
+  <|> (unitT <$ preword "Unit")
 
 reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "exl", "exr", "()" ]
