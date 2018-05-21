@@ -12,44 +12,50 @@ import qualified Data.Set as Set
 import Manifold.Name
 import Manifold.Substitution
 
-data Intro var recur
+data Intro var scope recur
   = Unit
   | Bool Bool
-  | Abs var recur
+  | Abs var scope
   | Pair recur recur
   | UnitT
   | BoolT
   | TypeT
-  | var :-> recur
+  | var :-> scope
   | recur :* recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 infixr 0 :->
 infixl 7 :*
 
-instance Bifoldable Intro where
-  bifoldMap f g = \case
+class Trifoldable t where
+  trifoldMap :: Monoid m => (a -> m) -> (b -> m) -> (c -> m) -> t a b c -> m
+
+class Trifunctor t where
+  trimap :: (a -> a') -> (b -> b') -> (c -> c') -> t a b c -> t a' b' c'
+
+instance Trifoldable Intro where
+  trifoldMap f g h = \case
     Unit     -> mempty
     Bool _   -> mempty
     Abs v b  -> f v <> g b
-    Pair a b -> g a <> g b
+    Pair a b -> h a <> h b
     UnitT    -> mempty
     BoolT    -> mempty
     TypeT    -> mempty
     v :-> b  -> f v <> g b
-    a :* b   -> g a <> g b
+    a :* b   -> h a <> h b
 
-instance Bifunctor Intro where
-  bimap f g = \case
+instance Trifunctor Intro where
+  trimap f g h = \case
     Unit     -> Unit
     Bool b   -> Bool b
     Abs v b  -> f v `Abs` g b
-    Pair a b -> g a `Pair` g b
+    Pair a b -> h a `Pair` h b
     UnitT    -> UnitT
     BoolT    -> BoolT
     TypeT    -> TypeT
     v :-> b  -> f v :-> g b
-    a :* b   -> g a :* g b
+    a :* b   -> h a :* h b
 
 data Elim recur
   = ExL recur
@@ -60,21 +66,27 @@ data Elim recur
 
 data Expr var recur
   = Var Name
-  | Intro (Intro var recur)
+  | Intro (Intro var recur recur)
   | Elim (Elim recur)
-  deriving (Eq, Foldable, Functor, Ord, Traversable)
+  deriving (Eq, Ord)
 
 instance Bifoldable Expr where
   bifoldMap f g = \case
     Var _   -> mempty
-    Intro i -> bifoldMap f g i
+    Intro i -> trifoldMap f g g i
     Elim e  -> foldMap g e
+
+instance Foldable (Expr var) where
+  foldMap = bifoldMap (const mempty)
 
 instance Bifunctor Expr where
   bimap f g = \case
     Var n   -> Var n
-    Intro i -> Intro (bimap f g i)
+    Intro i -> Intro (trimap f g g i)
     Elim e  -> Elim (fmap g e)
+
+instance Functor (Expr var) where
+  fmap = bimap id
 
 instance (Show var, Show recur) => Show (Expr var recur) where
   showsPrec d = \case
@@ -105,7 +117,7 @@ instance Substitutable (Type usage) where
 tvar :: Name -> Type usage
 tvar = Type . Var
 
-tintro :: Intro (Constraint usage (Type usage)) (Type usage) -> Type usage
+tintro :: Intro (Constraint usage (Type usage)) (Type usage) (Type usage) -> Type usage
 tintro = Type . Intro
 
 telim :: Elim (Type usage) -> Type usage
@@ -147,7 +159,7 @@ instance Corecursive (Term usage) where embed   =   Term
 var :: Name -> Term usage
 var = Term . Var
 
-intro :: Intro (Constraint usage (Term usage)) (Term usage) -> Term usage
+intro :: Intro (Constraint usage (Term usage)) (Term usage) (Term usage) -> Term usage
 intro = Term . Intro
 
 elim :: Elim (Term usage) -> Term usage
