@@ -28,7 +28,6 @@ data Expr usage recur
   | Pair recur recur
   | ExL recur
   | ExR recur
-  | Ann recur recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 infixr 0 :->
@@ -62,7 +61,6 @@ instance Substitutable (Type usage) where
     Pair a b                        -> Type (Pair (apply subst a) (apply subst b))
     ExL a                           -> Type (ExL (apply subst a))
     ExR a                           -> Type (ExR (apply subst a))
-    Ann a t                         -> Type (Ann (apply subst a) (apply subst t))
 
 
 typeT :: Type usage
@@ -123,10 +121,6 @@ exr = Term . ExR
 
 var :: Name -> Term usage
 var = Term . Var
-
-
-as :: Term usage -> Type usage -> Term usage
-as tm ty = Term (Ann tm (cata Term ty))
 
 
 makeLet :: Constraint usage (Type usage) -> Term usage -> Term usage -> Term usage
@@ -210,7 +204,6 @@ instance Bifoldable Expr where
     Pair a b     -> g a <> g b
     ExL a        -> g a
     ExR a        -> g a
-    Ann a t      -> g a <> g t
 
 instance Bifunctor Expr where
   bimap f g = \case
@@ -228,7 +221,6 @@ instance Bifunctor Expr where
     Pair a b     -> Pair (g a) (g b)
     ExL a        -> ExL (g a)
     ExR a        -> ExR (g a)
-    Ann a t      -> Ann (g a) (g t)
 
 instance Bitraversable Expr where
   bitraverse f g = \case
@@ -246,7 +238,6 @@ instance Bitraversable Expr where
     Pair a b     -> Pair <$> g a <*> g b
     ExL a        -> ExL <$> g a
     ExR a        -> ExR <$> g a
-    Ann a t      -> Ann <$> g a <*> g t
 
 
 instance Foldable Type where

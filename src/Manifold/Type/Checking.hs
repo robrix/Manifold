@@ -79,7 +79,6 @@ infer term = Type <$> case unTerm term of
     t2 <- Var . I <$> fresh
     _ <- check a (Type (Type t1 :* Type t2))
     pure t2
-  Ann tm ty -> checkIsType ty >>= fmap unType . check tm
 
 
 runSubstitution :: Proof usage (State (Substitution (Type usage)) ': effects) a -> Proof usage effects (a, Substitution (Type usage))

@@ -47,7 +47,6 @@ unify actual expected
     (Pair a1 b1, Pair a2 b2)                             -> Pair <$> unify a1 a2 <*> unify b1 b2
     (ExL a1, ExL a2)                                     -> ExL <$> unify a1 a2
     (ExR a1, ExR a2)                                     -> ExR <$> unify a1 a2
-    (Ann a1 t1, Ann a2 t2)                               -> Ann <$> unify a1 a2 <*> unify t1 t2
     _                                                    -> cannotUnify actual expected
 
 

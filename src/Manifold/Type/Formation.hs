@@ -23,5 +23,4 @@ checkIsType term = Type <$> case unTerm term of
     _T' <- (name, zero) ::: _S' >- checkIsType _T
     pure ((name, usage) ::: _S' :-> _T')
   _S :* _T -> (:*) <$> checkIsType _S <*> checkIsType _T
-  Ann tm ty -> Ann <$> checkIsType tm <*> checkIsType ty
   _ -> noRuleToCheckIsType term

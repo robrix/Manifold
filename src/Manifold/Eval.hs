@@ -46,7 +46,6 @@ eval (Term term) = case term of
   ExR pair -> do
     Pair _ b <- eval pair
     pure b
-  Ann tm _ -> eval tm
 
 askEnv :: Member (Reader (Context usage (Value usage))) effects => Proof usage effects (Context usage (Value usage))
 askEnv = ask
