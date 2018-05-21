@@ -1,8 +1,9 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, FlexibleInstances, GADTs, MultiParamTypeClasses, TypeOperators #-}
+{-# LANGUAGE DataKinds, EmptyCase, FlexibleContexts, FlexibleInstances, GADTs, MultiParamTypeClasses, TypeOperators #-}
 module Manifold.Sum
 ( Sum
 , Element(..)
 , decompose
+, strengthen
 , weaken
 ) where
 
@@ -29,6 +30,10 @@ instance {-# OVERLAPPABLE #-} Element t ts => Element t (t' ': ts) where
 decompose :: Sum (t ': ts) a -> Either (t a) (Sum ts a)
 decompose (Here t) = Left t
 decompose (There ts) = Right ts
+
+strengthen :: Sum '[t] a -> t a
+strengthen (Here t) = t
+strengthen (There ts) = case ts of {}
 
 weaken :: Sum ts a -> Sum (t ': ts) a
 weaken = There
