@@ -39,8 +39,8 @@ term
 termAtom :: TokenParsing m => m (Term usage)
 termAtom
   =   (parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple")
-  <|> (true  <$ preword "true")
-  <|> (false <$ preword "false")
+  <|> (true  <$ preword "True")
+  <|> (false <$ preword "False")
 
 
 type' :: TokenParsing m => m (Type usage)
