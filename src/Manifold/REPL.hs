@@ -8,7 +8,6 @@ import System.Console.Haskeline
 data REPL usage result where
   Help :: REPL usage ()
   TypeOf :: Term usage -> REPL usage (Type usage)
-  Quit :: REPL usage ()
 
 
 prompt :: Member Prompt effects => Eff effects (Maybe String)
