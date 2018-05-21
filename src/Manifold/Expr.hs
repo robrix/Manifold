@@ -187,7 +187,7 @@ let' ty value f = makeLet ((name, one) ::: ty) value body where (name, body) = b
 abs' :: Constraint usage (Type usage) -> Term usage -> Term usage
 abs' constraint body = intro (Abs (rerep <$> constraint) body)
 
-rerep :: (Recursive t1, Base t1 ~ Expr (Constraint usage t1), Corecursive t2, Base t2 ~ Expr (Constraint usage t2))
+rerep :: (Recursive t1, Base t1 ~ f (Constraint usage t1), Corecursive t2, Base t2 ~ f (Constraint usage t2), Bifunctor f)
       => t1
       -> t2
 rerep = cata (embed . first (fmap rerep))
