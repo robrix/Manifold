@@ -42,4 +42,4 @@ reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "exl", "exr", "()" ]
 
 preword :: TokenParsing m => String -> m String
-preword s = token (highlight ReservedIdentifier (string s <* notFollowedBy alphaNum))
+preword s = token (highlight ReservedIdentifier (string s <* notFollowedBy alphaNum)) <?> s
