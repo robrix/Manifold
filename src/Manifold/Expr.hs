@@ -17,8 +17,7 @@ data Expr usage recur
   = Unit
   | UnitT
   | BoolT
-  | T
-  | F
+  | Bool Bool
   | TypeT
   | Var Name
   | Let (Constraint usage recur) recur recur
@@ -53,8 +52,7 @@ instance Substitutable (Type usage) where
     Unit                            -> Type Unit
     UnitT                           -> Type UnitT
     BoolT                           -> Type BoolT
-    T                               -> Type T
-    F                               -> Type F
+    Bool b                          -> Type (Bool b)
     TypeT                           -> Type TypeT
     Var name                        -> fromMaybe (Type (Var name)) (lookupSubst name subst)
     Let ((name, usage) ::: ty) v b  -> Type (Let ((name, usage) ::: apply subst ty) (apply subst v) (apply (deleteSubst name subst) b))
@@ -106,10 +104,10 @@ unit :: Term usage
 unit = Term Unit
 
 true :: Term usage
-true = Term T
+true = Term (Bool True)
 
 false :: Term usage
-false = Term F
+false = Term (Bool False)
 
 iff :: Term usage -> Term usage -> Term usage -> Term usage
 iff c t e = Term (If c t e)
@@ -203,8 +201,7 @@ instance Bifoldable Expr where
     Unit         -> mempty
     UnitT        -> mempty
     BoolT        -> mempty
-    T            -> mempty
-    F            -> mempty
+    Bool _       -> mempty
     TypeT        -> mempty
     Var _        -> mempty
     Let var v b  -> bifoldMap f g var <> g v <> g b
@@ -223,8 +220,7 @@ instance Bifunctor Expr where
     Unit         -> Unit
     UnitT        -> UnitT
     BoolT        -> BoolT
-    T            -> T
-    F            -> F
+    Bool b       -> Bool b
     TypeT        -> TypeT
     Var name     -> Var name
     Let var v b  -> Let (bimap f g var) (g v) (g b)
@@ -243,8 +239,7 @@ instance Bitraversable Expr where
     Unit         -> pure Unit
     UnitT        -> pure UnitT
     BoolT        -> pure BoolT
-    T            -> pure T
-    F            -> pure F
+    Bool b       -> pure (Bool b)
     TypeT        -> pure TypeT
     Var name     -> pure (Var name)
     Let var v b  -> Let <$> bitraverse f g var <*> g v <*> g b

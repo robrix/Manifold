@@ -29,8 +29,7 @@ unify actual expected
     (Unit, Unit)                                         -> pure Unit
     (UnitT, UnitT)                                       -> pure UnitT
     (BoolT, BoolT)                                       -> pure BoolT
-    (T, T)                                               -> pure T
-    (F, F)                                               -> pure F
+    (Bool b1, Bool b2) | b1 == b2                        -> pure (Bool b2)
     (TypeT, TypeT)                                       -> pure TypeT
     ((n1, u1) ::: t1 :-> b1, (n2, u2) ::: t2 :-> b2)     -> do
       n' <- I <$> fresh

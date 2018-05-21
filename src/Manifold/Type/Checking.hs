@@ -45,8 +45,7 @@ infer term = Type <$> case unTerm term of
   Unit -> pure UnitT
   UnitT -> pure TypeT
   BoolT -> pure TypeT
-  T -> pure BoolT
-  F -> pure BoolT
+  Bool _ -> pure BoolT
   TypeT -> pure TypeT
   Var name -> contextLookup name <$> askContext >>= maybe (freeVariable name) (pure . unType . constraintValue)
   Let ((name, _) ::: ty) val body -> do

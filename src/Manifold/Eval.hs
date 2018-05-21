@@ -5,7 +5,7 @@ import Control.Monad.Effect
 import Control.Monad.Effect.Reader
 import Data.Semiring (zero)
 import Manifold.Context
-import Manifold.Expr hiding (BoolT, Pair, TypeT, Unit, UnitT)
+import Manifold.Expr hiding (Bool, BoolT, Pair, TypeT, Unit, UnitT)
 import qualified Manifold.Expr as Expr
 import Manifold.Proof
 import Manifold.Value
@@ -19,8 +19,7 @@ eval (Term term) = case term of
   Expr.Unit -> pure Unit
   Expr.UnitT -> pure UnitT
   Expr.BoolT -> pure BoolT
-  T -> pure (Bool True)
-  F -> pure (Bool False)
+  Expr.Bool b -> pure (Bool b)
   Expr.TypeT -> pure TypeT
   Var name -> do
     Just value <- fmap constraintValue . contextLookup name <$> askEnv
