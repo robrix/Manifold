@@ -185,6 +185,7 @@ constraintName ((name, _) ::: _) = name
 constraintValue :: Constraint usage recur -> recur
 constraintValue (_ ::: ty) = ty
 
+
 type Binding usage = (Name, usage)
 
 
