@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds, GADTs, TypeOperators #-}
-module Manifold.Union where
+module Manifold.Union
+( Union
+) where
 
 data Union ts a where
   Here :: t a -> Union (t ': ts) a
