@@ -65,6 +65,27 @@ instance Substitutable (Type usage) where
     Ann a t                         -> Type (Ann (apply subst a) (apply subst t))
 
 
+typeT :: Type usage
+typeT = Type TypeType
+
+unitT :: Type usage
+unitT = Type UnitType
+
+boolT :: Type usage
+boolT = Type BoolType
+
+
+(.->) :: Constraint usage (Type usage) -> Type usage -> Type usage
+constraint .-> ty = Type (constraint :-> ty)
+
+(.*) :: Type usage -> Type usage -> Type usage
+a .* b = Type (a :* b)
+
+
+tvar :: Name -> Type usage
+tvar = Type . Var
+
+
 newtype Term usage = Term { unTerm :: Expr usage (Term usage) }
   deriving (Eq, Ord)
 
@@ -77,8 +98,42 @@ instance Recursive   (Term usage) where project = unTerm
 instance Corecursive (Term usage) where embed   =   Term
 
 
+unit :: Term usage
+unit = Term Unit
+
+true :: Term usage
+true = Term T
+
+false :: Term usage
+false = Term F
+
+iff :: Term usage -> Term usage -> Term usage -> Term usage
+iff c t e = Term (If c t e)
+
+
+pair :: Term usage -> Term usage -> Term usage
+pair a b = Term (Pair a b)
+
+exl :: Term usage -> Term usage
+exl = Term . ExL
+
+exr :: Term usage -> Term usage
+exr = Term . ExR
+
+
+var :: Name -> Term usage
+var = Term . Var
+
+
+as :: Term usage -> Type usage -> Term usage
+as tm ty = Term (Ann tm (cata Term ty))
+
+
+abs' :: Constraint usage (Term usage) -> Term usage -> Term usage
+abs' constraint body = Term (Abs constraint body)
+
 lam :: Unital usage => Term usage -> (Term usage -> Term usage) -> Term usage
-lam ty f = Term (Abs ((name, one) ::: ty) body)
+lam ty f = abs' ((name, one) ::: ty) body
   where name = maybe (I 0) prime (maxBV body)
         body = f (Term (Var name))
         prime (I i) = I (succ i)
