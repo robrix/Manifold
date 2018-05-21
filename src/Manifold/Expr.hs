@@ -20,7 +20,6 @@ data Expr usage recur
   | Bool Bool
   | TypeT
   | Var Name
-  | Let (Constraint usage recur) recur recur
   | Constraint usage recur :-> recur
   | Abs (Constraint usage recur) recur
   | App recur recur
@@ -55,7 +54,6 @@ instance Substitutable (Type usage) where
     Bool b                          -> Type (Bool b)
     TypeT                           -> Type TypeT
     Var name                        -> fromMaybe (Type (Var name)) (lookupSubst name subst)
-    Let ((name, usage) ::: ty) v b  -> Type (Let ((name, usage) ::: apply subst ty) (apply subst v) (apply (deleteSubst name subst) b))
     (name, usage) ::: ty :-> body   -> Type ((name, usage) ::: apply subst ty :-> apply (deleteSubst name subst) body)
     Abs ((name, usage) ::: ty) body -> Type (Abs ((name, usage) ::: apply subst ty) (apply (deleteSubst name subst) body))
     App f a                         -> Type (App (apply subst f) (apply subst a))
@@ -132,7 +130,7 @@ as tm ty = Term (Ann tm (cata Term ty))
 
 
 makeLet :: Constraint usage (Type usage) -> Term usage -> Term usage -> Term usage
-makeLet ((name, usage) ::: ty) value body = Term (Let ((name, usage) ::: cata Term ty) value body)
+makeLet ((name, usage) ::: ty) value body = abs' ((name, usage) ::: ty) body # value
 
 let' :: Unital usage => Type usage -> Term usage -> (Term usage -> Term usage) -> Term usage
 let' ty value f = makeLet ((name, one) ::: ty) value body where (name, body) = bindVariable f
@@ -204,7 +202,6 @@ instance Bifoldable Expr where
     Bool _       -> mempty
     TypeT        -> mempty
     Var _        -> mempty
-    Let var v b  -> bifoldMap f g var <> g v <> g b
     var :-> body -> bifoldMap f g var <> g body
     Abs var body -> bifoldMap f g var <> g body
     App f a      -> g f <> g a
@@ -223,7 +220,6 @@ instance Bifunctor Expr where
     Bool b       -> Bool b
     TypeT        -> TypeT
     Var name     -> Var name
-    Let var v b  -> Let (bimap f g var) (g v) (g b)
     var :-> body -> bimap f g var :-> g body
     Abs var body -> Abs (bimap f g var) (g body)
     App f a      -> App (g f) (g a)
@@ -242,7 +238,6 @@ instance Bitraversable Expr where
     Bool b       -> pure (Bool b)
     TypeT        -> pure TypeT
     Var name     -> pure (Var name)
-    Let var v b  -> Let <$> bitraverse f g var <*> g v <*> g b
     var :-> body -> (:->) <$> bitraverse f g var <*> g body
     Abs var body -> Abs <$> bitraverse f g var <*> g body
     App f a      -> App <$> g f <*> g a
