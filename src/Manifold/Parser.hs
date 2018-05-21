@@ -6,7 +6,7 @@ import Data.Semiring (zero)
 import qualified Data.HashSet as HashSet
 import Manifold.Constraint
 import Manifold.Expr as Expr
-import Manifold.Name
+import Manifold.Name (Name(..))
 import Manifold.Term as Term
 import Manifold.Type as Type
 import Text.Parser.Char

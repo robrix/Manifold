@@ -4,3 +4,7 @@ data Name
   = N String
   | I Int
   deriving (Eq, Ord, Show)
+
+
+class Named n where
+  name :: n -> Name
