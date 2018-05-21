@@ -10,6 +10,9 @@ import Manifold.Parser as Parser
 import Manifold.Type.Checking
 import System.Console.Haskeline
 import Text.Trifecta as Trifecta
+command :: Members '[Prompt, REPL usage] effects => Parser.Parser Trifecta.Parser (Proof usage effects ())
+command = whiteSpace *> (colon *> meta) <* eof <?> "command"
+
 meta :: Members '[Prompt, REPL usage] effects => Parser.Parser Trifecta.Parser (Proof usage effects ())
 meta
   =   (long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
