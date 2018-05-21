@@ -1,5 +1,13 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase, TypeFamilies #-}
-module Manifold.Expr where
+module Manifold.Expr
+( Intro(..)
+, Elim(..)
+, Expr(..)
+, rerep
+, bindVariable
+, freeVariables
+, Silent(..)
+) where
 
 import Data.Bifoldable
 import Data.Bifunctor
