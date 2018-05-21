@@ -6,6 +6,7 @@ import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Data.Semiring (Semiring(..))
+import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Expr
 import Manifold.Name
@@ -32,24 +33,24 @@ unify t1 t2
       | Unit    <- i1, Unit    <- i2 -> pure (tintro Unit)
       | Bool b1 <- i1, Bool b2 <- i2
       , b1 == b2                     -> pure (tintro (Bool b2))
-      | Abs ((n1, u1) ::: t1) b1 <- i1
-      , Abs ((n2, u2) ::: t2) b2 <- i2 -> do
+      | Abs (Binding n1 u1 ::: t1) b1 <- i1
+      , Abs (Binding n2 u2 ::: t2) b2 <- i2 -> do
         n' <- I <$> fresh
         t' <- unify t1 t2
         b' <- unify (apply (singletonSubst n1 (tvar n')) b1)
                     (apply (singletonSubst n2 (tvar n')) b2)
-        pure (tintro (Abs ((n', u1 >< u2) ::: t') b'))
+        pure (tintro (Abs (Binding n' (u1 >< u2) ::: t') b'))
       | Pair a1 b1 <- i1, Pair a2 b2 <- i2 -> fmap tintro . Pair <$> unify a1 a2 <*> unify b1 b2
       | UnitT   <- i1, UnitT   <- i2 -> pure unitT
       | BoolT   <- i1, BoolT   <- i2 -> pure boolT
       | TypeT   <- i1, TypeT   <- i2 -> pure typeT
-      | (n1, u1) ::: t1 :-> b1 <- i1
-      , (n2, u2) ::: t2 :-> b2 <- i2 -> do
+      | Binding n1 u1 ::: t1 :-> b1 <- i1
+      , Binding n2 u2 ::: t2 :-> b2 <- i2 -> do
         n' <- I <$> fresh
         t' <- unify t1 t2
         b' <- unify (apply (singletonSubst n1 (tvar n')) b1)
                     (apply (singletonSubst n2 (tvar n')) b2)
-        pure ((n', u1 >< u2) ::: t' .-> b')
+        pure (Binding n' (u1 >< u2) ::: t' .-> b')
       | a1 :* b1 <- i1, a2 :* b2 <- i2 -> (.*) <$> unify a1 a2 <*> unify b1 b2
     (Elim e1, Elim e2)
       | ExL a1      <- e1, ExL a2      <- e2 -> telim . ExL <$> unify a1 a2

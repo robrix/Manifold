@@ -3,6 +3,7 @@ module Manifold.Context where
 
 import Data.Module.Class
 import Data.Semiring (Semiring(..))
+import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Name
 
@@ -32,13 +33,13 @@ contextFilter keep = go
 
 instance (Eq recur, Eq usage, Semigroup usage) => Semigroup (Context usage recur) where
   Empty <> Empty = Empty
-  (ctx1 :> ((name1, u1) ::: t1)) <> (ctx2 :> ((name2, u2) ::: t2))
+  (ctx1 :> (Binding name1 u1 ::: t1)) <> (ctx2 :> (Binding name2 u2 ::: t2))
     | name1 == name2
     , t1 == t2
-    = (ctx1 <> ctx2) :> ((name1, u1 <> u2) ::: t1)
+    = (ctx1 <> ctx2) :> (Binding name1 (u1 <> u2) ::: t1)
   _ <> _ = error "adding inequal contexts"
 
 
 instance (Eq recur, Eq usage, Semiring usage) => Module usage (Context usage recur) where
   _  ><< Empty = Empty
-  u1 ><< (ctx :> ((name, u2) ::: t)) = (u1 ><< ctx) :> ((name, u1 >< u2) ::: t)
+  u1 ><< (ctx :> (Binding name u2 ::: t)) = (u1 ><< ctx) :> (Binding name (u1 >< u2) ::: t)

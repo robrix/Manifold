@@ -6,6 +6,7 @@ import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Data.Semiring (Semiring(..), zero)
+import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Expr
@@ -78,7 +79,7 @@ infer term = case unTerm term of
       n <- I <$> fresh
       t1 <- tvar . I <$> fresh
       t2 <- tvar . I <$> fresh
-      _ <- check f ((n, zero) ::: t1 .-> t2)
+      _ <- check f (Binding n zero ::: t1 .-> t2)
       _ <- check a t1
       pure t2
     | If c t e <- e -> do

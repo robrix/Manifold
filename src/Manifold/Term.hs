@@ -6,6 +6,7 @@ import Data.Bifunctor
 import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Data.Semiring (Unital(..))
+import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Expr
 import Manifold.Name
@@ -59,7 +60,7 @@ makeLet :: Constraint usage (Type usage) -> Term usage -> Term usage -> Term usa
 makeLet (var ::: ty) value body = abs' (var ::: ty) body # value
 
 let' :: Unital usage => Type usage -> Term usage -> (Term usage -> Term usage) -> Term usage
-let' ty value f = makeLet ((name, one) ::: ty) value body where (name, body) = bindVariable f
+let' ty value f = makeLet (Binding name one ::: ty) value body where (name, body) = bindVariable f
 
 
 abs' :: Constraint usage (Type usage) -> Term usage -> Term usage
@@ -67,7 +68,7 @@ abs' constraint body = intro (Abs (rerep <$> constraint) body)
 
 
 lam :: Unital usage => Type usage -> (Term usage -> Term usage) -> Term usage
-lam ty f = abs' ((name, one) ::: ty) body
+lam ty f = abs' (Binding name one ::: ty) body
   where (name, body) = bindVariable f
 
 

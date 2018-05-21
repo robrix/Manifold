@@ -4,6 +4,7 @@ module Manifold.Parser where
 import Control.Applicative (Alternative(..))
 import Data.Semiring (zero)
 import qualified Data.HashSet as HashSet
+import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Expr as Expr
 import Manifold.Name (Name(..))
@@ -54,7 +55,7 @@ term = application
                                        <*> some constraint <* dot
                                        <*> term
                                        <?> "lambda"
-        constraint = parens ((:::) . flip (,) zero <$> name <* colon <*> type')
+        constraint = parens ((:::) . flip Binding zero <$> name <* colon <*> type')
 
 
 type' :: (Monad m, TokenParsing m) => m (Type usage)

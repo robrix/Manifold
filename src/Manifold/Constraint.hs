@@ -3,9 +3,10 @@ module Manifold.Constraint where
 
 import Data.Bifoldable
 import Data.Bifunctor
+import Manifold.Binding
 import Manifold.Name
 
-data Constraint usage recur = (Name, usage) ::: recur
+data Constraint usage recur = Binding usage ::: recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 instance Bifoldable Constraint where

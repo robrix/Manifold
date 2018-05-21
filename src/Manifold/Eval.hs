@@ -4,6 +4,7 @@ module Manifold.Eval where
 import Control.Monad.Effect
 import Control.Monad.Effect.Reader
 import Data.Semiring (zero)
+import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Expr
@@ -48,7 +49,7 @@ eval (Term term) = case term of
       -- FIXME: use the env
       -- FIXME: pi types
       a' <- eval a
-      (name, zero) ::: a' >- eval body
+      Binding name zero ::: a' >- eval body
     If c t e -> do
       Value (Bool b) <- eval c
       if b then
