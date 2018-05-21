@@ -31,6 +31,12 @@ unify actual expected
     (BoolT, BoolT)                                       -> pure BoolT
     (Bool b1, Bool b2) | b1 == b2                        -> pure (Bool b2)
     (TypeT, TypeT)                                       -> pure TypeT
+    (Let ((n1, u1) ::: t1) v1 b1, Let ((n2, u2) ::: t2) v2 b2) -> do
+      n' <- I <$> fresh
+      t' <- unify t1 t2
+      v' <- unify v1 v2
+      b' <- unify (apply (singletonSubst n1 (Type (Var n'))) b1) (apply (singletonSubst n2 (Type (Var n'))) b2)
+      pure (Let ((n', u1 >< u2) ::: t') v' b')
     ((n1, u1) ::: t1 :-> b1, (n2, u2) ::: t2 :-> b2)     -> do
       n' <- I <$> fresh
       t' <- unify t1 t2
