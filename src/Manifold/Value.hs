@@ -4,7 +4,7 @@ module Manifold.Value where
 import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Manifold.Context
-import Manifold.Expr hiding (Silent(..))
+import Manifold.Expr.Intro
 import Manifold.Name
 import Manifold.Term
 
