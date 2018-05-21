@@ -4,5 +4,5 @@ import Manifold.Constraint
 import Manifold.Expr
 import Manifold.Type
 
-data Elab usage = Elab { elabExpr :: Expr (Constraint usage (Elab usage)) (Elab usage), elabType :: Type usage }
+data Elab var = Elab { elabExpr :: Expr (Constraint var (Elab var)) (Elab var), elabType :: Type var }
   deriving (Eq, Ord)
