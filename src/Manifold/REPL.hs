@@ -16,18 +16,18 @@ import Manifold.Type.Formation
 import System.Console.Haskeline
 import Text.Trifecta as Trifecta
 
-repl :: (Members '[Prompt, REPL usage] effects, Show usage) => Proof usage effects ()
+repl :: (Members '[Prompt, REPL usage] effects, Monoid usage, Show usage) => Proof usage effects ()
 repl = prompt >>= maybe repl handleInput
 
-handleInput :: (Members '[Prompt, REPL usage] effects, Show usage) => String -> Proof usage effects ()
+handleInput :: (Members '[Prompt, REPL usage] effects, Monoid usage, Show usage) => String -> Proof usage effects ()
 handleInput str = case Parser.parseString command str of
   Left err -> output err *> repl
   Right action -> action
 
-command :: (Members '[Prompt, REPL usage] effects, Show usage) => Parser.Parser Trifecta.Parser (Proof usage effects ())
+command :: (Members '[Prompt, REPL usage] effects, Monoid usage, Show usage) => Parser.Parser Trifecta.Parser (Proof usage effects ())
 command = whole meta <?> "command"
 
-meta :: (Members '[Prompt, REPL usage] effects, Show usage) => Parser.Parser Trifecta.Parser (Proof usage effects ())
+meta :: (Members '[Prompt, REPL usage] effects, Monoid usage, Show usage) => Parser.Parser Trifecta.Parser (Proof usage effects ())
 meta = colon
   *> ((long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
   <|> (long "quit" <|> short 'q' <?> "quit") $> pure ()

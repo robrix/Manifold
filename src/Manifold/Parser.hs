@@ -1,9 +1,12 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, TypeFamilies #-}
 module Manifold.Parser where
 
 import Control.Applicative (Alternative(..), (<**>))
+import Data.Functor.Foldable (cata)
+import Data.Semiring (zero)
 import qualified Data.HashSet as HashSet
 import Manifold.Expr as Expr
+import Manifold.Name
 import Text.Parser.Char
 import Text.Parser.Combinators
 import Text.Parser.Token
@@ -32,22 +35,43 @@ whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
 
 
-term :: TokenParsing m => m (Term usage)
+term :: (Monad m, Monoid usage, TokenParsing m) => m (Term usage)
 term = annotation
   where annotation = atom <**> option id (flip as <$ colon <*> type')
-        atom = choice [ tuple, true', false' ]
+        atom = choice [ tuple, true', false', var, lambda ]
         tuple = parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple"
         true'  = true  <$ preword "True"
         false' = false <$ preword "False"
+        var = Expr.var <$> name <?> "variable"
+        lambda = foldr ((.) . abs') id <$  op "\\"
+                                       <*> some constraint <* dot
+                                       <*> term
+                                       <?> "lambda"
+        constraint = make <$> name <* colon <*> type'
+          where make name ty = (name, zero) ::: cata Term ty
 
 
-type' :: TokenParsing m => m (Type usage)
+type' :: (Monad m, TokenParsing m) => m (Type usage)
 type' = product
   where product = chainl1 atom ((.*) <$ symbolic '*') <?> "product type"
-        atom = choice [ boolT', unitT', typeT' ]
+        atom = choice [ boolT', unitT', typeT', tvar ]
         boolT' = boolT <$ preword "Bool"
         unitT' = unitT <$ preword "Unit"
         typeT' = typeT <$ preword "Type"
+        tvar = Expr.tvar <$> name <?> "type variable"
+
+
+name :: (Monad m, TokenParsing m) => m Name
+name = identifier >>= \ ident -> return $ case ident of
+  "_" -> I (-1)
+  _ -> N ident
+
+op :: TokenParsing m => String -> m String
+op = token . highlight Operator . string
+
+identifier :: (Monad m, TokenParsing m) => m String
+identifier =  ident (IdentifierStyle "identifier" (letter <|> char '_') (alphaNum <|> char '_') reservedWords Identifier ReservedIdentifier)
+          <|> try ((:[]) <$> token (parens (highlight Operator (oneOf ".,"))))
 
 reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "exl", "exr", "()" ]
