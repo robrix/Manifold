@@ -31,8 +31,7 @@ decompose (There ts) = Right ts
 
 
 instance (Foldable t, Foldable (Sum ts)) => Foldable (Sum (t ': ts)) where
-  foldMap f (Here t) = foldMap f t
-  foldMap f (There ts) = foldMap f ts
+  foldMap f = either (foldMap f) (foldMap f) . decompose
 
 instance (Functor t, Functor (Sum ts)) => Functor (Sum (t ': ts)) where
   fmap f (Here t) = Here (fmap f t)
