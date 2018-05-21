@@ -3,11 +3,22 @@ module Manifold.REPL where
 
 import Control.Monad.Effect
 import Manifold.Expr
+import Manifold.Proof
+import Manifold.Type.Checking
 import System.Console.Haskeline
 
 data REPL usage result where
   Help :: REPL usage ()
   TypeOf :: Term usage -> REPL usage (Type usage)
+
+runREPL :: Members '[Check usage, Prompt] effects => Proof usage (REPL usage ': effects) a -> Proof usage effects a
+runREPL = relay pure (\ repl yield -> case repl of
+  Help -> output (unlines
+    [ ":help, :h, :?     - print this help text"
+    , ":quit, :q         - exit the REPL"
+    , ":type, :t <expr>  - print the type of <expr>"
+    ]) >>= yield
+  TypeOf term -> infer term >>= yield)
 
 
 prompt :: (Effectful m, Member Prompt effects) => m effects (Maybe String)
