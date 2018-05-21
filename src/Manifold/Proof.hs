@@ -12,8 +12,8 @@ newtype Proof usage effects a = Proof { runProof :: Eff effects a }
   deriving (Applicative, Effectful, Functor, Monad)
 
 
-freeVariable :: Members '[Exc (Error usage), Reader (Context usage)] effects => Name -> Proof usage effects a
-freeVariable name = ask >>= throwError . FreeVariable name
+freeVariable :: Member (Exc (Error usage)) effects => Name -> Proof usage effects a
+freeVariable = throwError . FreeVariable
 
 cannotUnify :: Member (Exc (Error usage)) effects => Type usage -> Type usage -> Proof usage effects a
 cannotUnify t1 t2 = throwError (CannotUnify t1 t2)
@@ -25,7 +25,7 @@ throwError :: Member (Exc (Error usage)) effects => Error usage -> Proof usage e
 throwError = Exception.throwError
 
 data Error usage
-  = FreeVariable Name (Context usage)
+  = FreeVariable Name
   | CannotUnify (Type usage) (Type usage)
   | NoRuleToCheckIsType (Term usage)
   deriving (Eq, Ord, Show)
