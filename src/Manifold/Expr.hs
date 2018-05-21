@@ -16,6 +16,7 @@ import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import qualified Data.Set as Set
 import Manifold.Constraint
+import Manifold.Expr.Elim
 import Manifold.Name
 
 data Intro var scope recur
@@ -62,13 +63,6 @@ instance Trifunctor Intro where
     TypeT    -> TypeT
     v :-> b  -> f v :-> g b
     a :* b   -> h a :* h b
-
-data Elim recur
-  = ExL recur
-  | ExR recur
-  | App recur recur
-  | If recur recur recur
-  deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 data Expr var recur
   = Var Name
