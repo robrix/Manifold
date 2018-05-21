@@ -2,6 +2,7 @@ module Manifold.Elaborate where
 
 import Manifold.Constraint
 import Manifold.Expr
+import Manifold.Type
 
-newtype Elab usage = Elab { unElab :: Expr (Constraint usage (Elab usage)) (Elab usage) }
+data Elab usage = Elab { elabExpr :: Expr (Constraint usage (Elab usage)) (Elab usage), elabType :: Type usage }
   deriving (Eq, Ord)
