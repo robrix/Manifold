@@ -16,36 +16,38 @@ eval :: ( Member (Reader (Context usage (Value usage))) effects
      => Term usage
      -> Proof usage effects (Value usage)
 eval (Term term) = case term of
-  Expr.Unit -> pure Unit
-  Expr.UnitT -> pure UnitT
-  Expr.BoolT -> pure BoolT
-  Expr.Bool b -> pure (Bool b)
-  Expr.TypeT -> pure TypeT
+  -- FIXME: no failable patterns
   Var name -> do
     Just value <- fmap constraintValue . contextLookup name <$> askEnv
     pure value
-  (name, _) ::: _ :-> body -> Closure name body . contextFilter (((&&) <$> (/= name) <*> (`elem` freeVariables body)) . constraintName) <$> ask
-  Abs ((name, _) ::: _) body -> Closure name body . contextFilter (((&&) <$> (/= name) <*> (`elem` freeVariables body)) . constraintName) <$> ask
-  App f a -> do
-    Closure name body env <- eval f
-    a' <- eval a
-    (name, zero) ::: a' >- eval body
-    -- FIXME: use the env
-    -- FIXME: no failable patterns
-  If c t e -> do
-    Bool b <- eval c
-    if b then
-      eval t
-    else
-      eval e
-  a :* b -> Product <$> eval a <*> eval b
-  Expr.Pair a b -> Pair <$> eval a <*> eval b
-  ExL pair -> do
-    Pair a _ <- eval pair
-    pure a
-  ExR pair -> do
-    Pair _ b <- eval pair
-    pure b
+  Intro i -> case i of
+    Expr.Unit -> pure Unit
+    Expr.Bool b -> pure (Bool b)
+    Abs ((name, _) ::: _) body -> Closure name body . contextFilter (((&&) <$> (/= name) <*> (`elem` freeVariables body)) . constraintName) <$> ask
+    Expr.Pair a b -> Pair <$> eval a <*> eval b
+    Expr.UnitT -> pure UnitT
+    Expr.BoolT -> pure BoolT
+    Expr.TypeT -> pure TypeT
+    (name, _) ::: _ :-> body -> Closure name body . contextFilter (((&&) <$> (/= name) <*> (`elem` freeVariables body)) . constraintName) <$> ask
+    a :* b -> Product <$> eval a <*> eval b
+  Elim e -> case e of
+    ExL pair -> do
+      Pair a _ <- eval pair
+      pure a
+    ExR pair -> do
+      Pair _ b <- eval pair
+      pure b
+    App f a -> do
+      Closure name body env <- eval f
+      -- FIXME: use the env
+      a' <- eval a
+      (name, zero) ::: a' >- eval body
+    If c t e -> do
+      Bool b <- eval c
+      if b then
+        eval t
+      else
+        eval e
 
 askEnv :: Member (Reader (Context usage (Value usage))) effects => Proof usage effects (Context usage (Value usage))
 askEnv = ask

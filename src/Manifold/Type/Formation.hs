@@ -14,13 +14,13 @@ checkIsType :: ( Members '[ Exc (Error usage)
                )
             => Term usage
             -> Proof usage effects (Type usage)
-checkIsType term = Type <$> case unTerm term of
-  UnitT -> pure UnitT
-  BoolT -> pure BoolT
-  TypeT -> pure TypeT
-  (name, usage) ::: _S :-> _T -> do
+checkIsType term = case unTerm term of
+  Intro UnitT -> pure (tintro UnitT)
+  Intro BoolT -> pure (tintro BoolT)
+  Intro TypeT -> pure (tintro TypeT)
+  Intro ((name, usage) ::: _S :-> _T) -> do
     _S' <- checkIsType _S
     _T' <- (name, zero) ::: _S' >- checkIsType _T
-    pure ((name, usage) ::: _S' :-> _T')
-  _S :* _T -> (:*) <$> checkIsType _S <*> checkIsType _T
+    pure ((name, usage) ::: _S' .-> _T')
+  Intro (_S :* _T) -> (.*) <$> checkIsType _S <*> checkIsType _T
   _ -> noRuleToCheckIsType term

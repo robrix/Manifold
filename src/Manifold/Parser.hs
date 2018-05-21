@@ -2,7 +2,6 @@
 module Manifold.Parser where
 
 import Control.Applicative (Alternative(..))
-import Data.Functor.Foldable (cata)
 import Data.Semiring (zero)
 import qualified Data.HashSet as HashSet
 import Manifold.Expr as Expr
@@ -37,7 +36,7 @@ whole p = whiteSpace *> p <* eof
 
 term :: (Monad m, Monoid usage, TokenParsing m) => m (Term usage)
 term = application
-  where atom = choice [ tuple, true', false', cata Term <$> type', var, let', lambda ]
+  where atom = choice [ tuple, true', false', typeToTerm <$> type', var, let', lambda ]
         application = atom `chainl1` pure (#) <?> "function application"
         tuple = parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple"
         true'  = true  <$ preword "True"
@@ -63,6 +62,24 @@ type' = product
         unitT' = unitT <$ preword "Unit"
         typeT' = typeT <$ preword "Type"
         tvar = Expr.tvar <$> name <?> "type variable"
+
+
+-- piType :: (Monad m, TokenParsing m) => m Type
+-- piType = fmap toPi $ ((:[]) <$> argument) `chainr1` ((++) <$ op "->")
+--   where exponential arg = case arg of
+--           Named name ty -> makePi name ty
+--           Unnamed ty -> (.->.) ty
+--         codomain res = case res of
+--           Named name ty -> Expr.var name `as` ty
+--           Unnamed ty -> ty
+--         toPi components = foldr exponential (codomain (Prelude.last components)) (Prelude.init components)
+--
+-- argument :: (Monad m, TokenParsing m) => m Argument
+-- argument =  try (parens (Named <$> name <* colon <*> type'))
+--         <|>            Unnamed <$> sumType
+--         <?> "argument"
+--
+-- data Argument = Named Name Type | Unnamed Type
 
 
 name :: (Monad m, TokenParsing m) => m Name

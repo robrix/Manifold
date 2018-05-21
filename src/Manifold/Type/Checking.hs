@@ -41,44 +41,48 @@ infer :: ( Eq usage
          )
       => Term usage
       -> Proof usage effects (Type usage)
-infer term = Type <$> case unTerm term of
-  Unit -> pure UnitT
-  UnitT -> pure TypeT
-  BoolT -> pure TypeT
-  Bool _ -> pure BoolT
-  TypeT -> pure TypeT
-  Var name -> contextLookup name <$> askContext >>= maybe (freeVariable name) (pure . unType . constraintValue)
-  (name, _) ::: ty :-> body -> do
-    ty' <- checkIsType ty
-    ((name, zero) ::: ty' >- checkIsType body) $> TypeT
-  Abs ((name, usage) ::: ty) body -> do
-    ty' <- checkIsType ty
-    body' <- (name, usage) ::: ty' >- infer body
-    pure ((name, usage) ::: ty' :-> body')
-  App f a -> do
-    n <- I <$> fresh
-    t1 <- Var . I <$> fresh
-    t2 <- Var . I <$> fresh
-    _ <- check f (Type ((n, zero) ::: Type t1 :-> Type t2))
-    _ <- check a (Type t1)
-    pure t2
-  If c t e -> do
-    _ <- check c (Type BoolT)
-    t' <- infer t
-    e' <- infer e
-    unType <$> unify t' e'
-  a :* b -> checkIsType a *> checkIsType b $> TypeT
-  Pair a b -> (:*) <$> infer a <*> infer b
-  ExL a -> do
-    t1 <- Var . I <$> fresh
-    t2 <- Var . I <$> fresh
-    _ <- check a (Type (Type t1 :* Type t2))
-    pure t1
-  ExR a -> do
-    t1 <- Var . I <$> fresh
-    t2 <- Var . I <$> fresh
-    _ <- check a (Type (Type t1 :* Type t2))
-    pure t2
+infer term = case unTerm term of
+  Var name                                 -> do
+    context <- askContext
+    maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
+  Intro i
+    | Unit                            <- i -> pure unitT
+    | Bool _                          <- i -> pure boolT
+    | Abs ((name, usage) ::: ty) body <- i -> do
+      ty' <- checkIsType ty
+      body' <- (name, usage) ::: ty' >- infer body
+      pure ((name, usage) ::: ty' .-> body')
+    | Pair a b                        <- i -> (.*) <$> infer a <*> infer b
+    | UnitT                           <- i -> pure typeT
+    | BoolT                           <- i -> pure typeT
+    | TypeT                           <- i -> pure typeT
+    | (name, _) ::: ty :-> body       <- i -> do
+      ty' <- checkIsType ty
+      ((name, zero) ::: ty' >- checkIsType body) $> typeT
+    | a :* b                          <- i -> checkIsType a *> checkIsType b $> typeT
+  Elim e
+    | ExL a    <- e -> do
+      t1 <- tvar . I <$> fresh
+      t2 <- tvar . I <$> fresh
+      _ <- check a (t1 .* t2)
+      pure t1
+    | ExR a    <- e -> do
+      t1 <- tvar . I <$> fresh
+      t2 <- tvar . I <$> fresh
+      _ <- check a (t1 .* t2)
+      pure t2
+    | App f a  <- e -> do
+      n <- I <$> fresh
+      t1 <- tvar . I <$> fresh
+      t2 <- tvar . I <$> fresh
+      _ <- check f ((n, zero) ::: t1 .-> t2)
+      _ <- check a t1
+      pure t2
+    | If c t e <- e -> do
+      _ <- check c boolT
+      t' <- infer t
+      e' <- infer e
+      unify t' e'
 
 
 runSubstitution :: Proof usage (State (Substitution (Type usage)) ': effects) a -> Proof usage effects (a, Substitution (Type usage))
