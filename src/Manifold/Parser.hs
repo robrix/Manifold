@@ -2,7 +2,6 @@
 module Manifold.Parser where
 
 import Control.Applicative (Alternative(..), (<**>))
-import Data.Functor.Foldable (cata)
 import Data.Semiring (zero)
 import qualified Data.HashSet as HashSet
 import Manifold.Expr as Expr
@@ -49,7 +48,7 @@ term = annotation
                                        <*> term
                                        <?> "lambda"
         constraint = make <$> name <* colon <*> type'
-          where make name ty = (name, zero) ::: cata Term ty
+          where make name ty = (name, zero) ::: ty
 
 
 type' :: (Monad m, TokenParsing m) => m (Type usage)

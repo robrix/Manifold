@@ -131,10 +131,10 @@ as :: Term usage -> Type usage -> Term usage
 as tm ty = Term (Ann tm (cata Term ty))
 
 
-abs' :: Constraint usage (Term usage) -> Term usage -> Term usage
-abs' constraint body = Term (Abs constraint body)
+abs' :: Constraint usage (Type usage) -> Term usage -> Term usage
+abs' ((name, usage) ::: ty) body = Term (Abs ((name, usage) ::: cata Term ty) body)
 
-lam :: Unital usage => Term usage -> (Term usage -> Term usage) -> Term usage
+lam :: Unital usage => Type usage -> (Term usage -> Term usage) -> Term usage
 lam ty f = abs' ((name, one) ::: ty) body
   where (name, body) = bindVariable f
 
