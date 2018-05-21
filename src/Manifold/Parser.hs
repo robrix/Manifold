@@ -23,3 +23,7 @@ toResult :: Trifecta.Result a -> Either String a
 toResult r = case r of
   Trifecta.Success a -> Right a
   Trifecta.Failure info -> Left (show (Trifecta._errDoc info))
+
+
+whole :: TokenParsing m => m a -> m a
+whole p = whiteSpace *> p <* eof
