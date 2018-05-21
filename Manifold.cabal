@@ -19,6 +19,7 @@ library
                      , Manifold.Expr
                      , Manifold.Name
                      , Manifold.Parser
+                     , Manifold.Prompt
                      , Manifold.Proof
                      , Manifold.Purpose
                      , Manifold.REPL
