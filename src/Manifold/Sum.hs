@@ -47,3 +47,6 @@ instance (Functor t, Functor (Sum ts)) => Functor (Sum (t ': ts)) where
 
 instance (Traversable t, Traversable (Sum ts)) => Traversable (Sum (t ': ts)) where
   traverse f = either (fmap inject . traverse f) (fmap weaken . traverse f) . decompose
+
+instance (Show (t a), Show (Sum ts a)) => Show (Sum (t ': ts) a) where
+  showsPrec d = either (showsPrec d) (showsPrec d) . decompose
