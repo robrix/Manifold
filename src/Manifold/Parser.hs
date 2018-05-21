@@ -31,6 +31,7 @@ toResult r = case r of
 whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
 
+
 term :: TokenParsing m => m (Term usage)
 term
   =  ((parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple")
