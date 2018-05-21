@@ -7,6 +7,7 @@ import Data.Semiring (zero)
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Expr
+import Manifold.Name
 import Manifold.Proof
 import Manifold.Term
 import Manifold.Value
@@ -24,16 +25,16 @@ eval (Term term) = case term of
   Intro i -> case i of
     Unit -> pure (Value Unit)
     Bool b -> pure (Value (Bool b))
-    Abs ((name, _) ::: _) body -> do
-      env <- contextFilter (((&&) <$> (/= name) <*> (`elem` freeVariables body)) . constraintName) <$> ask
-      pure (Value (Abs (name, env) body))
+    Abs (var ::: _) body -> do
+      env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . constraintName) <$> ask
+      pure (Value (Abs (name var, env) body))
     Pair a b -> fmap Value . Pair <$> eval a <*> eval b
     UnitT -> pure (Value UnitT)
     BoolT -> pure (Value BoolT)
     TypeT -> pure (Value TypeT)
-    (name, _) ::: _ :-> body -> do
-      env <- contextFilter (((&&) <$> (/= name) <*> (`elem` freeVariables body)) . constraintName) <$> ask
-      pure (Value ((name, env) :-> body))
+    var ::: _ :-> body -> do
+      env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . constraintName) <$> ask
+      pure (Value ((name var, env) :-> body))
     a :* b -> fmap Value . (:*) <$> eval a <*> eval b
   Elim e -> case e of
     ExL pair -> do
