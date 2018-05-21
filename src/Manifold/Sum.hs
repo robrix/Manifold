@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, GADTs, MultiParamTypeClasses, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleInstances, GADTs, MultiParamTypeClasses, TypeOperators #-}
 module Manifold.Sum
 ( Sum
 , Element(..)
@@ -11,3 +11,8 @@ data Sum ts a where
 class Element t ts where
   inject :: t a -> Sum ts a
   project :: Sum ts a -> Maybe (t a)
+
+instance {-# OVERLAPPABLE #-} Element t (t ': ts) where
+  inject = Here
+  project (Here t) = Just t
+  project _        = Nothing
