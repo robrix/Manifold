@@ -2,9 +2,12 @@
 module Manifold.Parser where
 
 import Control.Applicative (Alternative(..))
+import qualified Data.HashSet as HashSet
+import Manifold.Expr as Expr
 import Text.Parser.Char
 import Text.Parser.Combinators
 import Text.Parser.Token
+import Text.Parser.Token.Highlight
 import Text.Parser.Token.Style
 import qualified Text.Trifecta as Trifecta
 
@@ -27,3 +30,13 @@ toResult r = case r of
 
 whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
+
+term :: TokenParsing m => m (Term usage)
+term = (unit <$ parens (pure ()) <?> "unit")
+
+
+reservedWords :: HashSet.HashSet String
+reservedWords =  HashSet.fromList [ "exl", "exr", "()" ]
+
+preword :: TokenParsing m => String -> m String
+preword s = token (highlight ReservedIdentifier (string s <* notFollowedBy alphaNum))
