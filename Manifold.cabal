@@ -19,6 +19,8 @@ library
                      , Manifold.Erasure
                      , Manifold.Eval
                      , Manifold.Expr
+                     , Manifold.Expr.Elim
+                     , Manifold.Expr.Intro
                      , Manifold.Name
                      , Manifold.Parser
                      , Manifold.Prompt
