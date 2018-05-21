@@ -17,7 +17,7 @@ instance Bifunctor Constraint where
 infix 5 :::
 
 constraintName :: Constraint usage recur -> Name
-constraintName ((name, _) ::: _) = name
+constraintName (var ::: _) = name var
 
 constraintValue :: Constraint usage recur -> recur
 constraintValue (_ ::: ty) = ty
