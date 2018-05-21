@@ -24,11 +24,11 @@ instance Corecursive (Type usage) where embed   =   Type
 
 instance Substitutable (Type usage) where
   apply subst ty = case unType ty of
-    Var name                                -> fromMaybe (tvar name) (lookupSubst name subst)
-    Intro ((name, usage) ::: ty :-> body)   -> tintro ((name, usage) ::: apply subst ty :-> apply (deleteSubst name subst) body)
-    Intro (Abs ((name, usage) ::: ty) body) -> tintro (Abs ((name, usage) ::: apply subst ty) (apply (deleteSubst name subst) body))
-    Intro i                                 -> tintro (apply subst <$> i)
-    Elim e                                  -> telim (apply subst <$> e)
+    Var name                      -> fromMaybe (tvar name) (lookupSubst name subst)
+    Intro (var ::: ty :-> body)   -> tintro (var ::: apply subst ty :-> apply (deleteSubst (name var) subst) body)
+    Intro (Abs (var ::: ty) body) -> tintro (Abs (var ::: apply subst ty) (apply (deleteSubst (name var) subst) body))
+    Intro i                       -> tintro (apply subst <$> i)
+    Elim e                        -> telim (apply subst <$> e)
 
 tvar :: Name -> Type usage
 tvar = Type . Var
