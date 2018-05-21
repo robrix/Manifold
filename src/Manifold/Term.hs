@@ -56,7 +56,7 @@ exr = elim . ExR
 
 
 makeLet :: Constraint usage (Type usage) -> Term usage -> Term usage -> Term usage
-makeLet ((name, usage) ::: ty) value body = abs' ((name, usage) ::: ty) body # value
+makeLet (var ::: ty) value body = abs' (var ::: ty) body # value
 
 let' :: Unital usage => Type usage -> Term usage -> (Term usage -> Term usage) -> Term usage
 let' ty value f = makeLet ((name, one) ::: ty) value body where (name, body) = bindVariable f
