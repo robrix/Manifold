@@ -87,7 +87,7 @@ newtype Type usage = Type { unType :: Expr (Constraint usage (Type usage)) (Type
   deriving (Eq, Ord)
 
 instance Show usage => Show (Type usage) where
-  showsPrec d = showsUnaryWith showsPrec "Type" d . cata Silent
+  showsPrec d = showsUnaryWith showsPrec "Type" d . unSilent . rerep
 
 type instance Base (Type usage) = Expr (Constraint usage (Type usage))
 
@@ -137,7 +137,7 @@ newtype Term usage = Term { unTerm :: Expr (Constraint usage (Term usage)) (Term
   deriving (Eq, Ord)
 
 instance Show usage => Show (Term usage) where
-  showsPrec d = showsUnaryWith showsPrec "Term" d . cata Silent
+  showsPrec d = showsUnaryWith showsPrec "Term" d . unSilent . rerep
 
 type instance Base (Term usage) = Expr (Constraint usage (Term usage))
 
@@ -259,7 +259,12 @@ instance Functor Term where
   fmap f = Term . bimap (bimap f (fmap f)) (fmap f) . unTerm
 
 
-newtype Silent usage = Silent { unSilent :: Expr usage (Silent usage) }
+newtype Silent usage = Silent { unSilent :: Expr (Constraint usage (Silent usage)) (Silent usage) }
+
+type instance Base (Silent usage) = Expr (Constraint usage (Silent usage))
+
+instance Recursive   (Silent usage) where project = unSilent
+instance Corecursive (Silent usage) where embed   =   Silent
 
 instance Show usage => Show (Silent usage) where
   showsPrec d = showsPrec d . unSilent
