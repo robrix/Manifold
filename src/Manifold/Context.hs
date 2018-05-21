@@ -49,3 +49,6 @@ instance (Eq recur, Eq usage, Semiring usage) => Module usage (Context usage rec
 (|>) = (:>)
 
 infixl 5 |>
+
+emptyContext :: Context usage recur
+emptyContext = Empty
