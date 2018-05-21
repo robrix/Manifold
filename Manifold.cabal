@@ -29,6 +29,7 @@ library
                      , containers
                      , effects
                      , haskeline
+                     , parsers
                      , recursion-schemes
                      , semirings-modules
   hs-source-dirs:      src
