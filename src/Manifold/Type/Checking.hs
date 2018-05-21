@@ -42,12 +42,12 @@ infer :: ( Eq usage
       => Term usage
       -> Proof usage effects (Type usage)
 infer term = Type <$> case unTerm term of
-  Unit -> pure UnitType
-  UnitType -> pure TypeType
-  BoolType -> pure TypeType
-  T -> pure BoolType
-  F -> pure BoolType
-  TypeType -> pure TypeType
+  Unit -> pure UnitT
+  UnitT -> pure TypeT
+  BoolT -> pure TypeT
+  T -> pure BoolT
+  F -> pure BoolT
+  TypeT -> pure TypeT
   Var name -> contextLookup name <$> askContext >>= maybe (freeVariable name) (pure . unType . constraintValue)
   Let ((name, _) ::: ty) val body -> do
     ty' <- checkIsType ty
@@ -55,7 +55,7 @@ infer term = Type <$> case unTerm term of
     (name, zero) ::: val' >- unType <$> infer body
   (name, _) ::: ty :-> body -> do
     ty' <- checkIsType ty
-    ((name, zero) ::: ty' >- checkIsType body) $> TypeType
+    ((name, zero) ::: ty' >- checkIsType body) $> TypeT
   Abs ((name, usage) ::: ty) body -> do
     ty' <- checkIsType ty
     body' <- (name, usage) ::: ty' >- infer body
@@ -68,11 +68,11 @@ infer term = Type <$> case unTerm term of
     _ <- check a (Type t1)
     pure t2
   If c t e -> do
-    _ <- check c (Type BoolType)
+    _ <- check c (Type BoolT)
     t' <- infer t
     e' <- infer e
     unType <$> unify t' e'
-  a :* b -> checkIsType a *> checkIsType b $> TypeType
+  a :* b -> checkIsType a *> checkIsType b $> TypeT
   Pair a b -> (:*) <$> infer a <*> infer b
   ExL a -> do
     t1 <- Var . I <$> fresh

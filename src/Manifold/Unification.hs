@@ -27,11 +27,11 @@ unify actual expected
     (Var n1, t2)                                         -> n1 >-> Type t2 $> t2
     (t1, Var n2)                                         -> n2 >-> Type t1 $> t1
     (Unit, Unit)                                         -> pure Unit
-    (UnitType, UnitType)                                 -> pure UnitType
-    (BoolType, BoolType)                                 -> pure BoolType
+    (UnitT, UnitT)                                       -> pure UnitT
+    (BoolT, BoolT)                                       -> pure BoolT
     (T, T)                                               -> pure T
     (F, F)                                               -> pure F
-    (TypeType, TypeType)                                 -> pure TypeType
+    (TypeT, TypeT)                                       -> pure TypeT
     ((n1, u1) ::: t1 :-> b1, (n2, u2) ::: t2 :-> b2)     -> do
       n' <- I <$> fresh
       t' <- unify t1 t2

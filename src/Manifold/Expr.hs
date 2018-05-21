@@ -15,11 +15,11 @@ import Manifold.Substitution
 
 data Expr usage recur
   = Unit
-  | UnitType
-  | BoolType
+  | UnitT
+  | BoolT
   | T
   | F
-  | TypeType
+  | TypeT
   | Var Name
   | Let (Constraint usage recur) recur recur
   | Constraint usage recur :-> recur
@@ -51,11 +51,11 @@ instance Corecursive (Type usage) where embed   =   Type
 instance Substitutable (Type usage) where
   apply subst ty = case unType ty of
     Unit                            -> Type Unit
-    UnitType                        -> Type UnitType
-    BoolType                        -> Type BoolType
+    UnitT                           -> Type UnitT
+    BoolT                           -> Type BoolT
     T                               -> Type T
     F                               -> Type F
-    TypeType                        -> Type TypeType
+    TypeT                           -> Type TypeT
     Var name                        -> fromMaybe (Type (Var name)) (lookupSubst name subst)
     Let ((name, usage) ::: ty) v b  -> Type (Let ((name, usage) ::: apply subst ty) (apply subst v) (apply (deleteSubst name subst) b))
     (name, usage) ::: ty :-> body   -> Type ((name, usage) ::: apply subst ty :-> apply (deleteSubst name subst) body)
@@ -70,13 +70,13 @@ instance Substitutable (Type usage) where
 
 
 typeT :: Type usage
-typeT = Type TypeType
+typeT = Type TypeT
 
 unitT :: Type usage
-unitT = Type UnitType
+unitT = Type UnitT
 
 boolT :: Type usage
-boolT = Type BoolType
+boolT = Type BoolT
 
 
 (.->) :: Constraint usage (Type usage) -> Type usage -> Type usage
@@ -201,11 +201,11 @@ type Binding usage = (Name, usage)
 instance Bifoldable Expr where
   bifoldMap f g = \case
     Unit         -> mempty
-    UnitType     -> mempty
-    BoolType     -> mempty
+    UnitT        -> mempty
+    BoolT        -> mempty
     T            -> mempty
     F            -> mempty
-    TypeType     -> mempty
+    TypeT        -> mempty
     Var _        -> mempty
     Let var v b  -> bifoldMap f g var <> g v <> g b
     var :-> body -> bifoldMap f g var <> g body
@@ -221,11 +221,11 @@ instance Bifoldable Expr where
 instance Bifunctor Expr where
   bimap f g = \case
     Unit         -> Unit
-    UnitType     -> UnitType
-    BoolType     -> BoolType
+    UnitT        -> UnitT
+    BoolT        -> BoolT
     T            -> T
     F            -> F
-    TypeType     -> TypeType
+    TypeT        -> TypeT
     Var name     -> Var name
     Let var v b  -> Let (bimap f g var) (g v) (g b)
     var :-> body -> bimap f g var :-> g body
@@ -241,11 +241,11 @@ instance Bifunctor Expr where
 instance Bitraversable Expr where
   bitraverse f g = \case
     Unit         -> pure Unit
-    UnitType     -> pure UnitType
-    BoolType     -> pure BoolType
+    UnitT        -> pure UnitT
+    BoolT        -> pure BoolT
     T            -> pure T
     F            -> pure F
-    TypeType     -> pure TypeType
+    TypeT        -> pure TypeT
     Var name     -> pure (Var name)
     Let var v b  -> Let <$> bitraverse f g var <*> g v <*> g b
     var :-> body -> (:->) <$> bitraverse f g var <*> g body

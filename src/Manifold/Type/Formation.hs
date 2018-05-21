@@ -15,9 +15,9 @@ checkIsType :: ( Members '[ Exc (Error usage)
             => Term usage
             -> Proof usage effects (Type usage)
 checkIsType term = Type <$> case unTerm term of
-  UnitType -> pure UnitType
-  BoolType -> pure BoolType
-  TypeType -> pure TypeType
+  UnitT -> pure UnitT
+  BoolT -> pure BoolT
+  TypeT -> pure TypeT
   (name, usage) ::: _S :-> _T -> do
     _S' <- checkIsType _S
     _T' <- (name, zero) ::: _S' >- checkIsType _T
