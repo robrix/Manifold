@@ -50,3 +50,8 @@ instance (Traversable t, Traversable (Sum ts)) => Traversable (Sum (t ': ts)) wh
 
 instance (Show (t a), Show (Sum ts a)) => Show (Sum (t ': ts) a) where
   showsPrec d = either (showsPrec d) (showsPrec d) . decompose
+
+instance (Eq (t a), Eq (Sum ts a)) => Eq (Sum (t ': ts) a) where
+  Here t1 == Here t2 = t1 == t2
+  There ts1 == There ts2 = ts1 == ts2
+  _ == _ = False
