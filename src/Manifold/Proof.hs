@@ -40,7 +40,7 @@ catchError = Exception.catchError
 
 
 runContext :: Proof usage (Reader (Context usage recur) ': effects) a -> Proof usage effects a
-runContext = runReader Empty
+runContext = runReader emptyContext
 
 askContext :: Member (Reader (Context usage (Type usage))) effects => Proof usage effects (Context usage (Type usage))
 askContext = ask
@@ -48,6 +48,6 @@ askContext = ask
 
 -- | Extend the context with a local assumption.
 (>-) :: Member (Reader (Context usage recur)) effects => Constraint usage recur -> Proof usage effects a -> Proof usage effects a
-constraint >- proof = local (:> constraint) proof
+constraint >- proof = local (|> constraint) proof
 
 infixl 1 >-
