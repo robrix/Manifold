@@ -52,7 +52,7 @@ term = annotation
                                        <*> some constraint <* dot
                                        <*> term
                                        <?> "lambda"
-        constraint = make <$> name <* colon <*> type'
+        constraint = parens (make <$> name <* colon <*> type')
           where make name ty = (name, zero) ::: ty
 
 
