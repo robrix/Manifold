@@ -43,3 +43,9 @@ instance (Eq recur, Eq usage, Semigroup usage) => Semigroup (Context usage recur
 instance (Eq recur, Eq usage, Semiring usage) => Module usage (Context usage recur) where
   _  ><< Empty = Empty
   u1 ><< (ctx :> (Binding name u2 ::: t)) = (u1 ><< ctx) :> (Binding name (u1 >< u2) ::: t)
+
+
+(|>) :: Context usage recur -> Constraint usage recur -> Context usage recur
+(|>) = (:>)
+
+infixl 5 |>
