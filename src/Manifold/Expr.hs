@@ -51,13 +51,14 @@ instance (Show var, Show recur) => Show (Expr var recur) where
     Elim e  -> showsPrec d e
 
 
-rerep :: (Recursive t1, Base t1 ~ f (Constraint usage t1), Corecursive t2, Base t2 ~ f (Constraint usage t2), Bifunctor f)
-      => t1
+rerep :: (Recursive t1, Base t1 ~ f (Constraint var1 t1), Corecursive t2, Base t2 ~ f (Constraint var2 t2), Bifunctor f)
+      => (var1 -> var2)
+      -> t1
       -> t2
-rerep = cata (embed . first (fmap rerep))
+rerep vars = go where go = cata (embed . first (bimap vars go))
 
 
-bindVariable :: (Corecursive t, Recursive t, Base t ~ Expr (Constraint usage t)) => (t -> t) -> (Name, t)
+bindVariable :: (Corecursive t, Recursive t, Base t ~ Expr (Constraint var t), Named var) => (t -> t) -> (Name, t)
 bindVariable f = (n, body)
   where n = maybe (I 0) prime (maxBV body)
         body = f (embed (Var n))
@@ -69,7 +70,7 @@ bindVariable f = (n, body)
           other -> foldr max Nothing other
 
 
-freeVariables :: (Recursive t, Base t ~ Expr (Constraint usage t)) => t -> Set.Set Name
+freeVariables :: (Recursive t, Base t ~ Expr (Constraint var t), Named var) => t -> Set.Set Name
 freeVariables = cata $ \case
   Var name -> Set.singleton name
   Intro (var ::: ty :-> body) -> freeVariables ty <> Set.delete (name var) body
@@ -77,12 +78,12 @@ freeVariables = cata $ \case
   other -> fold other
 
 
-newtype Silent usage = Silent { unSilent :: Expr (Constraint usage (Silent usage)) (Silent usage) }
+newtype Silent var = Silent { unSilent :: Expr (Constraint var (Silent var)) (Silent var) }
 
-type instance Base (Silent usage) = Expr (Constraint usage (Silent usage))
+type instance Base (Silent var) = Expr (Constraint var (Silent var))
 
-instance Recursive   (Silent usage) where project = unSilent
-instance Corecursive (Silent usage) where embed   =   Silent
+instance Recursive   (Silent var) where project = unSilent
+instance Corecursive (Silent var) where embed   =   Silent
 
-instance Show usage => Show (Silent usage) where
+instance Show var => Show (Silent var) where
   showsPrec d = showsPrec d . unSilent

@@ -16,7 +16,7 @@ import Manifold.Value
 eval :: ( Member (Reader (Context usage (Value usage))) effects
         , Monoid usage
         )
-     => Term usage
+     => Term
      -> Proof usage effects (Value usage)
 eval (Term term) = case term of
   -- FIXME: no failable patterns

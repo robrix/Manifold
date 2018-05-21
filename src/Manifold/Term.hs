@@ -1,85 +1,73 @@
 {-# LANGUAGE TypeFamilies #-}
 module Manifold.Term where
 
-import Data.Bifoldable
-import Data.Bifunctor
 import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
-import Data.Semiring (Unital(..))
-import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Expr
 import Manifold.Name
 import Manifold.Type
 
-newtype Term usage = Term { unTerm :: Expr (Constraint usage (Term usage)) (Term usage) }
+newtype Term = Term { unTerm :: Expr (Constraint Name Term) Term }
   deriving (Eq, Ord)
 
-instance Show usage => Show (Term usage) where
-  showsPrec d = showsUnaryWith showsPrec "Term" d . unSilent . rerep
+instance Show Term where
+  showsPrec d = showsUnaryWith showsPrec "Term" d . unSilent . rerep id
 
-type instance Base (Term usage) = Expr (Constraint usage (Term usage))
+type instance Base Term = Expr (Constraint Name Term)
 
-instance Recursive   (Term usage) where project = unTerm
-instance Corecursive (Term usage) where embed   =   Term
+instance Recursive   Term where project = unTerm
+instance Corecursive Term where embed   =   Term
 
-var :: Name -> Term usage
+var :: Name -> Term
 var = Term . Var
 
-intro :: Intro (Constraint usage (Term usage)) (Term usage) (Term usage) -> Term usage
+intro :: Intro (Constraint Name Term) Term Term -> Term
 intro = Term . Intro
 
-elim :: Elim (Term usage) -> Term usage
+elim :: Elim Term -> Term
 elim = Term . Elim
 
 
-unit :: Term usage
+unit :: Term
 unit = intro Unit
 
-true :: Term usage
+true :: Term
 true = intro (Bool True)
 
-false :: Term usage
+false :: Term
 false = intro (Bool False)
 
-iff :: Term usage -> Term usage -> Term usage -> Term usage
+iff :: Term -> Term -> Term -> Term
 iff c t e = elim (If c t e)
 
 
-pair :: Term usage -> Term usage -> Term usage
+pair :: Term -> Term -> Term
 pair a b = intro (Pair a b)
 
-exl :: Term usage -> Term usage
+exl :: Term -> Term
 exl = elim . ExL
 
-exr :: Term usage -> Term usage
+exr :: Term -> Term
 exr = elim . ExR
 
 
-makeLet :: Constraint usage (Type usage) -> Term usage -> Term usage -> Term usage
+makeLet :: Named var => Constraint Name (Type var) -> Term -> Term -> Term
 makeLet (var ::: ty) value body = abs' (var ::: ty) body # value
 
-let' :: Unital usage => Type usage -> Term usage -> (Term usage -> Term usage) -> Term usage
-let' ty value f = makeLet (Binding name one ::: ty) value body where (name, body) = bindVariable f
+let' :: Named var => Type var -> Term -> (Term -> Term) -> Term
+let' ty value f = makeLet (name ::: ty) value body where (name, body) = bindVariable f
 
 
-abs' :: Constraint usage (Type usage) -> Term usage -> Term usage
-abs' constraint body = intro (Abs (rerep <$> constraint) body)
+abs' :: Named var => Constraint Name (Type var) -> Term -> Term
+abs' constraint body = intro (Abs (rerep name <$> constraint) body)
 
 
-lam :: Unital usage => Type usage -> (Term usage -> Term usage) -> Term usage
-lam ty f = abs' (Binding name one ::: ty) body
-  where (name, body) = bindVariable f
+lam :: Named var => Type var -> (Term -> Term) -> Term
+lam ty f = abs' (name ::: ty) body where (name, body) = bindVariable f
 
 
-(#) :: Term usage -> Term usage -> Term usage
+(#) :: Term -> Term -> Term
 f # a = elim (App f a)
 
 infixl 9 #
-
-
-instance Foldable Term where
-  foldMap f = bifoldMap (bifoldMap f (foldMap f)) (foldMap f) . unTerm
-
-instance Functor Term where
-  fmap f = Term . bimap (bimap f (fmap f)) (fmap f) . unTerm

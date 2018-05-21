@@ -2,12 +2,10 @@
 module Manifold.Parser where
 
 import Control.Applicative (Alternative(..))
-import Data.Semiring (zero)
 import qualified Data.HashSet as HashSet
-import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Expr as Expr
-import Manifold.Name (Name(..))
+import Manifold.Name (Name(..), Named(..))
 import Manifold.Term as Term
 import Manifold.Type as Type
 import Text.Parser.Char
@@ -38,14 +36,14 @@ whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
 
 
-term :: (Monad m, Monoid usage, TokenParsing m) => m (Term usage)
+term :: (Monad m, TokenParsing m) => m Term
 term = application
-  where atom = choice [ tuple, true', false', rerep <$> type', var, let', lambda ]
+  where atom = choice [ tuple, true', false', rerep name <$> type', var, let', lambda ]
         application = atom `chainl1` pure (#) <?> "function application"
         tuple = parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple"
         true'  = true  <$ preword "True"
         false' = false <$ preword "False"
-        var = Term.var <$> name <?> "variable"
+        var = Term.var <$> name' <?> "variable"
         let' = makeLet <$  preword "let"
                        <*> constraint <* op "="
                        <*> term <* preword "in"
@@ -55,17 +53,17 @@ term = application
                                        <*> some constraint <* dot
                                        <*> term
                                        <?> "lambda"
-        constraint = parens ((:::) . flip Binding zero <$> name <* colon <*> type')
+        constraint = parens ((:::) <$> name' <* colon <*> type')
 
 
-type' :: (Monad m, TokenParsing m) => m (Type usage)
+type' :: (Monad m, TokenParsing m) => m (Type Name)
 type' = product
   where product = chainl1 atom ((.*) <$ symbolic '*') <?> "product type"
         atom = choice [ boolT', unitT', typeT', tvar ]
         boolT' = boolT <$ preword "Bool"
         unitT' = unitT <$ preword "Unit"
         typeT' = typeT <$ preword "Type"
-        tvar = Type.tvar <$> name <?> "type variable"
+        tvar = Type.tvar <$> name' <?> "type variable"
 
 
 -- piType :: (Monad m, TokenParsing m) => m Type
@@ -79,15 +77,15 @@ type' = product
 --         toPi components = foldr exponential (codomain (Prelude.last components)) (Prelude.init components)
 --
 -- argument :: (Monad m, TokenParsing m) => m Argument
--- argument =  try (parens (Named <$> name <* colon <*> type'))
+-- argument =  try (parens (Named <$> name' <* colon <*> type'))
 --         <|>            Unnamed <$> sumType
 --         <?> "argument"
 --
 -- data Argument = Named Name Type | Unnamed Type
 
 
-name :: (Monad m, TokenParsing m) => m Name
-name = identifier >>= \ ident -> return $ case ident of
+name' :: (Monad m, TokenParsing m) => m Name
+name' = identifier >>= \ ident -> return $ case ident of
   "_" -> I (-1)
   _ -> N ident
 

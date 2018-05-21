@@ -3,22 +3,25 @@ module Manifold.Constraint where
 
 import Data.Bifoldable
 import Data.Bifunctor
-import Manifold.Binding
 import Manifold.Name
 
-data Constraint usage recur = Binding usage ::: recur
+data Constraint var recur = var ::: recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
-
-instance Bifoldable Constraint where
-  bifoldMap f g (var ::: ty) = foldMap f var <> g ty
-
-instance Bifunctor Constraint where
-  bimap f g (var ::: ty) = fmap f var ::: g ty
 
 infix 5 :::
 
-constraintName :: Constraint usage recur -> Name
+instance Bifoldable Constraint where
+  bifoldMap f g (var ::: ty) = f var <> g ty
+
+instance Bifunctor Constraint where
+  bimap f g (var ::: ty) = f var ::: g ty
+
+
+constraintName :: Named var => Constraint var recur -> Name
 constraintName (var ::: _) = name var
 
-constraintValue :: Constraint usage recur -> recur
+constraintVar :: Constraint var recur -> var
+constraintVar (var ::: _) = var
+
+constraintValue :: Constraint var recur -> recur
 constraintValue (_ ::: ty) = ty

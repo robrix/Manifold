@@ -12,15 +12,16 @@ import Manifold.Proof
 import Manifold.Substitution
 import Manifold.Type
 
-unify :: ( Eq usage
-         , Members '[ Exc (Error usage)
+unify :: ( Eq var
+         , Members '[ Exc (Error var)
                     , Fresh
-                    , State (Substitution (Type usage))
+                    , State (Substitution (Type var))
                     ] effects
+         , Named var
          )
-      => Type usage
-      -> Type usage
-      -> Proof usage effects (Type usage)
+      => Type var
+      -> Type var
+      -> Proof usage effects (Type var)
 unify t1 t2
   | t1 == t2  = pure t2
   | otherwise = case (unType t1, unType t2) of
@@ -57,5 +58,5 @@ unify t1 t2
     _                                        -> cannotUnify t1 t2
 
 
-(>->) :: Member (State (Substitution (Type usage))) effects => Name -> Type usage -> Proof usage effects ()
+(>->) :: (Member (State (Substitution (Type var))) effects, Named var) => Name -> Type var -> Proof usage effects ()
 name >-> sub = modify' (<> singletonSubst name sub)

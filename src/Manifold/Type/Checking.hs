@@ -19,30 +19,30 @@ import Manifold.Type.Formation
 import Manifold.Unification
 
 check :: ( Eq usage
-         , Members '[ Exc (Error usage)
+         , Members '[ Exc (Error (Binding usage))
                     , Fresh
-                    , Reader (Context usage (Type usage))
-                    , State (Substitution (Type usage))
+                    , Reader (Context usage (Type (Binding usage)))
+                    , State (Substitution (Type (Binding usage)))
                     ] effects
          , Monoid usage
          )
-      => Term usage
-      -> Type usage
-      -> Proof usage effects (Type usage)
+      => Term
+      -> Type (Binding usage)
+      -> Proof usage effects (Type (Binding usage))
 check term expected = do
   actual <- infer term
   unify actual expected
 
 infer :: ( Eq usage
-         , Members '[ Exc (Error usage)
+         , Members '[ Exc (Error (Binding usage))
                     , Fresh
-                    , Reader (Context usage (Type usage))
-                    , State (Substitution (Type usage))
+                    , Reader (Context usage (Type (Binding usage)))
+                    , State (Substitution (Type (Binding usage)))
                     ] effects
          , Monoid usage
          )
-      => Term usage
-      -> Proof usage effects (Type usage)
+      => Term
+      -> Proof usage effects (Type (Binding usage))
 infer term = case unTerm term of
   Var name                                 -> do
     context <- askContext
@@ -52,15 +52,15 @@ infer term = case unTerm term of
     | Bool _                <- i -> pure boolT
     | Abs (var ::: ty) body <- i -> do
       ty' <- checkIsType ty
-      body' <- var ::: ty' >- infer body
-      pure (var ::: ty' .-> body')
+      body' <- Binding var zero ::: ty' >- infer body
+      pure (Binding var zero ::: ty' .-> body')
     | Pair a b              <- i -> (.*) <$> infer a <*> infer b
     | UnitT                 <- i -> pure typeT
     | BoolT                 <- i -> pure typeT
     | TypeT                 <- i -> pure typeT
     | var ::: ty :-> body   <- i -> do
       ty' <- checkIsType ty
-      (var ::: ty' >- checkIsType body) $> typeT
+      Binding var zero ::: ty' >- checkIsType body $> typeT
     | a :* b                <- i -> checkIsType a *> checkIsType b $> typeT
   Elim e
     | ExL a    <- e -> do
@@ -87,5 +87,5 @@ infer term = case unTerm term of
       unify t' e'
 
 
-runSubstitution :: Proof usage (State (Substitution (Type usage)) ': effects) a -> Proof usage effects (a, Substitution (Type usage))
+runSubstitution :: Named var => Proof usage (State (Substitution (Type var)) ': effects) a -> Proof usage effects (a, Substitution (Type var))
 runSubstitution = runState mempty
