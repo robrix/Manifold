@@ -26,21 +26,17 @@ handleInput str = case Parser.parseString command str of
   Right action -> action
 
 command :: (Members '[Prompt, REPL usage] effects, Monoid usage, Show usage) => Parser.Parser Trifecta.Parser (Proof usage effects ())
-command = whole meta <?> "command"
+command = whole (meta <|> eval <$> term) <?> "command"
+  where meta = colon
+          *> ((long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
+          <|> (long "quit" <|> short 'q' <?> "quit") $> pure ()
+          <|> (typeOf <$> ((long "type" <|> short 't') *> term) <?> "type of")
+          <?> "command; use :? for help")
+        eval term = sendREPL (Eval term) >>= output . either show show >> repl
+        typeOf term = sendREPL (TypeOf term) >>= output . either show show >> repl
 
-meta :: (Members '[Prompt, REPL usage] effects, Monoid usage, Show usage) => Parser.Parser Trifecta.Parser (Proof usage effects ())
-meta = colon
-  *> ((long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
-  <|> (long "quit" <|> short 'q' <?> "quit") $> pure ()
-  <|> (typeOf <$> ((long "type" <|> short 't') *> term) <?> "type of")
-  <?> "command; use :? for help")
-  where typeOf term = sendREPL (TypeOf term) >>= output . either show show >> repl
-
-short :: Char -> Parser.Parser Trifecta.Parser String
-short = symbol . (:[])
-
-long :: String -> Parser.Parser Trifecta.Parser String
-long = symbol
+        short = symbol . (:[])
+        long = symbol
 
 
 sendREPL :: Member (REPL usage) effects => REPL usage result -> Proof usage effects result
