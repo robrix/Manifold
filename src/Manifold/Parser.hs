@@ -40,8 +40,11 @@ term
 
 type' :: TokenParsing m => m (Type usage)
 type'
-  =   (chainl1 type' ((.*) <$ symbolic '*') <?> "product type")
-  <|> (boolT <$ preword "Bool")
+  =   (chainl1 typeAtom ((.*) <$ symbolic '*') <?> "product type")
+
+typeAtom :: TokenParsing m => m (Type usage)
+typeAtom
+  =   (boolT <$ preword "Bool")
   <|> (unitT <$ preword "Unit")
   <|> (typeT <$ preword "Type")
 
