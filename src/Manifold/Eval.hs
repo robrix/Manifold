@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Manifold.Eval where
 
 import Control.Monad.Effect
@@ -10,9 +10,7 @@ import qualified Manifold.Expr as Expr
 import Manifold.Proof
 import Manifold.Value
 
-eval :: ( Members '[ Exc (Error usage)
-                   , Reader (Context usage (Value usage))
-                   ] effects
+eval :: ( Member (Reader (Context usage (Value usage))) effects
         , Monoid usage
         )
      => Term usage
@@ -24,7 +22,9 @@ eval (Term term) = case term of
   T -> pure (Bool True)
   F -> pure (Bool False)
   TypeType -> pure TypeT
-  Var name -> contextLookup name <$> askEnv >>= maybe (freeVariable name) (pure . constraintValue)
+  Var name -> do
+    Just value <- fmap constraintValue . contextLookup name <$> askEnv
+    pure value
   (name, _) ::: _ :-> body -> Closure name body . contextFilter (((&&) <$> (/= name) <*> (`elem` freeVariables body)) . constraintName) <$> ask
   Abs ((name, _) ::: _) body -> Closure name body . contextFilter (((&&) <$> (/= name) <*> (`elem` freeVariables body)) . constraintName) <$> ask
   App f a -> do
