@@ -42,6 +42,7 @@ termAtom
   <|> (true  <$ preword "true")
   <|> (false <$ preword "false")
 
+
 type' :: TokenParsing m => m (Type usage)
 type'
   =   (chainl1 typeAtom ((.*) <$ symbolic '*') <?> "product type")
