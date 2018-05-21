@@ -223,23 +223,6 @@ instance Bifunctor Expr where
     ExL a        -> ExL (g a)
     ExR a        -> ExR (g a)
 
-instance Bitraversable Expr where
-  bitraverse f g = \case
-    Unit         -> pure Unit
-    UnitT        -> pure UnitT
-    BoolT        -> pure BoolT
-    Bool b       -> pure (Bool b)
-    TypeT        -> pure TypeT
-    Var name     -> pure (Var name)
-    var :-> body -> (:->) <$> bitraverse f g var <*> g body
-    Abs var body -> Abs <$> bitraverse f g var <*> g body
-    App f a      -> App <$> g f <*> g a
-    If c t e     -> If <$> g c <*> g t <*> g e
-    a :* b       -> (:*) <$> g a <*> g b
-    Pair a b     -> Pair <$> g a <*> g b
-    ExL a        -> ExL <$> g a
-    ExR a        -> ExR <$> g a
-
 
 instance Foldable Type where
   foldMap f = bifoldMap f (foldMap f) . unType
@@ -247,18 +230,12 @@ instance Foldable Type where
 instance Functor Type where
   fmap f = Type . bimap f (fmap f) . unType
 
-instance Traversable Type where
-  traverse f = fmap Type . bitraverse f (traverse f) . unType
-
 
 instance Foldable Term where
   foldMap f = bifoldMap f (foldMap f) . unTerm
 
 instance Functor Term where
   fmap f = Term . bimap f (fmap f) . unTerm
-
-instance Traversable Term where
-  traverse f = fmap Term . bitraverse f (traverse f) . unTerm
 
 
 newtype Silent usage = Silent { unSilent :: Expr usage (Silent usage) }
