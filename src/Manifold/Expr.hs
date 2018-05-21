@@ -3,7 +3,6 @@ module Manifold.Expr where
 
 import Data.Bifoldable
 import Data.Bifunctor
-import Data.Bitraversable
 import Data.Foldable (fold)
 import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
@@ -231,9 +230,6 @@ instance Bifoldable Constraint where
 
 instance Bifunctor Constraint where
   bimap f g ((name, usage) ::: ty) = (name, f usage) ::: g ty
-
-instance Bitraversable Constraint where
-  bitraverse f g ((name, usage) ::: ty) = (:::) . (,) name <$> f usage <*> g ty
 
 infix 5 :::
 
