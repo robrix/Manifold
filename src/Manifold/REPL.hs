@@ -10,6 +10,11 @@ import Manifold.Parser as Parser
 import Manifold.Type.Checking
 import System.Console.Haskeline
 import Text.Trifecta as Trifecta
+handleInput :: Members '[Prompt, REPL usage] effects => String -> Proof usage effects ()
+handleInput str = case Parser.parseString command str of
+  Left err -> output err *> repl
+  Right action -> action
+
 command :: Members '[Prompt, REPL usage] effects => Parser.Parser Trifecta.Parser (Proof usage effects ())
 command = whiteSpace *> (colon *> meta) <* eof <?> "command"
 
