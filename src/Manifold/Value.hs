@@ -1,16 +1,29 @@
+{-# LANGUAGE TypeFamilies #-}
 module Manifold.Value where
 
-import Manifold.Context
-import Manifold.Expr hiding (Unit, Pair)
+import Data.Functor.Classes (showsUnaryWith)
+import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
+import Manifold.Expr hiding (Silent(..))
 import Manifold.Name
 
-data Value usage
-  = Closure Name (Term usage) (Context usage (Value usage))
-  | Unit
-  | UnitT
-  | Bool Bool
-  | BoolT
-  | TypeT
-  | Pair (Value usage) (Value usage)
-  | Product (Value usage) (Value usage)
-  deriving (Eq, Ord, Show)
+newtype Value usage = Value { unValue :: Intro Name (Term usage) (Value usage) }
+  deriving (Eq, Ord)
+
+instance Show usage => Show (Value usage) where
+  showsPrec d = showsUnaryWith showsPrec "Value" d . cata Silent
+
+type instance Base (Value usage) = Intro Name (Term usage)
+
+instance Recursive   (Value usage) where project = unValue
+instance Corecursive (Value usage) where embed   =   Value
+
+
+newtype Silent usage = Silent { unSilent :: Intro Name (Term usage) (Silent usage) }
+
+type instance Base (Silent usage) = Intro Name (Term usage)
+
+instance Recursive   (Silent usage) where project = unSilent
+instance Corecursive (Silent usage) where embed   =   Silent
+
+instance Show usage => Show (Silent usage) where
+  showsPrec d = showsPrec d . unSilent
