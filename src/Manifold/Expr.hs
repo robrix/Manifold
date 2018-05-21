@@ -107,12 +107,10 @@ bindVariable f = (name, body)
         body = f (embed (Var name))
         prime (I i) = I (succ i)
         prime (N s) = N (s <> "ʹ")
-
-maxBV :: (Recursive t, Base t ~ Expr (Constraint usage t)) => t -> Maybe Name
-maxBV = cata $ \case
-  Intro ((name, _) ::: ty :-> _) -> max (Just name) (maxBV ty)
-  Intro (Abs ((name, _) ::: ty) _) -> max (Just name) (maxBV ty)
-  other -> foldr max Nothing other
+        maxBV = cata $ \case
+          Intro ((name, _) ::: ty :-> _) -> max (Just name) (maxBV ty)
+          Intro (Abs ((name, _) ::: ty) _) -> max (Just name) (maxBV ty)
+          other -> foldr max Nothing other
 
 
 freeVariables :: (Recursive t, Base t ~ Expr (Constraint usage t)) => t -> Set.Set Name
