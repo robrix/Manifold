@@ -1,7 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Manifold.Parser where
 
-import Control.Applicative (Alternative(..))
+import Control.Applicative (Alternative(..), (<**>))
 import qualified Data.HashSet as HashSet
 import Manifold.Expr as Expr
 import Text.Parser.Char
@@ -33,9 +33,10 @@ whole p = whiteSpace *> p <* eof
 
 term :: TokenParsing m => m (Term usage)
 term
-  =   (parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple")
+  =  ((parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple")
   <|> (true  <$ preword "true")
-  <|> (false <$ preword "false")
+  <|> (false <$ preword "false"))
+  <**> option id (flip as <$ colon <*> type')
 
 type' :: TokenParsing m => m (Type usage)
 type'
