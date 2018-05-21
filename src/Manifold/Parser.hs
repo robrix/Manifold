@@ -78,7 +78,7 @@ identifier =  ident (IdentifierStyle "identifier" (letter <|> char '_') (alphaNu
           <|> try ((:[]) <$> token (parens (highlight Operator (oneOf ".,"))))
 
 reservedWords :: HashSet.HashSet String
-reservedWords =  HashSet.fromList [ "exl", "exr", "()" ]
+reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in" ]
 
 preword :: TokenParsing m => String -> m String
 preword s = token (highlight ReservedIdentifier (string s <* notFollowedBy alphaNum)) <?> s
