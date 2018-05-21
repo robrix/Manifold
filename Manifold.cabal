@@ -24,10 +24,10 @@ library
                      , Manifold.Purpose
                      , Manifold.REPL
                      , Manifold.Substitution
+                     , Manifold.Sum
                      , Manifold.Type.Checking
                      , Manifold.Type.Formation
                      , Manifold.Unification
-                     , Manifold.Union
                      , Manifold.Value
   build-depends:       base >=4.11 && <4.12
                      , containers
