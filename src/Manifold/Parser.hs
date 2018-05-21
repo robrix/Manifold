@@ -33,7 +33,7 @@ whole p = whiteSpace *> p <* eof
 
 term :: TokenParsing m => m (Term usage)
 term
-  =   (parens (chainr1 term (pair <$ comma)) <?> "tuple")
+  =   (parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple")
   <|> (true  <$ preword "true")
   <|> (false <$ preword "false")
 
