@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Manifold.Name where
 
 data Name
@@ -13,5 +12,5 @@ class Named n where
 instance Named Name where
   name = id
 
-instance Named (Name, a) where
-  name = fst
+instance Named a => Named (a, b) where
+  name = name . fst
