@@ -8,3 +8,6 @@ data Name
 
 class Named n where
   name :: n -> Name
+
+instance Named Name where
+  name = id
