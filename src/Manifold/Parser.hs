@@ -2,6 +2,7 @@
 module Manifold.Parser where
 
 import Control.Applicative (Alternative(..), (<**>))
+import Data.Functor.Foldable (cata)
 import Data.Semiring (zero)
 import qualified Data.HashSet as HashSet
 import Manifold.Expr as Expr
@@ -37,7 +38,7 @@ whole p = whiteSpace *> p <* eof
 term :: (Monad m, Monoid usage, TokenParsing m) => m (Term usage)
 term = annotation
   where annotation = application <**> option id (flip as <$ colon <*> type')
-        atom = choice [ tuple, true', false', var, let', lambda ]
+        atom = choice [ tuple, true', false', cata Term <$> type', var, let', lambda ]
         application = atom `chainl1` pure (#) <?> "function application"
         tuple = parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple"
         true'  = true  <$ preword "True"
