@@ -13,3 +13,4 @@ data Value usage
   | TypeT
   | Pair (Value usage) (Value usage)
   | Product (Value usage) (Value usage)
+  deriving (Eq, Ord, Show)
