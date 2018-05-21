@@ -55,3 +55,9 @@ instance (Eq (t a), Eq (Sum ts a)) => Eq (Sum (t ': ts) a) where
   Here t1 == Here t2 = t1 == t2
   There ts1 == There ts2 = ts1 == ts2
   _ == _ = False
+
+instance (Ord (t a), Ord (Sum ts a)) => Ord (Sum (t ': ts) a) where
+  compare (Here t1) (Here t2) = compare t1 t2
+  compare (There ts1) (There ts2) = compare ts1 ts2
+  compare (Here _) (There _) = LT
+  compare _ _ = GT
