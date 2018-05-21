@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase, TypeFamilies #-}
+{-# LANGUAGE LambdaCase, TypeFamilies #-}
 module Manifold.Expr
 ( Intro(..)
 , Elim(..)
