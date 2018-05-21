@@ -37,12 +37,17 @@ whole p = whiteSpace *> p <* eof
 term :: (Monad m, Monoid usage, TokenParsing m) => m (Term usage)
 term = annotation
   where annotation = application <**> option id (flip as <$ colon <*> type')
-        atom = choice [ tuple, true', false', var, lambda ]
+        atom = choice [ tuple, true', false', var, let', lambda ]
         application = atom `chainl1` pure (#) <?> "function application"
         tuple = parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple"
         true'  = true  <$ preword "True"
         false' = false <$ preword "False"
         var = Expr.var <$> name <?> "variable"
+        let' = makeLet <$  preword "let"
+                       <*> constraint <* op "="
+                       <*> term <* preword "in"
+                       <*> term
+                       <?> "let"
         lambda = foldr ((.) . abs') id <$  op "\\"
                                        <*> some constraint <* dot
                                        <*> term
