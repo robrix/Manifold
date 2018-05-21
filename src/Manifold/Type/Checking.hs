@@ -49,20 +49,20 @@ infer term = case unTerm term of
     context <- askContext
     maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
   Intro i
-    | Unit                            <- i -> pure unitT
-    | Bool _                          <- i -> pure boolT
-    | Abs ((name, usage) ::: ty) body <- i -> do
+    | Unit                  <- i -> pure unitT
+    | Bool _                <- i -> pure boolT
+    | Abs (var ::: ty) body <- i -> do
       ty' <- checkIsType ty
-      body' <- (name, usage) ::: ty' >- infer body
-      pure ((name, usage) ::: ty' .-> body')
-    | Pair a b                        <- i -> (.*) <$> infer a <*> infer b
-    | UnitT                           <- i -> pure typeT
-    | BoolT                           <- i -> pure typeT
-    | TypeT                           <- i -> pure typeT
-    | (name, _) ::: ty :-> body       <- i -> do
+      body' <- var ::: ty' >- infer body
+      pure (var ::: ty' .-> body')
+    | Pair a b              <- i -> (.*) <$> infer a <*> infer b
+    | UnitT                 <- i -> pure typeT
+    | BoolT                 <- i -> pure typeT
+    | TypeT                 <- i -> pure typeT
+    | var ::: ty :-> body   <- i -> do
       ty' <- checkIsType ty
-      ((name, zero) ::: ty' >- checkIsType body) $> typeT
-    | a :* b                          <- i -> checkIsType a *> checkIsType b $> typeT
+      (var ::: ty' >- checkIsType body) $> typeT
+    | a :* b                <- i -> checkIsType a *> checkIsType b $> typeT
   Elim e
     | ExL a    <- e -> do
       t1 <- tvar . I <$> fresh
