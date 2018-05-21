@@ -16,10 +16,10 @@ instance TokenParsing f => TokenParsing (Parser f) where
   nesting = Parser . nesting . runParser
   highlight h = Parser . highlight h . runParser
 
-parseString :: Parser Trifecta.Parser a -> String -> Either [String] a
+parseString :: Parser Trifecta.Parser a -> String -> Either String a
 parseString (Parser p) = toResult . Trifecta.parseString p mempty
 
-toResult :: Trifecta.Result a -> Either [String] a
+toResult :: Trifecta.Result a -> Either String a
 toResult r = case r of
   Trifecta.Success a -> Right a
-  Trifecta.Failure info -> Left [show (Trifecta._errDoc info)]
+  Trifecta.Failure info -> Left (show (Trifecta._errDoc info))
