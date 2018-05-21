@@ -72,8 +72,8 @@ bindVariable f = (n, body)
 freeVariables :: (Recursive t, Base t ~ Expr (Constraint usage t)) => t -> Set.Set Name
 freeVariables = cata $ \case
   Var name -> Set.singleton name
-  Intro ((name, _) ::: ty :-> body) -> freeVariables ty <> Set.delete name body
-  Intro (Abs ((name, _) ::: ty) body) -> freeVariables ty <> Set.delete name body
+  Intro (var ::: ty :-> body) -> freeVariables ty <> Set.delete (name var) body
+  Intro (Abs (var ::: ty) body) -> freeVariables ty <> Set.delete (name var) body
   other -> fold other
 
 
