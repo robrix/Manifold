@@ -13,7 +13,8 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Manifold.Constraint
+  exposed-modules:     Manifold.Binding
+                     , Manifold.Constraint
                      , Manifold.Context
                      , Manifold.Elaborate
                      , Manifold.Erasure
