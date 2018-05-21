@@ -4,10 +4,12 @@ module Manifold.Expr where
 import Data.Bifoldable
 import Data.Bifunctor
 import Data.Bitraversable
+import Data.Foldable (fold)
 import Data.Functor.Classes (showsUnaryWith)
-import Data.Functor.Foldable
+import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Data.Maybe (fromMaybe)
 import Data.Semiring (Unital(..))
+import qualified Data.Set as Set
 import Manifold.Name
 import Manifold.Substitution
 
@@ -144,6 +146,14 @@ maxBV = cata $ \case
   (name, _) ::: ty :-> _ -> max (Just name) ty
   Abs ((name, _) ::: ty) _ -> max (Just name) ty
   other -> foldr max Nothing other
+
+
+freeVariables :: (Recursive t, Base t ~ Expr usage) => t -> Set.Set Name
+freeVariables = cata $ \case
+  Var name -> Set.singleton name
+  (name, _) ::: _ :-> body -> Set.delete name body
+  Abs ((name, _) ::: _) body -> Set.delete name body
+  other -> fold other
 
 
 data Constraint usage recur = Binding usage ::: recur
