@@ -6,6 +6,7 @@ import Data.Semiring (zero)
 import qualified Data.HashSet as HashSet
 import Manifold.Expr as Expr
 import Manifold.Name
+import Manifold.Term as Term
 import Text.Parser.Char
 import Text.Parser.Combinators
 import Text.Parser.Token
@@ -41,7 +42,7 @@ term = application
         tuple = parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple"
         true'  = true  <$ preword "True"
         false' = false <$ preword "False"
-        var = Expr.var <$> name <?> "variable"
+        var = Term.var <$> name <?> "variable"
         let' = makeLet <$  preword "let"
                        <*> constraint <* op "="
                        <*> term <* preword "in"

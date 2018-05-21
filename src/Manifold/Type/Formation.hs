@@ -6,6 +6,7 @@ import Data.Semiring (zero)
 import Manifold.Context
 import Manifold.Expr
 import Manifold.Proof
+import Manifold.Term
 
 checkIsType :: ( Members '[ Exc (Error usage)
                           , Reader (Context usage (Type usage))

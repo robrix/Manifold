@@ -6,6 +6,7 @@ import qualified Control.Monad.Effect.Exception as Exception
 import Control.Monad.Effect.Reader
 import Manifold.Context
 import Manifold.Expr
+import Manifold.Term
 import Manifold.Name
 
 newtype Proof usage effects a = Proof { runProof :: Eff effects a }

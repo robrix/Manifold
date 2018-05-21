@@ -11,6 +11,7 @@ import Manifold.Expr
 import Manifold.Name
 import Manifold.Proof
 import Manifold.Substitution
+import Manifold.Term
 import Manifold.Type.Formation
 import Manifold.Unification
 

@@ -7,6 +7,7 @@ import Data.Semiring (zero)
 import Manifold.Context
 import Manifold.Expr
 import Manifold.Proof
+import Manifold.Term
 import Manifold.Value
 
 eval :: ( Member (Reader (Context usage (Value usage))) effects

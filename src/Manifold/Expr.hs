@@ -7,7 +7,6 @@ import Data.Foldable (fold)
 import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Data.Maybe (fromMaybe)
-import Data.Semiring (Unital(..))
 import qualified Data.Set as Set
 import Manifold.Name
 import Manifold.Substitution
@@ -145,68 +144,12 @@ a .* b = tintro (a :* b)
 infixl 7 .*
 
 
-newtype Term usage = Term { unTerm :: Expr (Constraint usage (Term usage)) (Term usage) }
-  deriving (Eq, Ord)
-
-instance Show usage => Show (Term usage) where
-  showsPrec d = showsUnaryWith showsPrec "Term" d . unSilent . rerep
-
-type instance Base (Term usage) = Expr (Constraint usage (Term usage))
-
-instance Recursive   (Term usage) where project = unTerm
-instance Corecursive (Term usage) where embed   =   Term
-
-var :: Name -> Term usage
-var = Term . Var
-
-intro :: Intro (Constraint usage (Term usage)) (Term usage) (Term usage) -> Term usage
-intro = Term . Intro
-
-elim :: Elim (Term usage) -> Term usage
-elim = Term . Elim
-
-
-unit :: Term usage
-unit = intro Unit
-
-true :: Term usage
-true = intro (Bool True)
-
-false :: Term usage
-false = intro (Bool False)
-
-iff :: Term usage -> Term usage -> Term usage -> Term usage
-iff c t e = elim (If c t e)
-
-
-pair :: Term usage -> Term usage -> Term usage
-pair a b = intro (Pair a b)
-
-exl :: Term usage -> Term usage
-exl = elim . ExL
-
-exr :: Term usage -> Term usage
-exr = elim . ExR
-
-
-makeLet :: Constraint usage (Type usage) -> Term usage -> Term usage -> Term usage
-makeLet ((name, usage) ::: ty) value body = abs' ((name, usage) ::: ty) body # value
-
-let' :: Unital usage => Type usage -> Term usage -> (Term usage -> Term usage) -> Term usage
-let' ty value f = makeLet ((name, one) ::: ty) value body where (name, body) = bindVariable f
-
-
-abs' :: Constraint usage (Type usage) -> Term usage -> Term usage
-abs' constraint body = intro (Abs (rerep <$> constraint) body)
 
 rerep :: (Recursive t1, Base t1 ~ f (Constraint usage t1), Corecursive t2, Base t2 ~ f (Constraint usage t2), Bifunctor f)
       => t1
       -> t2
 rerep = cata (embed . first (fmap rerep))
 
-lam :: Unital usage => Type usage -> (Term usage -> Term usage) -> Term usage
-lam ty f = abs' ((name, one) ::: ty) body
-  where (name, body) = bindVariable f
 
 bindVariable :: (Corecursive t, Recursive t, Base t ~ Expr (Constraint usage t)) => (t -> t) -> (Name, t)
 bindVariable f = (name, body)
@@ -228,12 +171,6 @@ freeVariables = cata $ \case
   Intro ((name, _) ::: ty :-> body) -> freeVariables ty <> Set.delete name body
   Intro (Abs ((name, _) ::: ty) body) -> freeVariables ty <> Set.delete name body
   other -> fold other
-
-
-(#) :: Term usage -> Term usage -> Term usage
-f # a = elim (App f a)
-
-infixl 9 #
 
 
 data Constraint usage recur = Binding usage ::: recur
@@ -264,11 +201,6 @@ instance Functor Type where
   fmap f = Type . bimap (bimap f (fmap f)) (fmap f) . unType
 
 
-instance Foldable Term where
-  foldMap f = bifoldMap (bifoldMap f (foldMap f)) (foldMap f) . unTerm
-
-instance Functor Term where
-  fmap f = Term . bimap (bimap f (fmap f)) (fmap f) . unTerm
 
 
 newtype Silent usage = Silent { unSilent :: Expr (Constraint usage (Silent usage)) (Silent usage) }

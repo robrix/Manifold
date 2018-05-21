@@ -13,6 +13,7 @@ import Manifold.Prompt
 import Manifold.Proof
 import Manifold.Parser as Parser
 import Manifold.Substitution
+import Manifold.Term
 import Manifold.Type.Checking
 import Manifold.Value
 import Text.Trifecta as Trifecta

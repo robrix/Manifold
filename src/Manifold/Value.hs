@@ -6,6 +6,7 @@ import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Manifold.Context
 import Manifold.Expr hiding (Silent(..))
 import Manifold.Name
+import Manifold.Term
 
 newtype Value usage = Value { unValue :: Intro (Name, Context usage (Value usage)) (Term usage) (Value usage) }
   deriving (Eq, Ord)

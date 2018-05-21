@@ -25,6 +25,7 @@ library
                      , Manifold.REPL
                      , Manifold.Substitution
                      , Manifold.Sum
+                     , Manifold.Term
                      , Manifold.Type.Checking
                      , Manifold.Type.Formation
                      , Manifold.Unification
