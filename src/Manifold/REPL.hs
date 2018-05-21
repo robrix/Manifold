@@ -58,7 +58,7 @@ runREPL = interpret (\case
   TypeOf term -> fmap (uncurry (flip apply)) <$> runCheck (infer term))
 
 
-runCheck :: Proof usage (Reader (Context usage) ': Fresh ': State (Substitution (Type usage)) ': Exc (Error usage) ': effects) a -> Proof usage effects (Either (Error usage) (a, Substitution (Type usage)))
+runCheck :: Proof usage (Reader (Context usage (Type usage)) ': Fresh ': State (Substitution (Type usage)) ': Exc (Error usage) ': effects) a -> Proof usage effects (Either (Error usage) (a, Substitution (Type usage)))
 runCheck = runError . runSubstitution . runFresh 0 . runContext
 
 runIO :: (Eq usage, Monoid usage, Semiring usage) => Proof usage '[REPL usage, Prompt] a -> IO a

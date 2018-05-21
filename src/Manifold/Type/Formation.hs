@@ -9,7 +9,7 @@ import Manifold.Expr
 import Manifold.Proof
 
 checkIsType :: ( Members '[ Exc (Error usage)
-                          , Reader (Context usage)
+                          , Reader (Context usage (Type usage))
                           ] effects
                , Monoid usage
                )
@@ -29,7 +29,7 @@ checkIsType term = Type <$> case unTerm term of
 
 
 -- | Extend the context with a local assumption.
-(>-) :: Member (Reader (Context usage)) effects => Constraint usage (Type usage) -> Proof usage effects a -> Proof usage effects a
+(>-) :: Member (Reader (Context usage (Type usage))) effects => Constraint usage (Type usage) -> Proof usage effects a -> Proof usage effects a
 constraint >- proof = local (:> constraint) proof
 
 infixl 1 >-
