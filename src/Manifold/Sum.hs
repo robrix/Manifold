@@ -44,3 +44,6 @@ instance (Foldable t, Foldable (Sum ts)) => Foldable (Sum (t ': ts)) where
 
 instance (Functor t, Functor (Sum ts)) => Functor (Sum (t ': ts)) where
   fmap f = either (inject . fmap f) (weaken . fmap f) . decompose
+
+instance (Traversable t, Traversable (Sum ts)) => Traversable (Sum (t ': ts)) where
+  traverse f = either (fmap inject . traverse f) (fmap weaken . traverse f) . decompose
