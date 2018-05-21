@@ -173,8 +173,8 @@ infix 5 :::
 constraintName :: Constraint usage recur -> Name
 constraintName ((name, _) ::: _) = name
 
-constraintType :: Constraint usage recur -> recur
-constraintType (_ ::: ty) = ty
+constraintValue :: Constraint usage recur -> recur
+constraintValue (_ ::: ty) = ty
 
 type Binding usage = (Name, usage)
 
