@@ -4,6 +4,7 @@ module Manifold.Eval where
 import Control.Monad.Effect
 import Control.Monad.Effect.Reader
 import Data.Semiring (zero)
+import Manifold.Constraint
 import Manifold.Context
 import Manifold.Expr
 import Manifold.Proof

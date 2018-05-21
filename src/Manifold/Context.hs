@@ -3,7 +3,7 @@ module Manifold.Context where
 
 import Data.Module.Class
 import Data.Semiring (Semiring(..))
-import Manifold.Expr
+import Manifold.Constraint
 import Manifold.Name
 
 data Context usage recur

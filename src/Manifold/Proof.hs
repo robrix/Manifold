@@ -4,8 +4,8 @@ module Manifold.Proof where
 import Control.Monad.Effect
 import qualified Control.Monad.Effect.Exception as Exception
 import Control.Monad.Effect.Reader
+import Manifold.Constraint
 import Manifold.Context
-import Manifold.Expr
 import Manifold.Term
 import Manifold.Type
 import Manifold.Name

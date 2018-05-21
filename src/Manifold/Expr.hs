@@ -7,6 +7,7 @@ import Data.Foldable (fold)
 import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import qualified Data.Set as Set
+import Manifold.Constraint
 import Manifold.Name
 
 data Intro var scope recur
@@ -118,27 +119,6 @@ freeVariables = cata $ \case
   Intro ((name, _) ::: ty :-> body) -> freeVariables ty <> Set.delete name body
   Intro (Abs ((name, _) ::: ty) body) -> freeVariables ty <> Set.delete name body
   other -> fold other
-
-
-data Constraint usage recur = Binding usage ::: recur
-  deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
-
-instance Bifoldable Constraint where
-  bifoldMap f g ((_, usage) ::: ty) = f usage <> g ty
-
-instance Bifunctor Constraint where
-  bimap f g ((name, usage) ::: ty) = (name, f usage) ::: g ty
-
-infix 5 :::
-
-constraintName :: Constraint usage recur -> Name
-constraintName ((name, _) ::: _) = name
-
-constraintValue :: Constraint usage recur -> recur
-constraintValue (_ ::: ty) = ty
-
-
-type Binding usage = (Name, usage)
 
 
 newtype Silent usage = Silent { unSilent :: Expr (Constraint usage (Silent usage)) (Silent usage) }

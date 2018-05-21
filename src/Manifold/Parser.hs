@@ -4,6 +4,7 @@ module Manifold.Parser where
 import Control.Applicative (Alternative(..))
 import Data.Semiring (zero)
 import qualified Data.HashSet as HashSet
+import Manifold.Constraint
 import Manifold.Expr as Expr
 import Manifold.Name
 import Manifold.Term as Term

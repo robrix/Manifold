@@ -6,6 +6,7 @@ import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Data.Semiring (Semiring(..), zero)
+import Manifold.Constraint
 import Manifold.Context
 import Manifold.Expr
 import Manifold.Name

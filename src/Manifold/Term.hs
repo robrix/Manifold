@@ -6,6 +6,7 @@ import Data.Bifunctor
 import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Data.Semiring (Unital(..))
+import Manifold.Constraint
 import Manifold.Expr
 import Manifold.Name
 import Manifold.Type
