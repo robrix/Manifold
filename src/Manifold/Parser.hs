@@ -33,25 +33,21 @@ whole p = whiteSpace *> p <* eof
 
 
 term :: TokenParsing m => m (Term usage)
-term
-  =   termAtom <**> option id (flip as <$ colon <*> type')
-
-termAtom :: TokenParsing m => m (Term usage)
-termAtom
-  =   (parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple")
-  <|> (true  <$ preword "True")
-  <|> (false <$ preword "False")
+term = annotation
+  where annotation = atom <**> option id (flip as <$ colon <*> type')
+        atom =
+              (parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple")
+          <|> (true  <$ preword "True")
+          <|> (false <$ preword "False")
 
 
 type' :: TokenParsing m => m (Type usage)
-type'
-  =   (chainl1 typeAtom ((.*) <$ symbolic '*') <?> "product type")
-
-typeAtom :: TokenParsing m => m (Type usage)
-typeAtom
-  =   (boolT <$ preword "Bool")
-  <|> (unitT <$ preword "Unit")
-  <|> (typeT <$ preword "Type")
+type' = product
+  where product = chainl1 atom ((.*) <$ symbolic '*') <?> "product type"
+        atom =
+              (boolT <$ preword "Bool")
+          <|> (unitT <$ preword "Unit")
+          <|> (typeT <$ preword "Type")
 
 reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "exl", "exr", "()" ]
