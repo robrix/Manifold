@@ -136,8 +136,12 @@ abs' constraint body = Term (Abs constraint body)
 
 lam :: Unital usage => Term usage -> (Term usage -> Term usage) -> Term usage
 lam ty f = abs' ((name, one) ::: ty) body
+  where (name, body) = bindVariable f
+
+bindVariable :: (Term usage -> Term usage) -> (Name, Term usage)
+bindVariable f = (name, body)
   where name = maybe (I 0) prime (maxBV body)
-        body = f (Term (Var name))
+        body = f (var name)
         prime (I i) = I (succ i)
         prime (N s) = N (s <> "ʹ")
 
