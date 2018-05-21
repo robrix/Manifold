@@ -48,15 +48,18 @@ data REPL usage result where
   Help :: REPL usage ()
   TypeOf :: Term usage -> REPL usage (Either (Error usage) (Type usage))
 
-runREPL :: (Eq usage, Members '[Exc (Error usage), Fresh, Prompt, Reader (Context usage), State (Substitution (Type usage))] effects, Monoid usage, Semiring usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
+runREPL :: (Eq usage, Member Prompt effects, Monoid usage, Semiring usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
 runREPL = interpret (\case
   Help -> output (unlines
     [ ":help, :h, :?     - print this help text"
     , ":quit, :q         - exit the REPL"
     , ":type, :t <expr>  - print the type of <expr>"
     ])
-  TypeOf term -> ((Right <$> infer term) `catchError` (pure . Left)))
+  TypeOf term -> fmap (uncurry (flip apply)) <$> runCheck (infer term))
 
 
-runIO :: (Eq usage, Monoid usage, Semiring usage) => Proof usage '[REPL usage, Reader (Context usage), Fresh, State (Substitution (Type usage)), Exc (Error usage), Prompt] a -> IO (Either (Error usage) (a, Substitution (Type usage)))
-runIO = runPrompt "λ: " . runError . runSubstitution . runFresh 0 . runContext . runREPL
+runCheck :: Proof usage (Reader (Context usage) ': Fresh ': State (Substitution (Type usage)) ': Exc (Error usage) ': effects) a -> Proof usage effects (Either (Error usage) (a, Substitution (Type usage)))
+runCheck = runError . runSubstitution . runFresh 0 . runContext
+
+runIO :: (Eq usage, Monoid usage, Semiring usage) => Proof usage '[REPL usage, Prompt] a -> IO a
+runIO = runPrompt "λ: " . runREPL
