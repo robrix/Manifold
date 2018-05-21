@@ -3,11 +3,16 @@ module Manifold.REPL where
 
 import Control.Applicative (Alternative(..))
 import Control.Monad.Effect
+import Control.Monad.Effect.Fresh
 import Data.Functor (($>))
+import Data.Semiring (Semiring(..))
+import Manifold.Context
 import Manifold.Expr
 import Manifold.Proof
 import Manifold.Parser as Parser
+import Manifold.Substitution
 import Manifold.Type.Checking
+import Manifold.Type.Formation
 import System.Console.Haskeline
 import Text.Trifecta as Trifecta
 
@@ -26,6 +31,7 @@ meta :: Members '[Prompt, REPL usage] effects => Parser.Parser Trifecta.Parser (
 meta
   =   (long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
   <|> (long "quit" <|> short 'q' <?> "quit") $> pure ()
+  -- <|> (TypeOf <$> ((long "type" <|> short 't') *> expr) <?> "type of")
   <?> "command; use :? for help"
 
 short :: Char -> Parser.Parser Trifecta.Parser String
@@ -84,3 +90,7 @@ settings = Settings
   , historyFile = Just "~/.local/Manifold/repl_history"
   , autoAddHistory = True
   }
+
+
+runIO :: (Eq usage, Monoid usage, Semiring usage) => Proof usage '[REPL usage, Check usage, CheckIsType usage, Reader (Context usage), Fresh, State (Substitution (Type usage)), Exc (Error usage), Prompt] a -> IO (Either (Error usage) (a, Substitution (Type usage)))
+runIO = runPrompt "λ: " . runError . runSubstitution . runFresh 0 . runContext . runCheckIsType . runCheck . runREPL
