@@ -7,6 +7,7 @@ import Manifold.Context
 import Manifold.Expr
 import Manifold.Proof
 import Manifold.Term
+import Manifold.Type
 
 checkIsType :: ( Members '[ Exc (Error usage)
                           , Reader (Context usage (Type usage))

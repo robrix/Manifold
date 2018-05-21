@@ -10,6 +10,7 @@ import Manifold.Expr
 import Manifold.Name
 import Manifold.Proof
 import Manifold.Substitution
+import Manifold.Type
 
 unify :: ( Eq usage
          , Members '[ Exc (Error usage)

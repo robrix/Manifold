@@ -8,12 +8,12 @@ import Data.Functor (($>))
 import Data.Semiring (Semiring(..))
 import Manifold.Context
 import Manifold.Eval
-import Manifold.Expr
 import Manifold.Prompt
 import Manifold.Proof
 import Manifold.Parser as Parser
 import Manifold.Substitution
 import Manifold.Term
+import Manifold.Type
 import Manifold.Type.Checking
 import Manifold.Value
 import Text.Trifecta as Trifecta

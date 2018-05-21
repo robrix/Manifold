@@ -6,10 +6,8 @@ import Data.Bifunctor
 import Data.Foldable (fold)
 import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
-import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
 import Manifold.Name
-import Manifold.Substitution
 
 data Intro var scope recur
   = Unit
@@ -94,57 +92,6 @@ instance (Show var, Show recur) => Show (Expr var recur) where
     Elim e  -> showsPrec d e
 
 
-newtype Type usage = Type { unType :: Expr (Constraint usage (Type usage)) (Type usage) }
-  deriving (Eq, Ord)
-
-instance Show usage => Show (Type usage) where
-  showsPrec d = showsUnaryWith showsPrec "Type" d . unSilent . rerep
-
-type instance Base (Type usage) = Expr (Constraint usage (Type usage))
-
-instance Recursive   (Type usage) where project = unType
-instance Corecursive (Type usage) where embed   =   Type
-
-instance Substitutable (Type usage) where
-  apply subst ty = case unType ty of
-    Var name                                -> fromMaybe (tvar name) (lookupSubst name subst)
-    Intro ((name, usage) ::: ty :-> body)   -> tintro ((name, usage) ::: apply subst ty :-> apply (deleteSubst name subst) body)
-    Intro (Abs ((name, usage) ::: ty) body) -> tintro (Abs ((name, usage) ::: apply subst ty) (apply (deleteSubst name subst) body))
-    Intro i                                 -> tintro (apply subst <$> i)
-    Elim e                                  -> telim (apply subst <$> e)
-
-tvar :: Name -> Type usage
-tvar = Type . Var
-
-tintro :: Intro (Constraint usage (Type usage)) (Type usage) (Type usage) -> Type usage
-tintro = Type . Intro
-
-telim :: Elim (Type usage) -> Type usage
-telim = Type . Elim
-
-
-typeT :: Type usage
-typeT = tintro TypeT
-
-unitT :: Type usage
-unitT = tintro UnitT
-
-boolT :: Type usage
-boolT = tintro BoolT
-
-
-(.->) :: Constraint usage (Type usage) -> Type usage -> Type usage
-constraint .-> ty = tintro (constraint :-> ty)
-
-infixr 0 .->
-
-(.*) :: Type usage -> Type usage -> Type usage
-a .* b = tintro (a :* b)
-
-infixl 7 .*
-
-
-
 rerep :: (Recursive t1, Base t1 ~ f (Constraint usage t1), Corecursive t2, Base t2 ~ f (Constraint usage t2), Bifunctor f)
       => t1
       -> t2
@@ -192,15 +139,6 @@ constraintValue (_ ::: ty) = ty
 
 
 type Binding usage = (Name, usage)
-
-
-instance Foldable Type where
-  foldMap f = bifoldMap (bifoldMap f (foldMap f)) (foldMap f) . unType
-
-instance Functor Type where
-  fmap f = Type . bimap (bimap f (fmap f)) (fmap f) . unType
-
-
 
 
 newtype Silent usage = Silent { unSilent :: Expr (Constraint usage (Silent usage)) (Silent usage) }

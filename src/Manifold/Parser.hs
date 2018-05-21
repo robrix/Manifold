@@ -7,6 +7,7 @@ import qualified Data.HashSet as HashSet
 import Manifold.Expr as Expr
 import Manifold.Name
 import Manifold.Term as Term
+import Manifold.Type as Type
 import Text.Parser.Char
 import Text.Parser.Combinators
 import Text.Parser.Token
@@ -62,7 +63,7 @@ type' = product
         boolT' = boolT <$ preword "Bool"
         unitT' = unitT <$ preword "Unit"
         typeT' = typeT <$ preword "Type"
-        tvar = Expr.tvar <$> name <?> "type variable"
+        tvar = Type.tvar <$> name <?> "type variable"
 
 
 -- piType :: (Monad m, TokenParsing m) => m Type
