@@ -208,10 +208,10 @@ lam :: Unital usage => Type usage -> (Term usage -> Term usage) -> Term usage
 lam ty f = abs' ((name, one) ::: ty) body
   where (name, body) = bindVariable f
 
-bindVariable :: (Term usage -> Term usage) -> (Name, Term usage)
+bindVariable :: (Corecursive t, Recursive t, Base t ~ Expr (Constraint usage t)) => (t -> t) -> (Name, t)
 bindVariable f = (name, body)
   where name = maybe (I 0) prime (maxBV body)
-        body = f (var name)
+        body = f (embed (Var name))
         prime (I i) = I (succ i)
         prime (N s) = N (s <> "ʹ")
 
