@@ -156,6 +156,12 @@ freeVariables = cata $ \case
   other -> fold other
 
 
+(#) :: Term usage -> Term usage -> Term usage
+f # a = Term (App f a)
+
+infixl 9 #
+
+
 data Constraint usage recur = Binding usage ::: recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
