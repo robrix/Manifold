@@ -32,7 +32,10 @@ whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
 
 term :: TokenParsing m => m (Term usage)
-term = (unit <$ parens (pure ()) <?> "unit")
+term
+  =   (unit  <$ parens (pure ()) <?> "unit")
+  <|> (true  <$ preword "true")
+  <|> (false <$ preword "false")
 
 
 reservedWords :: HashSet.HashSet String
