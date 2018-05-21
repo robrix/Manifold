@@ -8,11 +8,11 @@ import Data.Functor (($>))
 import Data.Semiring (Semiring(..))
 import Manifold.Context
 import Manifold.Expr
+import Manifold.Prompt
 import Manifold.Proof
 import Manifold.Parser as Parser
 import Manifold.Substitution
 import Manifold.Type.Checking
-import System.Console.Haskeline
 import Text.Trifecta as Trifecta
 
 repl :: (Members '[Prompt, REPL usage] effects, Monoid usage, Show usage) => Proof usage effects ()
@@ -49,47 +49,13 @@ data REPL usage result where
   TypeOf :: Term usage -> REPL usage (Either (Error usage) (Type usage))
 
 runREPL :: (Eq usage, Members '[Exc (Error usage), Fresh, Prompt, Reader (Context usage), State (Substitution (Type usage))] effects, Monoid usage, Semiring usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
-runREPL = relay pure (\ repl yield -> case repl of
+runREPL = interpret (\case
   Help -> output (unlines
     [ ":help, :h, :?     - print this help text"
     , ":quit, :q         - exit the REPL"
     , ":type, :t <expr>  - print the type of <expr>"
-    ]) >>= yield
-  TypeOf term -> ((Right <$> infer term) `catchError` (pure . Left)) >>= yield)
-
-
-prompt :: (Effectful m, Member Prompt effects) => m effects (Maybe String)
-prompt = send Prompt
-
-output :: (Effectful m, Member Prompt effects) => String -> m effects ()
-output = send . Output
-
-data Prompt result where
-  Prompt :: Prompt (Maybe String)
-  Output :: String -> Prompt ()
-
-runPrompt :: Effectful m => String -> m '[Prompt] a -> IO a
-runPrompt prompt action = do
-  prefs <- readPrefs "~/.local/Manifold/repl_prefs"
-  runInputTWithPrefs prefs settings (runM (reinterpret (\case
-    Prompt -> sendInputT (getInputLine (cyan <> prompt <> plain))
-    Output s -> sendInputT (outputStrLn s)) action))
-
-cyan :: String
-cyan = "\ESC[1;36m\STX"
-
-plain :: String
-plain = "\ESC[0m\STX"
-
-sendInputT :: (Effectful m, Member (InputT IO) effects) => InputT IO a -> m effects a
-sendInputT = send
-
-settings :: Settings IO
-settings = Settings
-  { complete = noCompletion
-  , historyFile = Just "~/.local/Manifold/repl_history"
-  , autoAddHistory = True
-  }
+    ])
+  TypeOf term -> ((Right <$> infer term) `catchError` (pure . Left)))
 
 
 runIO :: (Eq usage, Monoid usage, Semiring usage) => Proof usage '[REPL usage, Reader (Context usage), Fresh, State (Substitution (Type usage)), Exc (Error usage), Prompt] a -> IO (Either (Error usage) (a, Substitution (Type usage)))
