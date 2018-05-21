@@ -1,5 +1,11 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
-module Manifold.Context where
+module Manifold.Context
+( Context
+, contextLookup
+, contextFilter
+, emptyContext
+, (|>)
+) where
 
 import Data.Module.Class
 import Data.Semiring (Semiring(..))
