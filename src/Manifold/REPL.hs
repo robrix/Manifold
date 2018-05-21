@@ -4,8 +4,16 @@ module Manifold.REPL where
 import Control.Monad.Effect
 import Manifold.Expr
 import Manifold.Proof
+import Manifold.Parser as Parser
 import Manifold.Type.Checking
 import System.Console.Haskeline
+import Text.Trifecta as Trifecta
+short :: Char -> Parser.Parser Trifecta.Parser String
+short = symbol . (:[])
+
+long :: String -> Parser.Parser Trifecta.Parser String
+long = symbol
+
 
 sendREPL :: Member (REPL usage) effects => REPL usage result -> Proof usage effects result
 sendREPL = send
