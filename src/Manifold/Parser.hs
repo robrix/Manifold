@@ -42,6 +42,7 @@ type'
   =   (chainl1 type' ((.*) <$ symbolic '*') <?> "product type")
   <|> (boolT <$ preword "Bool")
   <|> (unitT <$ preword "Unit")
+  <|> (typeT <$ preword "Type")
 
 reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "exl", "exr", "()" ]
