@@ -36,7 +36,7 @@ whole p = whiteSpace *> p <* eof
 
 term :: (Monad m, Monoid usage, TokenParsing m) => m (Term usage)
 term = application
-  where atom = choice [ tuple, true', false', typeToTerm <$> type', var, let', lambda ]
+  where atom = choice [ tuple, true', false', rerep <$> type', var, let', lambda ]
         application = atom `chainl1` pure (#) <?> "function application"
         tuple = parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple"
         true'  = true  <$ preword "True"
