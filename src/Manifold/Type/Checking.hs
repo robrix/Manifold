@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, TypeOperators #-}
 module Manifold.Type.Checking where
 
 import Control.Monad.Effect
@@ -15,23 +15,34 @@ import Manifold.Substitution
 import Manifold.Type.Formation
 import Manifold.Unification
 
-typing :: ( Eq usage
-          , Members '[ Check usage
-                     , CheckIsType usage
-                     , Exc (Error usage)
-                     , Fresh
-                     , Reader (Context usage)
-                     , State (Substitution (Type usage))
-                     ] effects
-          , Monoid usage
-          , Semiring usage
-          )
-       => Check usage result
-       -> Proof usage effects result
-typing (Check term expected) = do
+check :: ( Eq usage
+         , Members '[ Exc (Error usage)
+                    , Fresh
+                    , Reader (Context usage)
+                    , State (Substitution (Type usage))
+                    ] effects
+         , Monoid usage
+         , Semiring usage
+         )
+      => Term usage
+      -> Type usage
+      -> Proof usage effects (Type usage)
+check term expected = do
   actual <- infer term
-  runUnification $ unify actual expected
-typing (Infer term) = Type <$> case unTerm term of
+  unify actual expected
+
+infer :: ( Eq usage
+         , Members '[ Exc (Error usage)
+                    , Fresh
+                    , Reader (Context usage)
+                    , State (Substitution (Type usage))
+                    ] effects
+         , Monoid usage
+         , Semiring usage
+         )
+      => Term usage
+      -> Proof usage effects (Type usage)
+infer term = Type <$> case unTerm term of
   Unit -> pure UnitType
   UnitType -> pure TypeType
   BoolType -> pure TypeType
@@ -57,7 +68,7 @@ typing (Infer term) = Type <$> case unTerm term of
     _ <- check c (Type BoolType)
     t' <- infer t
     e' <- infer e
-    unType <$> runUnification (unify t' e')
+    unType <$> unify t' e'
   a :* b -> checkIsType a *> checkIsType b $> TypeType
   Pair a b -> (:*) <$> infer a <*> infer b
   ExL a -> do
@@ -72,30 +83,6 @@ typing (Infer term) = Type <$> case unTerm term of
     pure t2
   Ann tm ty -> checkIsType ty >>= fmap unType . check tm
 
-
-check :: Member (Check usage) effects => Term usage -> Type usage -> Proof usage effects (Type usage)
-check tm ty = send (Check tm ty)
-
-infer :: Member (Check usage) effects => Term usage -> Proof usage effects (Type usage)
-infer = send . Infer
-
-data Check usage result where
-  Check :: Term usage -> Type usage -> Check usage (Type usage)
-  Infer :: Term usage               -> Check usage (Type usage)
-
-runCheck :: ( Eq usage
-            , Members '[ CheckIsType usage
-                       , Exc (Error usage)
-                       , Fresh
-                       , Reader (Context usage)
-                       , State (Substitution (Type usage))
-                       ] effects
-            , Monoid usage
-            , Semiring usage
-            )
-         => Proof usage (Check usage ': effects) a
-         -> Proof usage effects a
-runCheck = refine typing
 
 runSubstitution :: Proof usage (State (Substitution (Type usage)) ': effects) a -> Proof usage effects (a, Substitution (Type usage))
 runSubstitution = runState mempty

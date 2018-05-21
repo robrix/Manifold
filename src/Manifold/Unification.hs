@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts #-}
 module Manifold.Unification where
 
 import Control.Monad.Effect
@@ -11,20 +11,17 @@ import Manifold.Name
 import Manifold.Proof
 import Manifold.Substitution
 
-unify :: Member (Unify usage) effects => Type usage -> Type usage -> Proof usage effects (Type usage)
-unify actual expected = send (Unify actual expected)
-
-unification :: ( Eq usage
-               , Members '[ Exc (Error usage)
-                          , Fresh
-                          , State (Substitution (Type usage))
-                          , Unify usage
-                          ] effects
-               , Semiring usage
-               )
-            => Unify usage result
-            -> Proof usage effects result
-unification (Unify actual expected)
+unify :: ( Eq usage
+         , Members '[ Exc (Error usage)
+                    , Fresh
+                    , State (Substitution (Type usage))
+                    ] effects
+         , Semiring usage
+         )
+      => Type usage
+      -> Type usage
+      -> Proof usage effects (Type usage)
+unify actual expected
   | actual == expected = pure expected
   | otherwise          = Type <$> case (unType actual, unType expected) of
     (Var n1, t2)                                         -> n1 >-> Type t2 $> t2
@@ -53,21 +50,6 @@ unification (Unify actual expected)
     (ExR a1, ExR a2)                                     -> ExR <$> unify a1 a2
     (Ann a1 t1, Ann a2 t2)                               -> Ann <$> unify a1 a2 <*> unify t1 t2
     _                                                    -> cannotUnify actual expected
-
-runUnification :: ( Eq usage
-                  , Members '[ Exc (Error usage)
-                             , Fresh
-                             , State (Substitution (Type usage))
-                             ] effects
-                  , Semiring usage
-                  )
-               => Proof usage (Unify usage ': effects) a
-               -> Proof usage effects a
-runUnification = refine unification
-
-
-data Unify usage result where
-  Unify :: Type usage -> Type usage -> Unify usage (Type usage)
 
 
 (>->) :: Member (State (Substitution (Type usage))) effects => Name -> Type usage -> Proof usage effects ()

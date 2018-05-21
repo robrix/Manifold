@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts #-}
 module Manifold.Type.Formation where
 
 import Control.Monad.Effect
@@ -8,15 +8,14 @@ import Manifold.Context
 import Manifold.Expr
 import Manifold.Proof
 
-typeFormation :: ( Members '[ Exc (Error usage)
-                            , CheckIsType usage
-                            , Reader (Context usage)
-                            ] effects
-                 , Monoid usage
-                 )
-              => CheckIsType usage result
-              -> Proof usage effects result
-typeFormation (CheckIsType tm) = Type <$> case unTerm tm of
+checkIsType :: ( Members '[ Exc (Error usage)
+                          , Reader (Context usage)
+                          ] effects
+               , Monoid usage
+               )
+            => Term usage
+            -> Proof usage effects (Type usage)
+checkIsType term = Type <$> case unTerm term of
   UnitType -> pure UnitType
   BoolType -> pure BoolType
   TypeType -> pure TypeType
@@ -26,7 +25,7 @@ typeFormation (CheckIsType tm) = Type <$> case unTerm tm of
     pure ((name, usage) ::: _S' :-> _T')
   _S :* _T -> (:*) <$> checkIsType _S <*> checkIsType _T
   Ann tm ty -> Ann <$> checkIsType tm <*> checkIsType ty
-  _ -> noRuleToCheckIsType tm
+  _ -> noRuleToCheckIsType term
 
 
 -- | Extend the context with a local assumption.
@@ -34,23 +33,3 @@ typeFormation (CheckIsType tm) = Type <$> case unTerm tm of
 constraint >- proof = local (:> constraint) proof
 
 infixl 1 >-
-
-
-checkIsType :: Member (CheckIsType usage) effects => Term usage -> Proof usage effects (Type usage)
-checkIsType = send . CheckIsType
-
-
-data PropositionalEquality usage result where
-  (:==:) :: Type usage -> Type usage -> PropositionalEquality usage (Type usage)
-
-data CheckIsType usage result where
-  CheckIsType :: Term usage -> CheckIsType usage (Type usage)
-
-runCheckIsType :: ( Members '[ Exc (Error usage)
-                             , Reader (Context usage)
-                             ] effects
-                  , Monoid usage
-                  )
-               => Proof usage (CheckIsType usage ': effects) a
-               -> Proof usage effects a
-runCheckIsType = refine typeFormation
