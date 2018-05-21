@@ -7,12 +7,14 @@ import Control.Monad.Effect.Fresh
 import Data.Functor (($>))
 import Data.Semiring (Semiring(..))
 import Manifold.Context
+import Manifold.Eval
 import Manifold.Expr
 import Manifold.Prompt
 import Manifold.Proof
 import Manifold.Parser as Parser
 import Manifold.Substitution
 import Manifold.Type.Checking
+import Manifold.Value
 import Text.Trifecta as Trifecta
 
 repl :: (Members '[Prompt, REPL usage] effects, Monoid usage, Show usage) => Proof usage effects ()
@@ -47,6 +49,7 @@ sendREPL = send
 data REPL usage result where
   Help :: REPL usage ()
   TypeOf :: Term usage -> REPL usage (Either (Error usage) (Type usage))
+  Eval :: Term usage -> REPL usage (Either (Error usage) (Value usage))
 
 runREPL :: (Eq usage, Member Prompt effects, Monoid usage, Semiring usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
 runREPL = interpret (\case
@@ -55,11 +58,15 @@ runREPL = interpret (\case
     , ":quit, :q         - exit the REPL"
     , ":type, :t <expr>  - print the type of <expr>"
     ])
-  TypeOf term -> fmap (uncurry (flip apply)) <$> runCheck (infer term))
+  TypeOf term -> fmap (uncurry (flip apply)) <$> runCheck (infer term)
+  Eval term -> fmap (uncurry (flip apply)) <$> runCheck (infer term) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
 
 
 runCheck :: Proof usage (Reader (Context usage (Type usage)) ': Fresh ': State (Substitution (Type usage)) ': Exc (Error usage) ': effects) a -> Proof usage effects (Either (Error usage) (a, Substitution (Type usage)))
 runCheck = runError . runSubstitution . runFresh 0 . runContext
+
+runEval :: Proof usage (Reader (Context usage (Value usage)) ': effects) a -> Proof usage effects a
+runEval = runContext
 
 runIO :: (Eq usage, Monoid usage, Semiring usage) => Proof usage '[REPL usage, Prompt] a -> IO a
 runIO = runPrompt "λ: " . runREPL
