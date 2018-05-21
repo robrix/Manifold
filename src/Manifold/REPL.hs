@@ -7,6 +7,9 @@ import Manifold.Proof
 import Manifold.Type.Checking
 import System.Console.Haskeline
 
+sendREPL :: Member (REPL usage) effects => REPL usage result -> Proof usage effects result
+sendREPL = send
+
 data REPL usage result where
   Help :: REPL usage ()
   TypeOf :: Term usage -> REPL usage (Type usage)
