@@ -185,10 +185,12 @@ let' ty value f = makeLet ((name, one) ::: ty) value body where (name, body) = b
 
 
 abs' :: Constraint usage (Type usage) -> Term usage -> Term usage
-abs' constraint body = intro (Abs (fmap typeToTerm constraint) body)
+abs' constraint body = intro (Abs (rerep <$> constraint) body)
 
-typeToTerm :: Type usage -> Term usage
-typeToTerm = cata (Term . first (fmap typeToTerm))
+rerep :: (Recursive t1, Base t1 ~ Expr (Constraint usage t1), Corecursive t2, Base t2 ~ Expr (Constraint usage t2))
+      => t1
+      -> t2
+rerep = cata (embed . first (fmap rerep))
 
 lam :: Unital usage => Type usage -> (Term usage -> Term usage) -> Term usage
 lam ty f = abs' ((name, one) ::: ty) body
