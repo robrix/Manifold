@@ -34,10 +34,13 @@ whole p = whiteSpace *> p <* eof
 
 term :: TokenParsing m => m (Term usage)
 term
-  =  ((parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple")
+  =   termAtom <**> option id (flip as <$ colon <*> type')
+
+termAtom :: TokenParsing m => m (Term usage)
+termAtom
+  =   (parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple")
   <|> (true  <$ preword "true")
-  <|> (false <$ preword "false"))
-  <**> option id (flip as <$ colon <*> type')
+  <|> (false <$ preword "false")
 
 type' :: TokenParsing m => m (Type usage)
 type'
