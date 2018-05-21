@@ -49,7 +49,7 @@ data REPL usage result where
   Help :: REPL usage ()
   TypeOf :: Term usage -> REPL usage (Either (Error usage) (Type usage))
 
-runREPL :: (Eq usage, Members '[CheckIsType usage, Exc (Error usage), Fresh, Prompt, Reader (Context usage), State (Substitution (Type usage))] effects, Monoid usage, Semiring usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
+runREPL :: (Eq usage, Members '[CheckIsType usage, Exc (Error usage), Fresh, Prompt, State (Context usage), State (Substitution (Type usage))] effects, Monoid usage, Semiring usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
 runREPL = relay pure (\ repl yield -> case repl of
   Help -> output (unlines
     [ ":help, :h, :?     - print this help text"
@@ -93,5 +93,5 @@ settings = Settings
   }
 
 
-runIO :: (Eq usage, Monoid usage, Semiring usage) => Proof usage '[REPL usage, CheckIsType usage, Reader (Context usage), Fresh, State (Substitution (Type usage)), Exc (Error usage), Prompt] a -> IO (Either (Error usage) (a, Substitution (Type usage)))
+runIO :: (Eq usage, Monoid usage, Semiring usage) => Proof usage '[REPL usage, CheckIsType usage, State (Context usage), Fresh, State (Substitution (Type usage)), Exc (Error usage), Prompt] a -> IO (Either (Error usage) (a, Substitution (Type usage)))
 runIO = runPrompt "λ: " . runError . runSubstitution . runFresh 0 . runContext . runCheckIsType . runREPL

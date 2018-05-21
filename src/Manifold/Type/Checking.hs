@@ -3,7 +3,6 @@ module Manifold.Type.Checking where
 
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
-import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Data.Semiring (Semiring(..), zero)
@@ -20,7 +19,7 @@ typing :: ( Eq usage
                      , CheckIsType usage
                      , Exc (Error usage)
                      , Fresh
-                     , Reader (Context usage)
+                     , State (Context usage)
                      , State (Substitution (Type usage))
                      ] effects
           , Monoid usage
@@ -38,7 +37,7 @@ typing (Infer term) = Type <$> case unTerm term of
   T -> pure BoolType
   F -> pure BoolType
   TypeType -> pure TypeType
-  Var name -> contextFind name <$> ask >>= maybe (freeVariable name) (pure . unType . constraintType)
+  Var name -> contextFind name <$> get >>= maybe (freeVariable name) (pure . unType . constraintType)
   (name, _) ::: ty :-> body -> do
     ty' <- checkIsType ty
     ((name, zero) ::: ty' >- checkIsType body) $> TypeType
@@ -87,7 +86,7 @@ runCheck :: ( Eq usage
             , Members '[ CheckIsType usage
                        , Exc (Error usage)
                        , Fresh
-                       , Reader (Context usage)
+                       , State (Context usage)
                        , State (Substitution (Type usage))
                        ] effects
             , Monoid usage
