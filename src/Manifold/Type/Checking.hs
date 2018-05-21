@@ -5,7 +5,7 @@ import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.State
 import Data.Functor (($>))
-import Data.Semiring (Semiring(..), zero)
+import Data.Semiring (zero)
 import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Context
@@ -25,7 +25,6 @@ check :: ( Eq usage
                     , State (Substitution (Type usage))
                     ] effects
          , Monoid usage
-         , Semiring usage
          )
       => Term usage
       -> Type usage
@@ -41,7 +40,6 @@ infer :: ( Eq usage
                     , State (Substitution (Type usage))
                     ] effects
          , Monoid usage
-         , Semiring usage
          )
       => Term usage
       -> Proof usage effects (Type usage)
