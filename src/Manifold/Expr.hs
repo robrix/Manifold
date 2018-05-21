@@ -58,14 +58,14 @@ rerep = cata (embed . first (fmap rerep))
 
 
 bindVariable :: (Corecursive t, Recursive t, Base t ~ Expr (Constraint usage t)) => (t -> t) -> (Name, t)
-bindVariable f = (name, body)
-  where name = maybe (I 0) prime (maxBV body)
-        body = f (embed (Var name))
+bindVariable f = (n, body)
+  where n = maybe (I 0) prime (maxBV body)
+        body = f (embed (Var n))
         prime (I i) = I (succ i)
         prime (N s) = N (s <> "ʹ")
         maxBV = cata $ \case
-          Intro ((name, _) ::: ty :-> _) -> max (Just name) (maxBV ty)
-          Intro (Abs ((name, _) ::: ty) _) -> max (Just name) (maxBV ty)
+          Intro (var ::: ty :-> _) -> max (Just (name var)) (maxBV ty)
+          Intro (Abs (var ::: ty) _) -> max (Just (name var)) (maxBV ty)
           other -> foldr max Nothing other
 
 
