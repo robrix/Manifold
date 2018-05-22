@@ -15,6 +15,12 @@ An experiment in [quantitative type theory][] inspired by [@bentnib][] & [@pigwo
 - Practice skills involved in working with languages: DSLs, effects, parsing, typechecking, evaluation, etc.
 
 
+## Non-goals
+
+- A consistent logic (at least, not until I learn more about termination proofs)
+- Reasonableness, stability, etc.; please don’t write software in this language (but if you must, feel free to file issues)
+
+
 ## Getting started
 
 After cloning (with submodules), `cabal new-repl` in the project will launch `ghci`. Then:
