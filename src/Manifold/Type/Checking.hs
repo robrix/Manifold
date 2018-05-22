@@ -3,6 +3,7 @@ module Manifold.Type.Checking where
 
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
+import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Data.Semiring (zero)
@@ -12,6 +13,7 @@ import Manifold.Context
 import Manifold.Expr
 import Manifold.Name
 import Manifold.Proof
+import Manifold.Purpose
 import Manifold.Substitution
 import Manifold.Term
 import Manifold.Type
@@ -90,3 +92,7 @@ infer term = case unTerm term of
 
 runSubstitution :: Named var => Proof usage (State (Substitution (Type var)) ': effects) a -> Proof usage effects (a, Substitution (Type var))
 runSubstitution = runState mempty
+
+
+askPurpose :: (Effectful m, Member (Reader Purpose) effects) => m effects Purpose
+askPurpose = ask
