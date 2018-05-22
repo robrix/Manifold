@@ -4,6 +4,7 @@ module Manifold.REPL where
 import Control.Applicative (Alternative(..))
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
+import Control.Monad.Effect.Reader
 import Data.Functor (($>))
 import Manifold.Binding
 import Manifold.Context
@@ -11,6 +12,7 @@ import Manifold.Eval
 import Manifold.Name
 import Manifold.Prompt
 import Manifold.Proof
+import Manifold.Purpose
 import Manifold.Parser as Parser
 import Manifold.Substitution
 import Manifold.Term
@@ -56,12 +58,12 @@ runREPL = interpret (\case
     , ":quit, :q         - exit the REPL"
     , ":type, :t <expr>  - print the type of <expr>"
     ])
-  TypeOf term -> fmap (uncurry (flip apply)) <$> runCheck (infer term)
-  Eval term -> fmap (uncurry (flip apply)) <$> runCheck (infer term) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
+  TypeOf term -> fmap (uncurry (flip apply)) <$> runCheck Intensional (infer term)
+  Eval term -> fmap (uncurry (flip apply)) <$> runCheck Intensional (infer term) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
 
 
-runCheck :: Proof usage (Reader (Context (Binding usage) (Type (Binding usage))) ': Fresh ': State (Substitution (Type (Binding usage))) ': Exc (Error (Binding usage)) ': effects) a -> Proof usage effects (Either (Error (Binding usage)) (a, Substitution (Type (Binding usage))))
-runCheck = runError . runSubstitution . runFresh 0 . runContext
+runCheck :: Purpose -> Proof usage (Reader (Context (Binding usage) (Type (Binding usage))) ': Reader Purpose ': Fresh ': State (Substitution (Type (Binding usage))) ': Exc (Error (Binding usage)) ': effects) a -> Proof usage effects (Either (Error (Binding usage)) (a, Substitution (Type (Binding usage))))
+runCheck purpose = runError . runSubstitution . runFresh 0 . runReader purpose . runContext
 
 runEval :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
 runEval = runContext
