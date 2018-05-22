@@ -85,15 +85,13 @@ type' = product
 
 
 name' :: (Monad m, TokenParsing m) => m Name
-name' = identifier >>= \ ident -> return $ case ident of
-  "_" -> I (-1)
-  _ -> N ident
+name' = N <$> identifier
 
 op :: TokenParsing m => String -> m String
 op = token . highlight Operator . string
 
 identifier :: (Monad m, TokenParsing m) => m String
-identifier =  ident (IdentifierStyle "identifier" (letter <|> char '_') (alphaNum <|> char '_') reservedWords Identifier ReservedIdentifier)
+identifier =  ident (IdentifierStyle "identifier" letter alphaNum reservedWords Identifier ReservedIdentifier)
           <|> try ((:[]) <$> token (parens (highlight Operator (oneOf ".,"))))
 
 reservedWords :: HashSet.HashSet String
