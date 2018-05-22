@@ -23,6 +23,7 @@ import Manifold.Unification
 check :: ( Eq usage
          , Members '[ Exc (Error (Binding usage))
                     , Fresh
+                    , Reader Purpose
                     , Reader (Context (Binding usage) (Type (Binding usage)))
                     , State (Substitution (Type (Binding usage)))
                     ] effects
@@ -38,6 +39,7 @@ check term expected = do
 infer :: ( Eq usage
          , Members '[ Exc (Error (Binding usage))
                     , Fresh
+                    , Reader Purpose
                     , Reader (Context (Binding usage) (Type (Binding usage)))
                     , State (Substitution (Type (Binding usage)))
                     ] effects
