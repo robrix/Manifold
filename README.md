@@ -8,10 +8,12 @@ An experiment in [quantitative type theory][] inspired by [@bentnib][] & [@pigwo
 [proof refinement]: http://languagengine.co/blog/bidirectional-proof-refinement/
 [quantitative type theory]: https://bentnib.org/quantitative-type-theory.html
 
+
 ## Goals
 
 - Understand QTT better than I do at time of writing
 - Practice skills involved in working with languages: DSLs, effects, parsing, typechecking, evaluation, etc.
+
 
 ## Getting started
 
