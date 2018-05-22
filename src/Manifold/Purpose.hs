@@ -17,6 +17,6 @@ fromUsage usage
   | usage == zero = Extensional
   | otherwise     = Intensional
 
-interpret :: (Monoid usage, Unital usage) => Purpose -> usage
-interpret Extensional = zero
-interpret Intensional = one
+interpretPurpose :: (Monoid usage, Unital usage) => Purpose -> usage
+interpretPurpose Extensional = zero
+interpretPurpose Intensional = one
