@@ -16,3 +16,7 @@ fromUsage :: (Eq usage, Monoid usage) => usage -> Purpose
 fromUsage usage
   | usage == zero = Extensional
   | otherwise     = Intensional
+
+interpret :: (Monoid usage, Unital usage) => Purpose -> usage
+interpret Extensional = zero
+interpret Intensional = one
