@@ -38,7 +38,7 @@ whole p = whiteSpace *> p <* eof
 
 term :: (Monad m, TokenParsing m) => m Term
 term = application
-  where atom = choice [ tuple, true', false', rerep name <$> type', var, let', lambda ]
+  where atom = choice [ true', false', rerep name <$> type', var, let', lambda, tuple ]
         application = atom `chainl1` pure (#) <?> "function application"
         tuple = parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple"
         true'  = true  <$ preword "True"
@@ -57,31 +57,18 @@ term = application
 
 
 type' :: (Monad m, TokenParsing m) => m (Type Name)
-type' = product
-  where product = chainl1 atom ((.*) <$ symbolic '*') <?> "product type"
+type' = piType
+  where piType = (.->) <$> constraint <* op "->" <*> piType
+             <|> makePi <$> product <*> optional (op "->" *> piType)
+        makePi ty1 Nothing = ty1
+        makePi ty1 (Just ty2) = I (-1) ::: ty1 .-> ty2
+        product = atom `chainl1` ((.*) <$ symbolic '*') <?> "product type"
         atom = choice [ boolT', unitT', typeT', tvar ]
         boolT' = boolT <$ preword "Bool"
         unitT' = unitT <$ preword "Unit"
         typeT' = typeT <$ preword "Type"
         tvar = Type.tvar <$> name' <?> "type variable"
-
-
--- piType :: (Monad m, TokenParsing m) => m Type
--- piType = fmap toPi $ ((:[]) <$> argument) `chainr1` ((++) <$ op "->")
---   where exponential arg = case arg of
---           Named name ty -> makePi name ty
---           Unnamed ty -> (.->.) ty
---         codomain res = case res of
---           Named name ty -> Expr.var name `as` ty
---           Unnamed ty -> ty
---         toPi components = foldr exponential (codomain (Prelude.last components)) (Prelude.init components)
---
--- argument :: (Monad m, TokenParsing m) => m Argument
--- argument =  try (parens (Named <$> name' <* colon <*> type'))
---         <|>            Unnamed <$> sumType
---         <?> "argument"
---
--- data Argument = Named Name Type | Unnamed Type
+        constraint = parens ((:::) <$> name' <* colon <*> type')
 
 
 name' :: (Monad m, TokenParsing m) => m Name
