@@ -14,6 +14,7 @@ import Data.Semiring (Semiring(..))
 import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Name
+import Manifold.Pretty
 
 newtype Context var ty = Context { unContext :: [Constraint var ty] }
   deriving (Eq, Ord, Show)
@@ -35,6 +36,10 @@ instance (Eq ty, Eq usage, Semigroup usage) => Semigroup (Context (Binding usage
 
 instance (Eq ty, Eq usage, Semiring usage) => Module usage (Context (Binding usage) ty) where
   u ><< Context as = Context (map (first (fmap (u ><))) as)
+
+
+instance (Pretty var, Pretty ty) => Pretty (Context var ty) where
+  prettyPrec d (Context cs) = showParen (d > 0) $ foldr (.) id (intersperse (showChar ',' . showChar ' ') (map (prettyPrec 0) (reverse cs)))
 
 
 (|>) :: Context var ty -> Constraint var ty -> Context var ty
