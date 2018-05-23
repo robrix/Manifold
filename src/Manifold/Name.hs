@@ -13,7 +13,3 @@ class Named n where
 instance Named Name where
   name = id
   setName = const
-
-instance Named a => Named (a, b) where
-  name = name . fst
-  setName n = (,) . setName n . fst <*> snd
