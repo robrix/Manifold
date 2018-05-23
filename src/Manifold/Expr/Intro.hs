@@ -1,6 +1,8 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase #-}
 module Manifold.Expr.Intro where
 
+import Manifold.Pretty
+
 data Intro var scope recur
   = Unit
   | Bool Bool
@@ -45,3 +47,15 @@ instance Trifunctor Intro where
     TypeT    -> TypeT
     v :-> b  -> f v :-> g b
     a :* b   -> h a :* h b
+
+instance (Pretty var, Pretty scope, Pretty recur) => Pretty (Intro var scope recur) where
+  prettyPrec d = \case
+    Unit -> showParen True id
+    Bool b -> showsPrec d b
+    Abs v b -> showParen (d > 0) $ showChar '\\' . showChar ' ' . prettyPrec 0 v . showChar ' '  . showChar '.' . showChar ' ' . prettyPrec 0 b
+    Pair a b -> showParen (d > (-1)) $ prettyPrec (-1) a . showChar ',' . showChar ' ' . prettyPrec 0 b
+    UnitT -> showString "Unit"
+    BoolT -> showString "Bool"
+    TypeT -> showString "Type"
+    v :-> b -> showParen (d > 0) $ prettyPrec 1 v . showChar ' ' . showString "->" . showChar ' ' . prettyPrec 0 b
+    a :* b -> showParen (d > 7) $ prettyPrec 7 a . showChar ' ' . showChar '*' . showChar ' ' . prettyPrec 8 b
