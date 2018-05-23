@@ -10,6 +10,7 @@ import Manifold.Binding
 import Manifold.Context
 import Manifold.Eval
 import Manifold.Name
+import Manifold.Pretty
 import Manifold.Prompt
 import Manifold.Proof
 import Manifold.Purpose
@@ -21,23 +22,23 @@ import Manifold.Type.Checking
 import Manifold.Value
 import Text.Trifecta as Trifecta
 
-repl :: (Members '[Prompt, REPL usage] effects, Monoid usage, Show usage) => Proof usage effects ()
+repl :: (Members '[Prompt, REPL usage] effects, Monoid usage, Pretty usage) => Proof usage effects ()
 repl = prompt >>= maybe repl handleInput
 
-handleInput :: (Members '[Prompt, REPL usage] effects, Monoid usage, Show usage) => String -> Proof usage effects ()
+handleInput :: (Members '[Prompt, REPL usage] effects, Monoid usage, Pretty usage) => String -> Proof usage effects ()
 handleInput str = case Parser.parseString command str of
   Left err -> output err *> repl
   Right action -> action
 
-command :: (Members '[Prompt, REPL usage] effects, Monoid usage, Show usage) => Parser.Parser Trifecta.Parser (Proof usage effects ())
+command :: (Members '[Prompt, REPL usage] effects, Monoid usage, Pretty usage) => Parser.Parser Trifecta.Parser (Proof usage effects ())
 command = whole (meta <|> eval <$> term) <?> "command"
   where meta = colon
           *> ((long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
           <|> (long "quit" <|> short 'q' <?> "quit") $> pure ()
           <|> (typeOf <$> ((long "type" <|> short 't') *> term) <?> "type of")
           <?> "command; use :? for help")
-        eval term = sendREPL (Eval term) >>= output . either show show >> repl
-        typeOf term = sendREPL (TypeOf term) >>= output . either show show >> repl
+        eval term = sendREPL (Eval term) >>= output . either pretty pretty >> repl
+        typeOf term = sendREPL (TypeOf term) >>= output . either pretty pretty >> repl
 
         short = symbol . (:[])
         long = symbol
