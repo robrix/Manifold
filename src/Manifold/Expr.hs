@@ -19,6 +19,7 @@ import Manifold.Constraint
 import Manifold.Expr.Elim
 import Manifold.Expr.Intro
 import Manifold.Name
+import Manifold.Pretty
 
 data Expr var recur
   = Var Name
@@ -49,6 +50,12 @@ instance (Show var, Show recur) => Show (Expr var recur) where
     Var n   -> showsUnaryWith showsPrec "Var" d n
     Intro i -> showsPrec d i
     Elim e  -> showsPrec d e
+
+instance (Pretty var, Pretty recur) => Pretty (Expr var recur) where
+  prettyPrec d (Var n)   = prettyPrec d n
+  prettyPrec d (Intro i) = prettyPrec d i
+  prettyPrec d (Elim e)  = prettyPrec d e
+
 
 
 rerep :: (Recursive t1, Base t1 ~ f (Constraint var1 t1), Corecursive t2, Base t2 ~ f (Constraint var2 t2), Bifunctor f)
