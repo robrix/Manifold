@@ -9,6 +9,7 @@ import Data.Maybe (fromMaybe)
 import Manifold.Constraint
 import Manifold.Expr
 import Manifold.Name
+import Manifold.Pretty
 import Manifold.Substitution
 
 newtype Type var = Type { unType :: Expr (Constraint var (Type var)) (Type var) }
@@ -29,6 +30,10 @@ instance Named var => Substitutable (Type var) where
     Intro (Abs (var ::: ty) body) -> tintro (Abs (var ::: apply subst ty) (apply (deleteSubst (name var) subst) body))
     Intro i                       -> tintro (apply subst <$> i)
     Elim e                        -> telim (apply subst <$> e)
+
+instance Pretty var => Pretty (Type var) where
+  prettyPrec d = prettyPrec d . unType
+
 
 tvar :: Name -> Type var
 tvar = Type . Var
