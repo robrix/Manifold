@@ -17,6 +17,9 @@ instance Bifoldable Constraint where
 instance Bifunctor Constraint where
   bimap f g (var ::: ty) = f var ::: g ty
 
+instance (Pretty var, Pretty ty) => Pretty (Constraint var ty) where
+  prettyPrec d (var ::: ty) = showParen (d > 0) $ prettyPrec 0 var . showChar ' ' . showChar ':' . showChar ' ' . prettyPrec 0 ty
+
 
 constraintName :: Named var => Constraint var ty -> Name
 constraintName (var ::: _) = name var
