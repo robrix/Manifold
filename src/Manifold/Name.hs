@@ -1,5 +1,7 @@
 module Manifold.Name where
 
+import Manifold.Pretty
+
 data Name
   = N String
   | I Int
@@ -13,3 +15,10 @@ class Named n where
 instance Named Name where
   name = id
   setName = const
+
+
+instance Pretty Name where
+  prettyPrec _ (N s) = showString s
+  prettyPrec _ (I n) = (if n < 0 then showChar '_' else id) . showString (replicate (succ i) (alphabet !! r))
+    where alphabet = ['a'..'z']
+          (i, r) = abs n `divMod` length alphabet
