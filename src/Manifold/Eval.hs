@@ -24,14 +24,14 @@ eval (Term term) = case term of
     Bool b -> pure (Value (Bool b))
     Abs (var ::: _) body -> do
       env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . constraintName) <$> ask
-      pure (Value (Abs (name var, env) body))
+      pure (Value (Abs (name var ::: env) body))
     Pair a b -> fmap Value . Pair <$> eval a <*> eval b
     UnitT -> pure (Value UnitT)
     BoolT -> pure (Value BoolT)
     TypeT -> pure (Value TypeT)
     var ::: _ :-> body -> do
       env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . constraintName) <$> ask
-      pure (Value ((name var, env) :-> body))
+      pure (Value ((name var ::: env) :-> body))
     a :* b -> fmap Value . (:*) <$> eval a <*> eval b
   Elim e -> case e of
     ExL pair -> do
@@ -41,7 +41,7 @@ eval (Term term) = case term of
       Value (Pair _ b) <- eval pair
       pure b
     App f a -> do
-      Value (Abs (name, env) body) <- eval f
+      Value (Abs (name ::: env) body) <- eval f
       -- FIXME: use the env
       -- FIXME: pi types
       a' <- eval a
