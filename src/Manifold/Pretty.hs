@@ -13,5 +13,4 @@ pretty :: Pretty a => a -> String
 pretty = ($ "") . prettys
 
 
-instance Pretty () where
-  prettyPrec = showsPrec
+instance Pretty ()
