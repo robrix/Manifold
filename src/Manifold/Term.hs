@@ -6,6 +6,7 @@ import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Manifold.Constraint
 import Manifold.Expr
 import Manifold.Name
+import Manifold.Pretty
 import Manifold.Type
 
 newtype Term = Term { unTerm :: Expr (Constraint Name Term) Term }
@@ -18,6 +19,10 @@ type instance Base Term = Expr (Constraint Name Term)
 
 instance Recursive   Term where project = unTerm
 instance Corecursive Term where embed   =   Term
+
+instance Pretty Term where
+  prettyPrec d = prettyPrec d . unTerm
+
 
 var :: Name -> Term
 var = Term . Var
