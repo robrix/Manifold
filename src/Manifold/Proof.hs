@@ -7,9 +7,10 @@ import Control.Monad.Effect.Reader
 import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Context
+import Manifold.Name
+import Manifold.Pretty
 import Manifold.Term
 import Manifold.Type
-import Manifold.Name
 
 newtype Proof usage effects a = Proof { runProof :: Eff effects a }
   deriving (Applicative, Effectful, Functor, Monad)
@@ -32,6 +33,12 @@ data Error var
   | CannotUnify (Type var) (Type var)
   | NoRuleToCheckIsType Term
   deriving (Eq, Ord, Show)
+
+instance Pretty var => Pretty (Error var) where
+  prettyPrec d err = showParen (d > 0) $ showString "error: " . case err of
+    FreeVariable name -> showString "free variable: " . prettyPrec 0 name
+    CannotUnify t1 t2 -> showString "cannot unify\n" . prettyPrec 0 t1 . showString "\nwith\n" . prettyPrec 0 t2
+    NoRuleToCheckIsType t -> showString "cannot prove " . prettyPrec 0 t . showString " is a valid type"
 
 runError :: Proof usage (Exc (Error var) ': effects) a -> Proof usage effects (Either (Error var) a)
 runError = Exception.runError
