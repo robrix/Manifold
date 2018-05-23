@@ -39,6 +39,7 @@ instance (Eq ty, Eq usage, Semiring usage) => Module usage (Context (Binding usa
 
 
 instance (Pretty var, Pretty ty) => Pretty (Context var ty) where
+  prettyPrec _ (Context []) = showChar '◊'
   prettyPrec d (Context cs) = showParen (d > 0) $ foldr (.) id (intersperse (showChar ',' . showChar ' ') (map (prettyPrec 0) (reverse cs)))
 
 
