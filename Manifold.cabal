@@ -24,6 +24,7 @@ library
                      , Manifold.Expr.Intro
                      , Manifold.Name
                      , Manifold.Parser
+                     , Manifold.Pretty
                      , Manifold.Prompt
                      , Manifold.Proof
                      , Manifold.Purpose
