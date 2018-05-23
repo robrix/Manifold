@@ -1,7 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 module Manifold.Value where
 
-import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Manifold.Constraint
 import Manifold.Context
@@ -11,10 +10,7 @@ import Manifold.Pretty
 import Manifold.Term
 
 newtype Value = Value { unValue :: Intro (Constraint Name (Context Name Value)) Term Value }
-  deriving (Eq, Ord)
-
-instance Show Value where
-  showsPrec d = showsUnaryWith showsPrec "Value" d . cata Silent
+  deriving (Eq, Ord, Show)
 
 type instance Base Value = Intro (Constraint Name (Context Name Value)) Term
 
@@ -23,14 +19,3 @@ instance Corecursive Value where embed   =   Value
 
 instance Pretty Value where
   prettyPrec d = prettyPrec d . unValue
-
-
-newtype Silent = Silent { unSilent :: Intro (Constraint Name (Context Name Value)) Term Silent }
-
-type instance Base Silent = Intro (Constraint Name (Context Name Value)) Term
-
-instance Recursive   Silent where project = unSilent
-instance Corecursive Silent where embed   =   Silent
-
-instance Show Silent where
-  showsPrec d = showsPrec d . unSilent

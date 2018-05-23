@@ -1,7 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 module Manifold.Term where
 
-import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Manifold.Constraint
 import Manifold.Expr
@@ -10,10 +9,7 @@ import Manifold.Pretty
 import Manifold.Type
 
 newtype Term = Term { unTerm :: Expr (Constraint Name Term) Term }
-  deriving (Eq, Ord)
-
-instance Show Term where
-  showsPrec d = showsUnaryWith showsPrec "Term" d . unSilent . rerep id
+  deriving (Eq, Ord, Show)
 
 type instance Base Term = Expr (Constraint Name Term)
 

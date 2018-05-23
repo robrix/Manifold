@@ -6,13 +6,11 @@ module Manifold.Expr
 , rerep
 , bindVariable
 , freeVariables
-, Silent(..)
 ) where
 
 import Data.Bifoldable
 import Data.Bifunctor
 import Data.Foldable (fold)
-import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import qualified Data.Set as Set
 import Manifold.Constraint
@@ -25,7 +23,7 @@ data Expr var recur
   = Var Name
   | Intro (Intro var recur recur)
   | Elim (Elim recur)
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Show)
 
 instance Bifoldable Expr where
   bifoldMap f g = \case
@@ -44,12 +42,6 @@ instance Bifunctor Expr where
 
 instance Functor (Expr var) where
   fmap = bimap id
-
-instance (Show var, Show recur) => Show (Expr var recur) where
-  showsPrec d = \case
-    Var n   -> showsUnaryWith showsPrec "Var" d n
-    Intro i -> showsPrec d i
-    Elim e  -> showsPrec d e
 
 instance (Pretty var, Pretty recur) => Pretty (Expr var recur) where
   prettyPrec d (Var n)   = prettyPrec d n
@@ -83,14 +75,3 @@ freeVariables = cata $ \case
   Intro (var ::: ty :-> body) -> freeVariables ty <> Set.delete (name var) body
   Intro (Abs (var ::: ty) body) -> freeVariables ty <> Set.delete (name var) body
   other -> fold other
-
-
-newtype Silent var = Silent { unSilent :: Expr (Constraint var (Silent var)) (Silent var) }
-
-type instance Base (Silent var) = Expr (Constraint var (Silent var))
-
-instance Recursive   (Silent var) where project = unSilent
-instance Corecursive (Silent var) where embed   =   Silent
-
-instance Show var => Show (Silent var) where
-  showsPrec d = showsPrec d . unSilent

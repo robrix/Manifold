@@ -3,7 +3,6 @@ module Manifold.Type where
 
 import Data.Bifoldable
 import Data.Bifunctor
-import Data.Functor.Classes (showsUnaryWith)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Data.Maybe (fromMaybe)
 import Manifold.Constraint
@@ -13,10 +12,7 @@ import Manifold.Pretty
 import Manifold.Substitution
 
 newtype Type var = Type { unType :: Expr (Constraint var (Type var)) (Type var) }
-  deriving (Eq, Ord)
-
-instance Show var => Show (Type var) where
-  showsPrec d = showsUnaryWith showsPrec "Type" d . unSilent . rerep id
+  deriving (Eq, Ord, Show)
 
 type instance Base (Type var) = Expr (Constraint var (Type var))
 
