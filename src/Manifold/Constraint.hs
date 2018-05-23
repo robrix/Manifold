@@ -4,8 +4,9 @@ module Manifold.Constraint where
 import Data.Bifoldable
 import Data.Bifunctor
 import Manifold.Name
+import Manifold.Pretty
 
-data Constraint var recur = var ::: recur
+data Constraint var ty = var ::: ty
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 infix 5 :::
@@ -17,11 +18,11 @@ instance Bifunctor Constraint where
   bimap f g (var ::: ty) = f var ::: g ty
 
 
-constraintName :: Named var => Constraint var recur -> Name
+constraintName :: Named var => Constraint var ty -> Name
 constraintName (var ::: _) = name var
 
-constraintVar :: Constraint var recur -> var
+constraintVar :: Constraint var ty -> var
 constraintVar (var ::: _) = var
 
-constraintValue :: Constraint var recur -> recur
+constraintValue :: Constraint var ty -> ty
 constraintValue (_ ::: ty) = ty
