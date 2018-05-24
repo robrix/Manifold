@@ -32,11 +32,11 @@ There’s not a lot you can do with it just yet, but `:help` will tell you about
 
 ```
 λ: True
-Value (Bool True)
+True
 λ: (\ (x : Bool) . x)
-Value (Abs (N "x",Context {unContext = []}) (Term (Var (N "x"))))
+\ x : ◊ . x
 λ: (\ (x : Bool) . x) True
-Value (Bool True)
+True
 ```
 
 (As this project is purely experimental, that syntax may change without warning.)
