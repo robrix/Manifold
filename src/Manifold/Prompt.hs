@@ -15,11 +15,9 @@ data Prompt result where
   Output :: String -> Prompt ()
 
 runPrompt :: Effectful m => String -> m '[Prompt] a -> IO a
-runPrompt prompt action = do
-  prefs <- readPrefs "~/.local/Manifold/repl_prefs"
-  runInputTWithPrefs prefs settings (runM (reinterpret (\case
-    Prompt -> sendInputT (getInputLine (cyan <> prompt <> plain))
-    Output s -> sendInputT (outputStrLn s)) action))
+runPrompt prompt action = runInputT settings (runM (reinterpret (\case
+  Prompt -> sendInputT (getInputLine (cyan <> prompt <> plain))
+  Output s -> sendInputT (outputStrLn s)) action))
 
 cyan :: String
 cyan = "\ESC[1;36m\STX"
