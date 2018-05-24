@@ -35,6 +35,8 @@ There’s not a lot you can do with it just yet, but `:help` will tell you about
 True
 λ: (\ (x : Bool) . x)
 \ x : ◊ . x
+λ: :t (\ (x : Bool) . x)
+(x @() : Bool) -> Bool
 λ: (\ (x : Bool) . x) True
 True
 ```
