@@ -40,3 +40,9 @@ Value (Bool True)
 ```
 
 (As this project is purely experimental, that syntax may change without warning.)
+
+Note that the syntax is currently extremely explicit; not only do you have to include all type abstractions and applications explicitly, you also have to annotate all variable introductions: `let`s, pi types, and lambdas all take type annotations:
+
+```
+let (id : (x : Type) -> x -> x) = (\ (x : Type) (y : x) . y) in id Bool True
+```
