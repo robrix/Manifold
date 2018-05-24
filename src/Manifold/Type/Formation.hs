@@ -19,6 +19,9 @@ checkIsType :: ( Members '[ Exc (Error (Binding usage))
             => Term
             -> Proof usage effects (Type (Binding usage))
 checkIsType term = case unTerm term of
+  Var name -> do
+    context <- askContext
+    maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
   Intro UnitT -> pure (tintro UnitT)
   Intro BoolT -> pure (tintro BoolT)
   Intro TypeT -> pure (tintro TypeT)
