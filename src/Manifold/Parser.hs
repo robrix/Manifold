@@ -2,6 +2,7 @@
 module Manifold.Parser where
 
 import Control.Applicative (Alternative(..))
+import Control.Monad.IO.Class (MonadIO)
 import qualified Data.HashSet as HashSet
 import Manifold.Constraint
 import Manifold.Expr as Expr
@@ -22,6 +23,9 @@ instance TokenParsing f => TokenParsing (Parser f) where
   someSpace = Parser $ buildSomeSpaceParser someSpace haskellCommentStyle
   nesting = Parser . nesting . runParser
   highlight h = Parser . highlight h . runParser
+
+parseFile :: MonadIO m => Parser Trifecta.Parser a -> FilePath -> m (Maybe a)
+parseFile (Parser p) = Trifecta.parseFromFile p
 
 parseString :: Parser Trifecta.Parser a -> String -> Either String a
 parseString (Parser p) = toResult . Trifecta.parseString p mempty
