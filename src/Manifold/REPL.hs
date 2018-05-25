@@ -59,12 +59,12 @@ runREPL = interpret (\case
     , ":quit, :q         - exit the REPL"
     , ":type, :t <expr>  - print the type of <expr>"
     ])
-  TypeOf term -> fmap (uncurry (flip apply)) <$> runCheck Intensional (infer term)
-  Eval term -> fmap (uncurry (flip apply)) <$> runCheck Intensional (infer term) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
+  TypeOf term -> runCheck Intensional (infer term)
+  Eval term -> runCheck Intensional (infer term) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
 
 
-runCheck :: Purpose -> Proof usage (Reader (Context (Binding usage) (Type (Binding usage))) ': Reader Purpose ': Fresh ': State (Substitution (Type (Binding usage))) ': Exc (Error (Binding usage)) ': effects) a -> Proof usage effects (Either (Error (Binding usage)) (a, Substitution (Type (Binding usage))))
-runCheck purpose = runError . runSubstitution . runFresh 0 . runReader purpose . runContext
+runCheck :: Purpose -> Proof usage (Reader (Context (Binding usage) (Type (Binding usage))) ': Reader Purpose ': Fresh ': State (Substitution (Type (Binding usage))) ': Exc (Error (Binding usage)) ': effects) (Type (Binding usage)) -> Proof usage effects (Either (Error (Binding usage)) (Type (Binding usage)))
+runCheck purpose = fmap (fmap (uncurry (flip apply))) . runError . runSubstitution . runFresh 0 . runReader purpose . runContext
 
 runEval :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
 runEval = runContext
