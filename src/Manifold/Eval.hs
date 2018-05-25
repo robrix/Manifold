@@ -45,7 +45,7 @@ eval (Term term) = case term of
       -- FIXME: use the env
       -- FIXME: pi types
       a' <- eval a
-      name ::: a' >- eval body
+      env `seq` name ::: a' >- eval body
     If c t e -> do
       Value (Bool b) <- eval c
       if b then
