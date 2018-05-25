@@ -14,6 +14,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Manifold.Binding
+                     , Manifold.CLI
                      , Manifold.Constraint
                      , Manifold.Context
                      , Manifold.Elaborate
