@@ -15,10 +15,7 @@ eval :: Member (Reader (Context Name Value)) effects
      => Term
      -> Proof usage effects Value
 eval (Term term) = case term of
-  -- FIXME: no failable patterns
-  Var name -> do
-    Just value <- fmap constraintValue . contextLookup name <$> askEnv
-    pure value
+  Var name -> fmap constraintValue . contextLookup name <$> askEnv >>= maybe (error "free variable, should have been caught by typechecker") pure
   Intro i -> case i of
     Unit -> pure (Value Unit)
     Bool b -> pure (Value (Bool b))
@@ -34,24 +31,26 @@ eval (Term term) = case term of
       pure (Value ((name var ::: env) :-> body))
     a :* b -> fmap Value . (:*) <$> eval a <*> eval b
   Elim e -> case e of
-    ExL pair -> do
-      Value (Pair a _) <- eval pair
-      pure a
-    ExR pair -> do
-      Value (Pair _ b) <- eval pair
-      pure b
+    ExL pair -> eval pair >>= \ p -> case p of { Value (Pair a _) -> pure a ; _ -> error "exl on non-pair value, should have been caught by typechecker" }
+    ExR pair -> eval pair >>= \ p -> case p of { Value (Pair _ b) -> pure b ; _ -> error "exr on non-pair value, should have been caught by typechecker" }
     App f a -> do
-      Value (Abs (name ::: env) body) <- eval f
-      -- FIXME: use the env
-      -- FIXME: pi types
-      a' <- eval a
-      env `seq` name ::: a' >- eval body
+      v <- eval f
+      case v of
+        Value (Abs (name ::: env) body) -> do
+          -- FIXME: use the env
+          -- FIXME: pi types
+          a' <- eval a
+          env `seq` name ::: a' >- eval body
+        _ -> error "application of non-abstraction, should have been caught by typechecker"
     If c t e -> do
-      Value (Bool b) <- eval c
-      if b then
-        eval t
-      else
-        eval e
+      v <- eval c
+      case v of
+        Value (Bool b) ->
+          if b then
+            eval t
+          else
+            eval e
+        _ -> error "branch on non-boolean, should have been caught by typechecker"
 
 askEnv :: Member (Reader (Context Name Value)) effects => Proof usage effects (Context Name Value)
 askEnv = ask
