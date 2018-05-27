@@ -6,7 +6,8 @@ import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Manifold.Constraint
-import Manifold.Expr
+import Manifold.Expr.Elim
+import Manifold.Expr.Intro
 import Manifold.Name
 import Manifold.Proof
 import Manifold.Substitution

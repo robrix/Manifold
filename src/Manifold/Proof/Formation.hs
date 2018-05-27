@@ -5,7 +5,7 @@ import Control.Monad.Effect
 import Data.Semiring (zero)
 import Manifold.Constraint
 import Manifold.Context
-import Manifold.Expr
+import Manifold.Expr.Intro
 import Manifold.Name
 import Manifold.Name.Annotated
 import Manifold.Proof

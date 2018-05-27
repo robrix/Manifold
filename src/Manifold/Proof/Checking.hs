@@ -5,7 +5,6 @@ import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
-import Data.Functor (($>))
 import Data.Semiring (zero)
 import Manifold.Constraint
 import Manifold.Context
@@ -20,7 +19,7 @@ import Manifold.Proof.Formation
 import Manifold.Purpose
 import Manifold.Substitution
 import Manifold.Term
-import Manifold.Type
+import Manifold.Type (Type, tvar, unitT, boolT, (.->), (.*))
 import Manifold.Unification
 
 checkModule :: ( Eq usage
