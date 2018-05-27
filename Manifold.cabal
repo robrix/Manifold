@@ -32,7 +32,6 @@ library
                      , Manifold.Purpose
                      , Manifold.REPL
                      , Manifold.Substitution
-                     , Manifold.Sum
                      , Manifold.Term
                      , Manifold.Type
                      , Manifold.Type.Checking
