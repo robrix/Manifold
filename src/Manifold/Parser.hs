@@ -82,6 +82,8 @@ lambda = foldr ((.) . Term.abs') id <$  op "\\"
 -- $
 -- >>> parseString tuple "()"
 -- Right (Term {unTerm = Intro Unit})
+-- >>> parseString tuple "(True)"
+-- Right (Term {unTerm = Intro (Bool True)})
 tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
 
 constraint :: (Monad m, TokenParsing m) => m (Constraint Name (Type.Type Name))
