@@ -30,11 +30,12 @@ check :: ( Eq usage
          , Monoid usage
          )
       => Term
-      -> Type (Annotated usage)
+      -> Type Name
       -> Proof usage effects (Type (Annotated usage))
 check term expected = do
+  expected' <- checkIsType expected
   actual <- infer term
-  unify actual expected
+  unify actual expected'
 
 infer :: ( Eq usage
          , Members '[ Exc (Error (Annotated usage))
@@ -65,26 +66,26 @@ infer term = case unTerm term of
     | TypeT                 <- i -> pure typeT
     | var ::: ty :-> body   <- i -> do
       (ty' :: Type (Annotated usage)) <- checkIsType ty
-      Annotated var (zero @usage) ::: ty' >- checkIsType body $> typeT
-    | a :* b                <- i -> checkIsType a *> checkIsType b $> typeT
+      Annotated var (zero @usage) ::: ty' >- checkIsType (asType body) $> typeT
+    | a :* b                <- i -> checkIsType (asType a) *> checkIsType (asType b) $> typeT
   Elim e
     | ExL a    <- e -> do
-      t1 <- tvar . I <$> fresh
-      t2 <- tvar . I <$> fresh
-      _ <- check a (t1 .* t2)
-      pure t1
+      t1 <- freshName
+      t2 <- freshName
+      _ <- check a (tvar t1 .* tvar t2)
+      pure (tvar t1)
     | ExR a    <- e -> do
-      t1 <- tvar . I <$> fresh
-      t2 <- tvar . I <$> fresh
-      _ <- check a (t1 .* t2)
-      pure t2
+      t1 <- freshName
+      t2 <- freshName
+      _ <- check a (tvar t1 .* tvar t2)
+      pure (tvar t2)
     | App f a  <- e -> do
       n <- I <$> fresh
-      t1 <- tvar . I <$> fresh
-      t2 <- tvar . I <$> fresh
-      _ <- check f (Annotated n zero ::: t1 .-> t2)
-      _ <- check a t1
-      pure t2
+      t1 <- freshName
+      t2 <- freshName
+      _ <- check f (n ::: tvar t1 .-> tvar t2)
+      _ <- check a (tvar t1)
+      pure (tvar t2)
     | If c t e <- e -> do
       _ <- check c boolT
       t' <- infer t

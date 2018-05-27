@@ -3,13 +3,13 @@ module Manifold.Proof where
 
 import Control.Monad.Effect
 import qualified Control.Monad.Effect.Exception as Exception
+import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
 import Manifold.Name.Annotated
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Name
 import Manifold.Pretty
-import Manifold.Term
 import Manifold.Type
 
 newtype Proof usage effects a = Proof { runProof :: Eff effects a }
@@ -22,7 +22,7 @@ freeVariable = throwError . FreeVariable
 cannotUnify :: Member (Exc (Error var)) effects => Type var -> Type var -> Proof usage effects a
 cannotUnify t1 t2 = Exception.throwError (CannotUnify t1 t2)
 
-noRuleToCheckIsType :: Member (Exc (Error (Annotated usage))) effects => Term -> Proof usage effects a
+noRuleToCheckIsType :: Member (Exc (Error (Annotated usage))) effects => Type Name -> Proof usage effects a
 noRuleToCheckIsType = throwError . NoRuleToCheckIsType
 
 throwError :: Member (Exc (Error (Annotated usage))) effects => Error (Annotated usage) -> Proof usage effects a
@@ -31,7 +31,7 @@ throwError = Exception.throwError
 data Error var
   = FreeVariable Name
   | CannotUnify (Type var) (Type var)
-  | NoRuleToCheckIsType Term
+  | NoRuleToCheckIsType (Type Name)
   deriving (Eq, Ord, Show)
 
 instance Pretty var => Pretty (Error var) where

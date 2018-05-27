@@ -8,10 +8,10 @@ import Manifold.Name
 import Manifold.Pretty
 import Manifold.Type
 
-newtype Term = Term { unTerm :: Expr (Constraint Name Term) Term }
+newtype Term = Term { unTerm :: Expr (Constraint Name (Type Name)) Term }
   deriving (Eq, Ord, Show)
 
-type instance Base Term = Expr (Constraint Name Term)
+type instance Base Term = Expr (Constraint Name (Type Name))
 
 instance Recursive   Term where project = unTerm
 instance Corecursive Term where embed   =   Term
@@ -23,11 +23,15 @@ instance Pretty Term where
 var :: Name -> Term
 var = Term . Var
 
-intro :: Intro (Constraint Name Term) Term Term -> Term
+intro :: Intro (Constraint Name (Type Name)) Term Term -> Term
 intro = Term . Intro
 
 elim :: Elim Term -> Term
 elim = Term . Elim
+
+
+asType :: Term -> Type Name
+asType = cata Type
 
 
 unit :: Term
