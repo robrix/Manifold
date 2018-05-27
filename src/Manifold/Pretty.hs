@@ -12,5 +12,8 @@ prettys = prettyPrec 0
 pretty :: Pretty a => a -> String
 pretty = ($ "") . prettys
 
+prettyPrint :: Pretty a => a -> IO ()
+prettyPrint = print . pretty
+
 
 instance Pretty ()
