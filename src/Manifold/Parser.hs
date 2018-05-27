@@ -48,6 +48,11 @@ toResult r = case r of
 whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
 
+
+module' :: (Monad m, TokenParsing m) => m Name
+module' = keyword "module" *> qname <* keyword "where"
+
+
 -- declaration :: (Monad m, TokenParsing m) => m (Decl.Declaration Name)
 --
 -- -- | Parse a declaration.
@@ -149,7 +154,7 @@ identifier =  ident (IdentifierStyle "identifier" letter alphaNum reservedWords 
           <|> try ((:[]) <$> token (parens (highlight Operator (oneOf ".,"))))
 
 reservedWords :: HashSet.HashSet String
-reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in" ]
+reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where" ]
 
 keyword :: TokenParsing m => String -> m String
 keyword s = token (highlight ReservedIdentifier (string s <* notFollowedBy alphaNum)) <?> s
