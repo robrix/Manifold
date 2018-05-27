@@ -131,6 +131,13 @@ typeT = Type.typeT <$ preword "Type"
 name :: (Monad m, TokenParsing m) => m Name
 name = N <$> identifier
 
+qname :: (Monad m, TokenParsing m) => m Name
+qname = runUnspaced name'
+  where name' = makeN <$> typeIdentifier <*> optional (dot *> name')
+            <|>     N <$> identifier
+        makeN s Nothing  = N s
+        makeN s (Just n) = Q s n
+
 op :: TokenParsing m => String -> m String
 op = token . highlight Operator . string
 
