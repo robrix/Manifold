@@ -91,7 +91,6 @@ type' = piType
         product = atom `chainl1` ((Type..*) <$ symbolic '*') <?> "product type"
         atom = choice [ boolT, unitT, typeT, tvar ]
         tvar = Type.tvar <$> name' <?> "type variable"
-        constraint = parens ((:::) <$> name' <* colon <*> type')
 
 boolT, unitT, typeT :: (Monad m, TokenParsing m) => m (Type.Type Name)
 
