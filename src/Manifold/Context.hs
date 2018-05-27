@@ -27,14 +27,14 @@ contextFilter :: (Constraint var ty -> Bool) -> Context var ty -> Context var ty
 contextFilter keep = Context . filter keep . unContext
 
 
-instance (Eq ty, Eq usage, Semigroup usage) => Semigroup (Context (Binding usage) ty) where
+instance (Eq ty, Eq usage, Semigroup usage) => Semigroup (Context (Annotated usage) ty) where
   Context as <> Context bs = Context (zipWith go as bs)
-    where go (Binding name1 u1 ::: t1) (Binding name2 u2 ::: t2)
-            | name1 == name2, t1 == t2 = Binding name1 (u1 <> u2) ::: t1
+    where go (Annotated name1 u1 ::: t1) (Annotated name2 u2 ::: t2)
+            | name1 == name2, t1 == t2 = Annotated name1 (u1 <> u2) ::: t1
             | otherwise                = error "adding inequal contexts"
 
 
-instance (Eq ty, Eq usage, Semiring usage) => Module usage (Context (Binding usage) ty) where
+instance (Eq ty, Eq usage, Semiring usage) => Module usage (Context (Annotated usage) ty) where
   u ><< Context as = Context (map (first (fmap (u ><))) as)
 
 

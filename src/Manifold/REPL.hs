@@ -49,8 +49,8 @@ sendREPL = send
 
 data REPL usage result where
   Help :: REPL usage ()
-  TypeOf :: Term -> REPL usage (Either (Error (Binding usage)) (Type (Binding usage)))
-  Eval :: Term -> REPL usage (Either (Error (Binding usage)) Value)
+  TypeOf :: Term -> REPL usage (Either (Error (Annotated usage)) (Type (Annotated usage)))
+  Eval :: Term -> REPL usage (Either (Error (Annotated usage)) Value)
 
 runREPL :: (Eq usage, Member Prompt effects, Monoid usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
 runREPL = interpret (\case
@@ -63,7 +63,7 @@ runREPL = interpret (\case
   Eval term -> runCheck Intensional (infer term) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
 
 
-runCheck :: Purpose -> Proof usage (Reader (Context (Binding usage) (Type (Binding usage))) ': Reader Purpose ': Fresh ': State (Substitution (Type (Binding usage))) ': Exc (Error (Binding usage)) ': effects) (Type (Binding usage)) -> Proof usage effects (Either (Error (Binding usage)) (Type (Binding usage)))
+runCheck :: Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': Reader Purpose ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
 runCheck purpose = fmap (fmap (uncurry (flip apply))) . runError . runSubstitution . runFresh 0 . runReader purpose . runContext
 
 runEval :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a

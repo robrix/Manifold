@@ -16,16 +16,16 @@ newtype Proof usage effects a = Proof { runProof :: Eff effects a }
   deriving (Applicative, Effectful, Functor, Monad)
 
 
-freeVariable :: Member (Exc (Error (Binding usage))) effects => Name -> Proof usage effects a
+freeVariable :: Member (Exc (Error (Annotated usage))) effects => Name -> Proof usage effects a
 freeVariable = throwError . FreeVariable
 
 cannotUnify :: Member (Exc (Error var)) effects => Type var -> Type var -> Proof usage effects a
 cannotUnify t1 t2 = Exception.throwError (CannotUnify t1 t2)
 
-noRuleToCheckIsType :: Member (Exc (Error (Binding usage))) effects => Term -> Proof usage effects a
+noRuleToCheckIsType :: Member (Exc (Error (Annotated usage))) effects => Term -> Proof usage effects a
 noRuleToCheckIsType = throwError . NoRuleToCheckIsType
 
-throwError :: Member (Exc (Error (Binding usage))) effects => Error (Binding usage) -> Proof usage effects a
+throwError :: Member (Exc (Error (Annotated usage))) effects => Error (Annotated usage) -> Proof usage effects a
 throwError = Exception.throwError
 
 data Error var
@@ -47,7 +47,7 @@ runError = Exception.runError
 runContext :: Proof usage (Reader (Context var recur) ': effects) a -> Proof usage effects a
 runContext = runReader emptyContext
 
-askContext :: Member (Reader (Context (Binding usage) (Type (Binding usage)))) effects => Proof usage effects (Context (Binding usage) (Type (Binding usage)))
+askContext :: Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects => Proof usage effects (Context (Annotated usage) (Type (Annotated usage)))
 askContext = ask
 
 

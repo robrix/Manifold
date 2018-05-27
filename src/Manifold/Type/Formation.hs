@@ -11,13 +11,13 @@ import Manifold.Proof
 import Manifold.Term
 import Manifold.Type
 
-checkIsType :: ( Members '[ Exc (Error (Binding usage))
-                          , Reader (Context (Binding usage) (Type (Binding usage)))
+checkIsType :: ( Members '[ Exc (Error (Annotated usage))
+                          , Reader (Context (Annotated usage) (Type (Annotated usage)))
                           ] effects
                , Monoid usage
                )
             => Term
-            -> Proof usage effects (Type (Binding usage))
+            -> Proof usage effects (Type (Annotated usage))
 checkIsType term = case unTerm term of
   Var name -> do
     context <- askContext
@@ -27,7 +27,7 @@ checkIsType term = case unTerm term of
   Intro TypeT -> pure (tintro TypeT)
   Intro (var ::: _S :-> _T) -> do
     _S' <- checkIsType _S
-    let binding = Binding var zero
+    let binding = Annotated var zero
     _T' <- binding ::: _S' >- checkIsType _T
     pure (binding ::: _S' .-> _T')
   Intro (_S :* _T) -> (.*) <$> checkIsType _S <*> checkIsType _T
