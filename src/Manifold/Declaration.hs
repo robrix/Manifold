@@ -4,4 +4,4 @@ import Manifold.Term
 import Manifold.Type
 
 data Declaration var
-  = Binding Term (Type var)
+  = Binding (Type var) Term
