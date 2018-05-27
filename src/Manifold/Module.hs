@@ -13,5 +13,5 @@ data Module var def = Module
 
 instance (Pretty var, Pretty def) => Pretty (Module var def) where
   prettyPrec _ (Module name decls)
-    = showString "module" . showChar ' ' . prettys name . showChar ' ' . showString "where" . showChar '\n'
+    = showString "module" . showChar ' ' . prettys name . showChar ' ' . showString "where" . showChar '\n' . showChar '\n'
     . foldr (.) id (intersperse (showChar '\n' . showChar '\n') (map prettys decls))
