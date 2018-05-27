@@ -44,7 +44,7 @@ runError :: Proof usage (Exc (Error var) ': effects) a -> Proof usage effects (E
 runError = Exception.runError
 
 
-runContext :: Proof usage (Reader (Context var recur) ': effects) a -> Proof usage effects a
+runContext :: Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': effects) a -> Proof usage effects a
 runContext = runReader emptyContext
 
 askContext :: Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects => Proof usage effects (Context (Annotated usage) (Type (Annotated usage)))
