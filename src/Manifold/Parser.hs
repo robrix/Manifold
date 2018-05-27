@@ -6,6 +6,7 @@ module Manifold.Parser
 , parseString
 -- * Parsers
 , whole
+, declaration
 , term
 ) where
 
@@ -13,6 +14,7 @@ import Control.Applicative (Alternative(..))
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.HashSet as HashSet
 import Manifold.Constraint
+import qualified Manifold.Declaration as Decl
 import Manifold.Expr as Expr
 import Manifold.Name (Name(..), Named(..))
 import qualified Manifold.Term as Term
@@ -46,6 +48,14 @@ toResult r = case r of
 
 whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
+
+declaration :: (Monad m, TokenParsing m) => m (Decl.Declaration Name)
+
+-- | Parse a declaration.
+declaration = Decl.Declaration <$> signature <*> some definition
+  where signature = runUnlined $ Decl.Signature <$> name' <* colon <*> type' <* newline
+        definition = runUnlined $ Decl.Definition <$> name' <* op "=" <*> pure [] <*> term <* newline
+
 
 
 term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m Term.Term
