@@ -48,8 +48,8 @@ checkDeclaration :: ( Eq usage
 checkDeclaration (Declaration (name ::: ty) term) = do
   -- FIXME: extend the context while checking
   -- FIXME: use the Purpose
-  (ty', subst) <- runState mempty (check term ty)
-  pure (Declaration (Annotated name zero ::: apply subst ty') term)
+  ty' <- runSubstitution (check term ty)
+  pure (Declaration (Annotated name zero ::: ty') term)
 
 
 check :: ( Eq usage
@@ -125,8 +125,8 @@ infer term = case unTerm term of
       unify t' e'
 
 
-runSubstitution :: Named var => Proof usage (State (Substitution (Type var)) ': effects) a -> Proof usage effects (a, Substitution (Type var))
-runSubstitution = runState mempty
+runSubstitution :: Named var => Proof usage (State (Substitution (Type var)) ': effects) (Type var) -> Proof usage effects (Type var)
+runSubstitution = fmap (uncurry (flip apply)) . runState mempty
 
 
 askPurpose :: (Effectful m, Member (Reader Purpose) effects) => m effects Purpose

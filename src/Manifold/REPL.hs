@@ -64,7 +64,7 @@ runREPL = interpret (\case
 
 
 runCheck :: Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': Reader Purpose ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
-runCheck purpose = fmap (fmap (uncurry (flip apply))) . runError . runSubstitution . runFresh 0 . runReader purpose . runContext
+runCheck purpose = runError . runSubstitution . runFresh 0 . runReader purpose . runContext
 
 runEval :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
 runEval = runContext
