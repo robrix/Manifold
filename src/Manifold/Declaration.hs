@@ -6,12 +6,12 @@ import Manifold.Term
 import Manifold.Type
 
 data Declaration var def = Declaration
-  { declarationConstraint :: Constraint var (Type var)
+  { declarationSignature  :: Constraint var (Type var)
   , declarationDefinition :: def
   }
 
 declarationName :: Named var => Declaration var def -> Name
-declarationName = constraintName . declarationConstraint
+declarationName = constraintName . declarationSignature
 
 
 data Definition var = Definition
