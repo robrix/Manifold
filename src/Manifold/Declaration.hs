@@ -1,5 +1,6 @@
 module Manifold.Declaration where
 
+import Manifold.Name
 import Manifold.Term
 import Manifold.Type
 
@@ -7,6 +8,9 @@ data Declaration var = Declaration
   { declarationSignature :: Signature var
   , declarationDefinitions :: [Definition var]
   }
+
+declarationName :: Named var => Declaration var -> Name
+declarationName = name . signatureVar . declarationSignature
 
 
 data Signature var = Signature
