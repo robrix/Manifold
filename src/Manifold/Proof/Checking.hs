@@ -11,6 +11,7 @@ import Manifold.Constraint
 import Manifold.Context
 import Manifold.Declaration
 import Manifold.Expr
+import Manifold.Module
 import Manifold.Name
 import Manifold.Name.Annotated
 import Manifold.Proof
@@ -20,6 +21,19 @@ import Manifold.Substitution
 import Manifold.Term
 import Manifold.Type
 import Manifold.Unification
+
+checkModule :: ( Eq usage
+               , Members '[ Exc (Error (Annotated usage))
+                          , Fresh
+                          , Reader Purpose
+                          , Reader (Context (Annotated usage) (Type (Annotated usage)))
+                          , State (Substitution (Type (Annotated usage)))
+                          ] effects
+               , Monoid usage
+               )
+            => Module Name Term
+            -> Proof usage effects (Module (Annotated usage) Term)
+checkModule (Module name decls) = Module name <$> traverse checkDeclaration decls
 
 
 checkDeclaration :: ( Eq usage
