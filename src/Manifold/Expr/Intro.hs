@@ -2,6 +2,7 @@
 module Manifold.Expr.Intro where
 
 import Data.Trifoldable
+import Data.Trifunctor
 import Data.Bifoldable
 import Data.Bifunctor
 import Manifold.Pretty
@@ -23,9 +24,6 @@ data IntroT var scope recur
 
 infixr 0 :->
 infixl 7 :*
-
-class Trifunctor t where
-  trimap :: (a -> a') -> (b -> b') -> (c -> c') -> t a b c -> t a' b' c'
 
 instance Trifoldable Intro where
   trifoldMap f g h = \case
