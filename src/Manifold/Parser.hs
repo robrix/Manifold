@@ -156,7 +156,6 @@ typeIdentifier =  ident (IdentifierStyle "identifier" upper alphaNum reservedWor
 
 identifier :: (Monad m, TokenParsing m) => m String
 identifier =  ident (IdentifierStyle "identifier" letter alphaNum reservedWords Identifier ReservedIdentifier)
-          <|> try ((:[]) <$> token (parens (highlight Operator (oneOf ".,"))))
 
 reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where" ]
