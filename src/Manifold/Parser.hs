@@ -51,7 +51,7 @@ whole p = whiteSpace *> p <* eof
 -- | Parse a term.
 term :: (Monad m, TokenParsing m) => m Term.Term
 term = application
-  where atom = choice [ true', false', try (rerep name <$> type'), var, let', lambda, tuple ]
+  where atom = choice [ true, false, try (rerep name <$> type'), var, let', lambda, tuple ]
         application = atom `chainl1` pure (Term.#) <?> "function application"
         tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
         var = Term.var <$> name' <?> "variable"
@@ -60,17 +60,17 @@ term = application
                                             <*> term
                                             <?> "lambda"
 
-true', false' :: (Monad m, TokenParsing m) => m Term.Term
+true, false :: (Monad m, TokenParsing m) => m Term.Term
 
 -- $
--- >>> parseString true' "True"
+-- >>> parseString true "True"
 -- Right (Term {unTerm = Intro (Bool True)})
-true' = Term.true <$ preword "True"
+true = Term.true <$ preword "True"
 
 -- $
--- >>> parseString false' "False"
+-- >>> parseString false "False"
 -- Right (Term {unTerm = Intro (Bool False)})
-false' = Term.false <$ preword "False"
+false = Term.false <$ preword "False"
 
 let' :: (Monad m, TokenParsing m) => m Term.Term
 let' = Term.makeLet <$  preword "let"
@@ -89,14 +89,14 @@ type' = piType
         makePi ty1 Nothing = ty1
         makePi ty1 (Just ty2) = I (-1) ::: ty1 Type..-> ty2
         product = atom `chainl1` ((Type..*) <$ symbolic '*') <?> "product type"
-        atom = choice [ boolT', unitT', typeT', tvar ]
+        atom = choice [ boolT, unitT, typeT, tvar ]
         tvar = Type.tvar <$> name' <?> "type variable"
         constraint = parens ((:::) <$> name' <* colon <*> type')
 
-boolT', unitT', typeT' :: (Monad m, TokenParsing m) => m (Type.Type Name)
-boolT' = Type.boolT <$ preword "Bool"
-unitT' = Type.unitT <$ preword "Unit"
-typeT' = Type.typeT <$ preword "Type"
+boolT, unitT, typeT :: (Monad m, TokenParsing m) => m (Type.Type Name)
+boolT = Type.boolT <$ preword "Bool"
+unitT = Type.unitT <$ preword "Unit"
+typeT = Type.typeT <$ preword "Type"
 
 name' :: (Monad m, TokenParsing m) => m Name
 name' = N <$> identifier
