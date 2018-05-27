@@ -15,8 +15,7 @@ import Control.Monad.IO.Class (MonadIO)
 import qualified Data.HashSet as HashSet
 import Manifold.Constraint
 import qualified Manifold.Declaration as Decl
-import Manifold.Expr as Expr
-import Manifold.Name (Name(..), Named(..))
+import Manifold.Name (Name(..))
 import qualified Manifold.Term as Term
 import qualified Manifold.Type as Type
 import Text.Parser.Char
@@ -64,7 +63,7 @@ term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsi
 term = application
 
 application = atom `chainl1` pure (Term.#) <?> "function application"
-  where atom = choice [ true, false, try (rerep name <$> type'), var, let', lambda, tuple ]
+  where atom = choice [ true, false, var, let', lambda, tuple ]
 
 -- $
 -- >>> parseString true "True"
