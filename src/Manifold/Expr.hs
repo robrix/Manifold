@@ -63,6 +63,7 @@ bindVariable f = (n, body)
         body = f (embed (Var n))
         prime (I i) = I (succ i)
         prime (N s) = N (s <> "ʹ")
+        prime (Q s n) = Q s (prime n)
 
 maxBV :: (Recursive t, Base t ~ Expr (Constraint var t'), Recursive t', Base t' ~ Expr (Constraint var t'), Named var) => t -> Maybe Name
 maxBV = cata $ \case
