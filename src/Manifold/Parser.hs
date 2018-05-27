@@ -15,7 +15,7 @@ import qualified Data.HashSet as HashSet
 import Manifold.Constraint
 import Manifold.Expr as Expr
 import Manifold.Name (Name(..), Named(..))
-import Manifold.Term as Term
+import Manifold.Term as Term hiding (let')
 import Manifold.Type as Type
 import Text.Parser.Char
 import Text.Parser.Combinators
@@ -55,29 +55,32 @@ term = application
         application = atom `chainl1` pure (#) <?> "function application"
         tuple = parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple"
         var = Term.var <$> name' <?> "variable"
-        let' = makeLet <$  preword "let"
-                       <*> constraint <* op "="
-                       <*> term <* preword "in"
-                       <*> term
-                       <?> "let"
         lambda = foldr ((.) . abs') id <$  op "\\"
                                        <*> some constraint <* dot
                                        <*> term
                                        <?> "lambda"
-        constraint = parens ((:::) <$> name' <* colon <*> type')
-
 
 -- $
 -- >>> parseString true' "True"
 -- Right (Term {unTerm = Intro (Bool True)})
 true' :: (Monad m, TokenParsing m) => m Term
-true' = true  <$ preword "True"
+true' = true <$ preword "True"
 
 -- $
 -- >>> parseString false' "False"
 -- Right (Term {unTerm = Intro (Bool False)})
 false' :: (Monad m, TokenParsing m) => m Term
 false' = false <$ preword "False"
+
+let' :: (Monad m, TokenParsing m) => m Term
+let' = makeLet <$  preword "let"
+               <*> constraint <* op "="
+               <*> term <* preword "in"
+               <*> term
+               <?> "let"
+
+constraint :: (Monad m, TokenParsing m) => m (Constraint Name (Type Name))
+constraint = parens ((:::) <$> name' <* colon <*> type')
 
 type' :: (Monad m, TokenParsing m) => m (Type Name)
 type' = piType
