@@ -57,19 +57,20 @@ rerep :: (Recursive t1, Base t1 ~ f (Constraint var1 t1), Corecursive t2, Base t
 rerep vars = go where go = cata (embed . first (bimap vars go))
 
 
-bindVariable :: (Corecursive t, Recursive t, Base t ~ Expr (Constraint var t), Named var) => (t -> t) -> (Name, t)
+bindVariable :: (Corecursive t, Recursive t, Base t ~ Expr (Constraint var t'), Recursive t', Base t' ~ Expr (Constraint var t'), Named var) => (t -> t) -> (Name, t)
 bindVariable f = (n, body)
   where n = maybe (I 0) prime (maxBV body)
         body = f (embed (Var n))
         prime (I i) = I (succ i)
         prime (N s) = N (s <> "ʹ")
-        maxBV = cata $ \case
-          Intro (var ::: ty :-> _) -> max (Just (name var)) (maxBV ty)
-          Intro (Abs (var ::: ty) _) -> max (Just (name var)) (maxBV ty)
-          other -> foldr max Nothing other
 
+maxBV :: (Recursive t, Base t ~ Expr (Constraint var t'), Recursive t', Base t' ~ Expr (Constraint var t'), Named var) => t -> Maybe Name
+maxBV = cata $ \case
+  Intro (var ::: ty :-> _) -> max (Just (name var)) (maxBV ty)
+  Intro (Abs (var ::: ty) _) -> max (Just (name var)) (maxBV ty)
+  other -> foldr max Nothing other
 
-freeVariables :: (Recursive t, Base t ~ Expr (Constraint var t), Named var) => t -> Set.Set Name
+freeVariables :: (Recursive t, Base t ~ Expr (Constraint var t'), Recursive t', Base t' ~ Expr (Constraint var t'), Named var) => t -> Set.Set Name
 freeVariables = cata $ \case
   Var name -> Set.singleton name
   Intro (var ::: ty :-> body) -> freeVariables ty <> Set.delete (name var) body
