@@ -48,12 +48,13 @@ whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
 
 
-term, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m Term.Term
+term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m Term.Term
 
 -- | Parse a term.
 term = application
+
+application = atom `chainl1` pure (Term.#) <?> "function application"
   where atom = choice [ true, false, try (rerep name <$> type'), var, let', lambda, tuple ]
-        application = atom `chainl1` pure (Term.#) <?> "function application"
 
 -- $
 -- >>> parseString true "True"
