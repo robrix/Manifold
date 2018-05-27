@@ -68,18 +68,18 @@ application = atom `chainl1` pure (Term.#) <?> "function application"
 -- $
 -- >>> parseString true "True"
 -- Right (Term {unTerm = Intro (Bool True)})
-true = Term.true <$ preword "True"
+true = Term.true <$ keyword "True"
 
 -- $
 -- >>> parseString false "False"
 -- Right (Term {unTerm = Intro (Bool False)})
-false = Term.false <$ preword "False"
+false = Term.false <$ keyword "False"
 
 var = Term.var <$> name <?> "variable"
 
-let' = Term.makeLet <$  preword "let"
+let' = Term.makeLet <$  keyword "let"
                     <*> constraint <* op "="
-                    <*> term <* preword "in"
+                    <*> term <* keyword "in"
                     <*> term
                     <?> "let"
 
@@ -116,17 +116,17 @@ type' = piType
 -- $
 -- >>> parseString boolT "Bool"
 -- Right (Type {unType = Intro BoolT})
-boolT = Type.boolT <$ preword "Bool"
+boolT = Type.boolT <$ keyword "Bool"
 
 -- $
 -- >>> parseString unitT "Unit"
 -- Right (Type {unType = Intro UnitT})
-unitT = Type.unitT <$ preword "Unit"
+unitT = Type.unitT <$ keyword "Unit"
 
 -- $
 -- >>> parseString typeT "Type"
 -- Right (Type {unType = Intro TypeT})
-typeT = Type.typeT <$ preword "Type"
+typeT = Type.typeT <$ keyword "Type"
 
 name :: (Monad m, TokenParsing m) => m Name
 name = N <$> identifier
@@ -151,5 +151,5 @@ identifier =  ident (IdentifierStyle "identifier" letter alphaNum reservedWords 
 reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in" ]
 
-preword :: TokenParsing m => String -> m String
-preword s = token (highlight ReservedIdentifier (string s <* notFollowedBy alphaNum)) <?> s
+keyword :: TokenParsing m => String -> m String
+keyword s = token (highlight ReservedIdentifier (string s <* notFollowedBy alphaNum)) <?> s
