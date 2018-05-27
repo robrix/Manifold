@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, TypeOperators #-}
 module Manifold.Eval where
 
 import Control.Monad.Effect
@@ -54,3 +54,7 @@ eval (Term term) = case term of
 
 askEnv :: Member (Reader (Context Name Value)) effects => Proof usage effects (Context Name Value)
 askEnv = ask
+
+
+runEnv :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
+runEnv = runReader emptyContext

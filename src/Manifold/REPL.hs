@@ -67,7 +67,7 @@ runCheck :: Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Ann
 runCheck purpose = runError . runSubstitution . runFresh 0 . runReader purpose . runContext
 
 runEval :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
-runEval = runContext
+runEval = runEnv
 
 runIO :: (Eq usage, Monoid usage) => Proof usage '[REPL usage, Prompt] a -> IO a
 runIO = runPrompt "λ: " . runREPL
