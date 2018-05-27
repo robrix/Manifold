@@ -21,7 +21,6 @@ library
                      , Manifold.Declaration
                      , Manifold.Erasure
                      , Manifold.Eval
-                     , Manifold.Expr
                      , Manifold.Expr.Elim
                      , Manifold.Expr.Intro
                      , Manifold.Module
