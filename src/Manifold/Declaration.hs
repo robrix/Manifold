@@ -1,0 +1,1 @@
+module Manifold.Declaration where

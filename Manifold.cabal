@@ -17,6 +17,7 @@ library
                      , Manifold.CLI
                      , Manifold.Constraint
                      , Manifold.Context
+                     , Manifold.Declaration
                      , Manifold.Elaborate
                      , Manifold.Erasure
                      , Manifold.Eval
