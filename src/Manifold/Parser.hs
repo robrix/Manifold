@@ -1,8 +1,10 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving, TypeFamilies #-}
 module Manifold.Parser
 ( Parser
+-- * Parsing
 , parseFile
 , parseString
+-- * Parsers
 , whole
 , term
 ) where
