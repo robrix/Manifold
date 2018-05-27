@@ -21,7 +21,6 @@ library
                      , Manifold.Declaration
                      , Manifold.Erasure
                      , Manifold.Eval
-                     , Manifold.Expr.Elim
                      , Manifold.Module
                      , Manifold.Name
                      , Manifold.Name.Annotated
@@ -35,6 +34,7 @@ library
                      , Manifold.REPL
                      , Manifold.Substitution
                      , Manifold.Term
+                     , Manifold.Term.Elim
                      , Manifold.Type
                      , Manifold.Type.Intro
                      , Manifold.Unification

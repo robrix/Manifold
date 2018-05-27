@@ -5,10 +5,10 @@ import Control.Monad.Effect
 import Control.Monad.Effect.Reader
 import Manifold.Constraint
 import Manifold.Context
-import Manifold.Expr.Elim
 import Manifold.Name
 import Manifold.Proof
 import Manifold.Term
+import Manifold.Term.Elim
 import Manifold.Value
 import Manifold.Value.Intro
 

@@ -8,10 +8,10 @@ import Data.Maybe (fromMaybe)
 import Data.Trifoldable
 import Data.Trifunctor
 import Manifold.Constraint
-import Manifold.Expr.Elim
 import Manifold.Name
 import Manifold.Pretty
 import Manifold.Substitution
+import Manifold.Term.Elim
 import Manifold.Type.Intro
 import Manifold.Value.Intro
 

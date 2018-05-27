@@ -6,10 +6,10 @@ import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Manifold.Constraint
-import Manifold.Expr.Elim
 import Manifold.Name
 import Manifold.Proof
 import Manifold.Substitution
+import Manifold.Term.Elim
 import Manifold.Type
 import Manifold.Type.Intro
 import Manifold.Value.Intro

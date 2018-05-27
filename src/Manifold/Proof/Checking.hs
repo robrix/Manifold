@@ -9,7 +9,6 @@ import Data.Semiring (zero)
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Declaration
-import Manifold.Expr.Elim
 import Manifold.Module
 import Manifold.Name
 import Manifold.Name.Annotated
@@ -18,6 +17,7 @@ import Manifold.Proof.Formation
 import Manifold.Purpose
 import Manifold.Substitution
 import Manifold.Term
+import Manifold.Term.Elim
 import Manifold.Type (Type, tvar, unitT, boolT, (.->), (.*))
 import Manifold.Unification
 import Manifold.Value.Intro

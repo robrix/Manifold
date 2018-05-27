@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase #-}
-module Manifold.Expr.Elim where
+module Manifold.Term.Elim where
 
 import Data.Functor.Classes
 import Manifold.Pretty
