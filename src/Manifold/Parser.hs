@@ -7,7 +7,6 @@ module Manifold.Parser
 -- * Parsers
 , whole
 , module'
--- , declaration
 , term
 ) where
 
@@ -15,7 +14,8 @@ import Control.Applicative (Alternative(..))
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.HashSet as HashSet
 import Manifold.Constraint
--- import qualified Manifold.Declaration as Decl
+import Manifold.Declaration
+import Manifold.Module
 import Manifold.Name (Name(..))
 import qualified Manifold.Term as Term
 import qualified Manifold.Type as Type
@@ -50,21 +50,13 @@ whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
 
 
-module' :: (Monad m, TokenParsing m) => m Name
-module' = keyword "module" *> qname <* keyword "where"
+module' :: (Monad m, TokenParsing m) => m (Module Name Term.Term)
+module' = Module <$ keyword "module" <*> qname <* keyword "where" <*> many declaration
 
 
-signature :: (Monad m, TokenParsing m) => m [Constraint Name (Type.Type Name)]
-signature = makeSigs <$> commaSep1 name <* colon <*> type'
-  where makeSigs names ty = map (::: ty) names
-
--- declaration :: (Monad m, TokenParsing m) => m (Decl.Declaration Name)
---
--- -- | Parse a declaration.
--- declaration = Decl.Declaration <$> signature <*> some definition
---   where signature = runUnlined $ Decl.Signature <$> name <* colon <*> type' <* newline
---         definition = runUnlined $ Decl.Definition <$> name <* op "=" <*> pure [] <*> term <* newline
-
+declaration :: (Monad m, TokenParsing m) => m (Declaration Name Term.Term)
+declaration = Declaration <$> runUnlined (constraint <* newline)
+                          <*  op "=" <*> term
 
 
 term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m Term.Term
@@ -88,13 +80,13 @@ false = Term.false <$ keyword "False"
 var = Term.var <$> name <?> "variable"
 
 let' = Term.makeLet <$  keyword "let"
-                    <*> constraint <* op "="
+                    <*> parens constraint <* op "="
                     <*> term <* keyword "in"
                     <*> term
                     <?> "let"
 
 lambda = foldr ((.) . Term.abs') id <$  op "\\"
-                                    <*> some constraint <* dot
+                                    <*> some (parens constraint) <* dot
                                     <*> term
                                     <?> "lambda"
 
@@ -110,12 +102,12 @@ lambda = foldr ((.) . Term.abs') id <$  op "\\"
 tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
 
 constraint :: (Monad m, TokenParsing m) => m (Constraint Name (Type.Type Name))
-constraint = parens ((:::) <$> name <* colon <*> type')
+constraint = (:::) <$> name <* colon <*> type'
 
 type', boolT, unitT, typeT :: (Monad m, TokenParsing m) => m (Type.Type Name)
 
 type' = piType
-  where piType = (Type..->) <$> constraint <* op "->" <*> piType
+  where piType = (Type..->) <$> parens constraint <* op "->" <*> piType
                  <|> makePi <$> product <*> optional (op "->" *> piType)
         makePi ty1 Nothing = ty1
         makePi ty1 (Just ty2) = I (-1) ::: ty1 Type..-> ty2
