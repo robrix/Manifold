@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable #-}
-module Manifold.Binding where
+module Manifold.Name.Annotated where
 
 import Manifold.Name
 import Manifold.Pretty

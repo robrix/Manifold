@@ -3,7 +3,7 @@ module Manifold.Type.Formation where
 
 import Control.Monad.Effect
 import Data.Semiring (zero)
-import Manifold.Binding
+import Manifold.Name.Annotated
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Expr

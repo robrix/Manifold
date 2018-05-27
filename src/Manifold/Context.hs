@@ -11,9 +11,9 @@ import Data.Bifunctor
 import Data.List
 import Data.Module.Class
 import Data.Semiring (Semiring(..))
-import Manifold.Binding
 import Manifold.Constraint
 import Manifold.Name
+import Manifold.Name.Annotated
 import Manifold.Pretty
 
 newtype Context var ty = Context { unContext :: [Constraint var ty] }

@@ -4,7 +4,7 @@ module Manifold.Proof where
 import Control.Monad.Effect
 import qualified Control.Monad.Effect.Exception as Exception
 import Control.Monad.Effect.Reader
-import Manifold.Binding
+import Manifold.Name.Annotated
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Name

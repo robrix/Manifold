@@ -6,7 +6,7 @@ import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
 import Data.Functor (($>))
-import Manifold.Binding
+import Manifold.Name.Annotated
 import Manifold.Context
 import Manifold.Eval
 import Manifold.Name

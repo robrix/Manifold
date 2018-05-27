@@ -13,8 +13,7 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Manifold.Binding
-                     , Manifold.CLI
+  exposed-modules:     Manifold.CLI
                      , Manifold.Constraint
                      , Manifold.Context
                      , Manifold.Declaration
@@ -25,6 +24,7 @@ library
                      , Manifold.Expr.Elim
                      , Manifold.Expr.Intro
                      , Manifold.Name
+                     , Manifold.Name.Annotated
                      , Manifold.Parser
                      , Manifold.Pretty
                      , Manifold.Prompt
