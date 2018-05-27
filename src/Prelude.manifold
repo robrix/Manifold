@@ -1,4 +1,4 @@
 module Prelude where
 
 id : (a : Type) -> a -> a
-   = \ (a : Type) (x : a) . x
+   = \ a x . x
