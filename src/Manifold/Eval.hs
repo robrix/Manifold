@@ -23,13 +23,7 @@ eval (Term term) = case term of
       env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . constraintName) <$> ask
       pure (Value (Abs (name var ::: env) body))
     Pair a b -> fmap Value . Pair <$> eval a <*> eval b
-    UnitT -> pure (Value UnitT)
-    BoolT -> pure (Value BoolT)
-    TypeT -> pure (Value TypeT)
-    var ::: _ :-> body -> do
-      env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . constraintName) <$> ask
-      pure (Value ((name var ::: env) :-> body))
-    a :* b -> fmap Value . (:*) <$> eval a <*> eval b
+  IntroT _ -> error "types are unrepresentable at runtime"
   Elim e -> case e of
     ExL pair -> eval pair >>= \ p -> case p of { Value (Pair a _) -> pure a ; _ -> error "exl on non-pair value, should have been caught by typechecker" }
     ExR pair -> eval pair >>= \ p -> case p of { Value (Pair _ b) -> pure b ; _ -> error "exr on non-pair value, should have been caught by typechecker" }

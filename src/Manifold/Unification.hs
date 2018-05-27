@@ -39,6 +39,7 @@ unify t1 t2
                     (apply (singletonSubst (name v2) (tvar n')) b2)
         pure (tintro (Abs (setName n' v1 ::: t') b'))
       | Pair a1 b1 <- i1, Pair a2 b2 <- i2 -> fmap tintro . Pair <$> unify a1 a2 <*> unify b1 b2
+    (IntroT i1, IntroT i2)
       | UnitT   <- i1, UnitT   <- i2 -> pure unitT
       | BoolT   <- i1, BoolT   <- i2 -> pure boolT
       | TypeT   <- i1, TypeT   <- i2 -> pure typeT

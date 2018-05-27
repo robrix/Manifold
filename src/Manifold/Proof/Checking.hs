@@ -89,6 +89,7 @@ infer term = case unTerm term of
       body' <- binding ::: ty' >- infer body
       pure (binding ::: ty' .-> body')
     | Pair a b              <- i -> (.*) <$> infer a <*> infer b
+  IntroT i
     | UnitT                 <- i -> pure typeT
     | BoolT                 <- i -> pure typeT
     | TypeT                 <- i -> pure typeT

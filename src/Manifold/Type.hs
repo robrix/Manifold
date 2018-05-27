@@ -22,9 +22,10 @@ instance Corecursive (Type var) where embed   =   Type
 instance Named var => Substitutable (Type var) where
   apply subst ty = case unType ty of
     Var name                      -> fromMaybe (tvar name) (lookupSubst name subst)
-    Intro (var ::: ty :-> body)   -> tintro (var ::: apply subst ty :-> apply (deleteSubst (name var) subst) body)
     Intro (Abs (var ::: ty) body) -> tintro (Abs (var ::: apply subst ty) (apply (deleteSubst (name var) subst) body))
     Intro i                       -> tintro (apply subst <$> i)
+    IntroT (var ::: ty :-> body)  -> tintroT (var ::: apply subst ty :-> apply (deleteSubst (name var) subst) body)
+    IntroT i                      -> tintroT (apply subst <$> i)
     Elim e                        -> telim (apply subst <$> e)
 
 instance Pretty var => Pretty (Type var) where
@@ -37,27 +38,30 @@ tvar = Type . Var
 tintro :: Intro (Constraint var (Type var)) (Type var) (Type var) -> Type var
 tintro = Type . Intro
 
+tintroT :: IntroT (Constraint var (Type var)) (Type var) (Type var) -> Type var
+tintroT = Type . IntroT
+
 telim :: Elim (Type var) -> Type var
 telim = Type . Elim
 
 
 typeT :: Type var
-typeT = tintro TypeT
+typeT = tintroT TypeT
 
 unitT :: Type var
-unitT = tintro UnitT
+unitT = tintroT UnitT
 
 boolT :: Type var
-boolT = tintro BoolT
+boolT = tintroT BoolT
 
 
 (.->) :: Constraint var (Type var) -> Type var -> Type var
-constraint .-> ty = tintro (constraint :-> ty)
+constraint .-> ty = tintroT (constraint :-> ty)
 
 infixr 0 .->
 
 (.*) :: Type var -> Type var -> Type var
-a .* b = tintro (a :* b)
+a .* b = tintroT (a :* b)
 
 infixl 7 .*
 

@@ -22,13 +22,13 @@ checkIsType ty = case unType ty of
   Var name -> do
     context <- askContext
     maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
-  Intro UnitT -> pure (tintro UnitT)
-  Intro BoolT -> pure (tintro BoolT)
-  Intro TypeT -> pure (tintro TypeT)
-  Intro (var ::: _S :-> _T) -> do
+  IntroT UnitT -> pure unitT
+  IntroT BoolT -> pure boolT
+  IntroT TypeT -> pure typeT
+  IntroT (var ::: _S :-> _T) -> do
     _S' <- checkIsType _S
     let binding = Annotated var zero
     _T' <- binding ::: _S' >- checkIsType _T
     pure (binding ::: _S' .-> _T')
-  Intro (_S :* _T) -> (.*) <$> checkIsType _S <*> checkIsType _T
+  IntroT (_S :* _T) -> (.*) <$> checkIsType _S <*> checkIsType _T
   _ -> noRuleToCheckIsType ty
