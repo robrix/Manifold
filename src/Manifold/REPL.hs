@@ -49,8 +49,8 @@ sendREPL = send
 
 data REPL usage result where
   Help :: REPL usage ()
-  TypeOf :: Term -> REPL usage (Either (Error (Annotated usage)) (Type (Annotated usage)))
-  Eval :: Term -> REPL usage (Either (Error (Annotated usage)) Value)
+  TypeOf :: Term Name -> REPL usage (Either (Error (Annotated usage)) (Type (Annotated usage)))
+  Eval :: Term Name -> REPL usage (Either (Error (Annotated usage)) Value)
 
 runREPL :: (Eq usage, Member Prompt effects, Monoid usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
 runREPL = interpret (\case

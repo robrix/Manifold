@@ -21,6 +21,6 @@ declarationName = constraintName . declarationSignature
 
 data Definition var = Definition
   { definitionPatterns :: [var]
-  , definitionBody     :: Term
+  , definitionBody     :: Term var
   }
   deriving (Eq, Ord, Show)

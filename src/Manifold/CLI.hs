@@ -6,6 +6,7 @@ import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
 import Data.Version (showVersion)
 import Manifold.Module
+import Manifold.Name
 import Manifold.Name.Annotated
 import Manifold.Parser
 import Manifold.Pretty
@@ -29,7 +30,7 @@ argumentsParser = info
 runFile :: FilePath -> IO ()
 runFile path = do
   m <- parseFile (whole module') path >>= maybe exitFailure pure
-  either (print @(Error (Annotated ())) >=> const exitFailure) (prettyPrint @(Module (Annotated ()) Term)) (run (runError (runFresh 0 (checkModule @() m))))
+  either (print @(Error (Annotated ())) >=> const exitFailure) (prettyPrint @(Module (Annotated ()) (Term Name))) (run (runError (runFresh 0 (checkModule @() m))))
 
 
 versionString :: String

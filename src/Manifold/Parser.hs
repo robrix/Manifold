@@ -50,16 +50,16 @@ whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
 
 
-module' :: (Monad m, TokenParsing m) => m (Module Name Term.Term)
+module' :: (Monad m, TokenParsing m) => m (Module Name (Term.Term Name))
 module' = Module <$ keyword "module" <*> qname <* keyword "where" <*> many declaration
 
 
-declaration :: (Monad m, TokenParsing m) => m (Declaration Name Term.Term)
+declaration :: (Monad m, TokenParsing m) => m (Declaration Name (Term.Term Name))
 declaration = Declaration <$> runUnlined (constraint <* token newline)
                           <*  op "=" <*> term
 
 
-term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m Term.Term
+term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m (Term.Term Name)
 
 -- | Parse a term.
 term = application
@@ -80,15 +80,15 @@ false = Term.false <$ keyword "False"
 var = Term.var <$> name <?> "variable"
 
 let' = Term.makeLet <$  keyword "let"
-                    <*> parens constraint <* op "="
+                    <*> name <* op "="
                     <*> term <* keyword "in"
                     <*> term
                     <?> "let"
 
-lambda = foldr ((.) . Term.abs') id <$  op "\\"
-                                    <*> some (parens constraint) <* dot
-                                    <*> term
-                                    <?> "lambda"
+lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
+                                       <*> some name <* dot
+                                       <*> term
+                                       <?> "lambda"
 
 -- $
 -- >>> parseString tuple "()"

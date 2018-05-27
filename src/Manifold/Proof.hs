@@ -10,6 +10,7 @@ import Manifold.Constraint
 import Manifold.Context
 import Manifold.Name
 import Manifold.Pretty
+import Manifold.Term
 import Manifold.Type
 
 newtype Proof usage effects a = Proof { runProof :: Eff effects a }
@@ -25,6 +26,9 @@ cannotUnify t1 t2 = Exception.throwError (CannotUnify t1 t2)
 noRuleToCheckIsType :: Member (Exc (Error (Annotated usage))) effects => Type Name -> Proof usage effects a
 noRuleToCheckIsType = throwError . NoRuleToCheckIsType
 
+noRuleToInferType :: Member (Exc (Error (Annotated usage))) effects => Term Name -> Proof usage effects a
+noRuleToInferType = throwError . NoRuleToInferType
+
 throwError :: Member (Exc (Error (Annotated usage))) effects => Error (Annotated usage) -> Proof usage effects a
 throwError = Exception.throwError
 
@@ -32,6 +36,7 @@ data Error var
   = FreeVariable Name
   | CannotUnify (Type var) (Type var)
   | NoRuleToCheckIsType (Type Name)
+  | NoRuleToInferType (Term Name)
   deriving (Eq, Ord, Show)
 
 instance Pretty var => Pretty (Error var) where
@@ -39,6 +44,7 @@ instance Pretty var => Pretty (Error var) where
     FreeVariable name -> showString "free variable: " . prettyPrec 0 name
     CannotUnify t1 t2 -> showString "cannot unify\n" . prettyPrec 0 t1 . showString "\nwith\n" . prettyPrec 0 t2
     NoRuleToCheckIsType t -> showString "cannot prove " . prettyPrec 0 t . showString " is a valid type"
+    NoRuleToInferType t -> showString "cannot infer type of term " . prettyPrec 0 t
 
 runError :: Proof usage (Exc (Error var) ': effects) a -> Proof usage effects (Either (Error var) a)
 runError = Exception.runError

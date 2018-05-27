@@ -9,10 +9,10 @@ import Manifold.Name
 import Manifold.Pretty
 import Manifold.Term
 
-newtype Value = Value { unValue :: Intro (Constraint Name (Context Name Value)) Term Value }
+newtype Value = Value { unValue :: Intro (Constraint Name (Context Name Value)) (Term Name) Value }
   deriving (Eq, Ord, Show)
 
-type instance Base Value = Intro (Constraint Name (Context Name Value)) Term
+type instance Base Value = Intro (Constraint Name (Context Name Value)) (Term Name)
 
 instance Recursive   Value where project = unValue
 instance Corecursive Value where embed   =   Value

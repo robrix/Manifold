@@ -10,7 +10,8 @@ import Data.Semiring (zero)
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Declaration
-import Manifold.Expr
+import Manifold.Expr.Elim
+import Manifold.Expr.Intro
 import Manifold.Module
 import Manifold.Name
 import Manifold.Name.Annotated
@@ -28,8 +29,8 @@ checkModule :: ( Eq usage
                           ] effects
                , Monoid usage
                )
-            => Module Name Term
-            -> Proof usage effects (Module (Annotated usage) Term)
+            => Module Name (Term Name)
+            -> Proof usage effects (Module (Annotated usage) (Term Name))
 checkModule (Module name decls) = runContext (Module name <$> traverse checkDeclaration decls)
 
 
@@ -40,8 +41,8 @@ checkDeclaration :: ( Eq usage
                                ] effects
                     , Monoid usage
                     )
-                 => Declaration Name Term
-                 -> Proof usage effects (Declaration (Annotated usage) Term)
+                 => Declaration Name (Term Name)
+                 -> Proof usage effects (Declaration (Annotated usage) (Term Name))
 checkDeclaration (Declaration (name ::: ty) term) = do
   -- FIXME: extend the context while checking
   ty' <- runReader Intensional (runSubstitution (check term ty))
@@ -57,7 +58,7 @@ check :: ( Eq usage
                     ] effects
          , Monoid usage
          )
-      => Term
+      => Term Name
       -> Type Name
       -> Proof usage effects (Type (Annotated usage))
 check term expected = do
@@ -74,29 +75,21 @@ infer :: ( Eq usage
                     ] effects
          , Monoid usage
          )
-      => Term
+      => Term Name
       -> Proof usage effects (Type (Annotated usage))
 infer term = case unTerm term of
   Var name                                 -> do
     context <- askContext
     maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
   Intro i
-    | Unit                  <- i -> pure unitT
-    | Bool _                <- i -> pure boolT
-    | Abs (var ::: ty) body <- i -> do
-      ty' <- checkIsType ty
-      let binding = Annotated var zero
-      body' <- binding ::: ty' >- infer body
-      pure (binding ::: ty' .-> body')
+    | Unit         <- i -> pure unitT
+    | Bool _       <- i -> pure boolT
+    -- | Abs var body <- i -> do
+    --   ty' <- checkIsType ty
+    --   let binding = Annotated var zero
+    --   body' <- binding ::: ty' >- infer body
+    --   pure (binding ::: ty' .-> body')
     | Pair a b              <- i -> (.*) <$> infer a <*> infer b
-  IntroT i
-    | UnitT                 <- i -> pure typeT
-    | BoolT                 <- i -> pure typeT
-    | TypeT                 <- i -> pure typeT
-    | var ::: ty :-> body   <- i -> do
-      (ty' :: Type (Annotated usage)) <- checkIsType ty
-      Annotated var (zero @usage) ::: ty' >- checkIsType (asType body) $> typeT
-    | a :* b                <- i -> checkIsType (asType a) *> checkIsType (asType b) $> typeT
   Elim e
     | ExL a    <- e -> do
       t1 <- freshName
@@ -120,6 +113,7 @@ infer term = case unTerm term of
       t' <- infer t
       e' <- infer e
       unify t' e'
+  _ -> noRuleToInferType term
 
 
 runSubstitution :: Named var => Proof usage (State (Substitution (Type var)) ': effects) (Type var) -> Proof usage effects (Type var)
