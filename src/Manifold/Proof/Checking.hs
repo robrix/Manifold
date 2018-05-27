@@ -91,9 +91,9 @@ infer term = case unTerm term of
     context <- askContext
     maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
   Value i
-    | Unit         <- i -> pure unitT
-    | Bool _       <- i -> pure boolT
-    | Pair a b              <- i -> (.*) <$> infer a <*> infer b
+    | Unit     <- i -> pure unitT
+    | Bool _   <- i -> pure boolT
+    | Pair a b <- i -> (.*) <$> infer a <*> infer b
   Elim e
     | ExL a    <- e -> do
       t1 <- freshName
