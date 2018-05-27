@@ -3,12 +3,16 @@ module Manifold.CLI where
 
 import Control.Monad ((>=>))
 import Control.Monad.Effect
+import Control.Monad.Effect.Fresh
 import Data.Version (showVersion)
-import Manifold.Eval
+import Manifold.Module
+import Manifold.Name.Annotated
 import Manifold.Parser
+import Manifold.Pretty
+import Manifold.Proof
 import Manifold.Proof.Checking
-import Manifold.Purpose
 import Manifold.REPL
+import Manifold.Term
 import Options.Applicative as Options
 import qualified Paths_Manifold as Library (version)
 import System.Exit (exitFailure)
@@ -24,9 +28,8 @@ argumentsParser = info
 
 runFile :: FilePath -> IO ()
 runFile path = do
-  term <- parseFile (whole term) path >>= maybe exitFailure pure
-  _    <- either (print >=> const exitFailure) pure (run (runCheck Intensional (infer @() term)))
-  print (run (runEval (eval term)))
+  m <- parseFile (whole module') path >>= maybe exitFailure pure
+  either (print @(Error (Annotated ())) >=> const exitFailure) (prettyPrint @(Module (Annotated ()) Term)) (run (runError (runFresh 0 (checkModule @() m))))
 
 
 versionString :: String
