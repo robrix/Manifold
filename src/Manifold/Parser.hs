@@ -40,6 +40,12 @@ whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
 
 
+-- | Parse a term.
+--
+-- >>> parseString term "True"
+-- Right (Term {unTerm = Intro (Bool True)})
+-- >>> parseString term "False"
+-- Right (Term {unTerm = Intro (Bool False)})
 term :: (Monad m, TokenParsing m) => m Term
 term = application
   where atom = choice [ true', false', try (rerep name <$> type'), var, let', lambda, tuple ]
