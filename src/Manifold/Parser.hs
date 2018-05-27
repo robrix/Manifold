@@ -60,16 +60,16 @@ term = application
                                        <*> term
                                        <?> "lambda"
 
+true', false' :: (Monad m, TokenParsing m) => m Term
+
 -- $
 -- >>> parseString true' "True"
 -- Right (Term {unTerm = Intro (Bool True)})
-true' :: (Monad m, TokenParsing m) => m Term
 true' = true <$ preword "True"
 
 -- $
 -- >>> parseString false' "False"
 -- Right (Term {unTerm = Intro (Bool False)})
-false' :: (Monad m, TokenParsing m) => m Term
 false' = false <$ preword "False"
 
 let' :: (Monad m, TokenParsing m) => m Term
