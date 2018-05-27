@@ -90,12 +90,13 @@ type' = piType
         makePi ty1 (Just ty2) = I (-1) ::: ty1 .-> ty2
         product = atom `chainl1` ((.*) <$ symbolic '*') <?> "product type"
         atom = choice [ boolT', unitT', typeT', tvar ]
-        boolT' = boolT <$ preword "Bool"
-        unitT' = unitT <$ preword "Unit"
-        typeT' = typeT <$ preword "Type"
         tvar = Type.tvar <$> name' <?> "type variable"
         constraint = parens ((:::) <$> name' <* colon <*> type')
 
+boolT', unitT', typeT' :: (Monad m, TokenParsing m) => m (Type Name)
+boolT' = boolT <$ preword "Bool"
+unitT' = unitT <$ preword "Unit"
+typeT' = typeT <$ preword "Type"
 
 name' :: (Monad m, TokenParsing m) => m Name
 name' = N <$> identifier
