@@ -80,7 +80,7 @@ infer term = case unTerm term of
   Var name                                 -> do
     context <- askContext
     maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
-  Intro i
+  Value i
     | Unit         <- i -> pure unitT
     | Bool _       <- i -> pure boolT
     -- | Abs var body <- i -> do

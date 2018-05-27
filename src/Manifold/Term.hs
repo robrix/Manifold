@@ -29,7 +29,7 @@ var :: Name -> Term var
 var = Term . Var
 
 intro :: Intro var (Term var) (Term var) -> Term var
-intro = Term . Intro
+intro = Term . Value
 
 elim :: Elim (Term var) -> Term var
 elim = Term . Elim
@@ -80,14 +80,14 @@ infixl 9 #
 
 data Expr var recur
   = Var Name
-  | Intro (Intro var recur recur)
+  | Value (Intro var recur recur)
   | Elim (Elim recur)
   deriving (Eq, Ord, Show)
 
 instance Bifoldable Expr where
   bifoldMap f g = \case
     Var _   -> mempty
-    Intro i -> trifoldMap f g g i
+    Value i -> trifoldMap f g g i
     Elim e  -> foldMap g e
 
 instance Foldable (Expr var) where
@@ -96,7 +96,7 @@ instance Foldable (Expr var) where
 instance Bifunctor Expr where
   bimap f g = \case
     Var n   -> Var n
-    Intro i -> Intro (trimap f g g i)
+    Value i -> Value (trimap f g g i)
     Elim e  -> Elim (fmap g e)
 
 instance Functor (Expr var) where
@@ -104,7 +104,7 @@ instance Functor (Expr var) where
 
 instance (Pretty var, Pretty recur) => Pretty (Expr var recur) where
   prettyPrec d (Var n)    = prettyPrec d n
-  prettyPrec d (Intro  i) = prettyPrec d i
+  prettyPrec d (Value  i) = prettyPrec d i
   prettyPrec d (Elim e)   = prettyPrec d e
 
 
@@ -118,11 +118,11 @@ bindVariable f = (n, body)
 
 maxBV :: Named var => Term var -> Maybe Name
 maxBV = cata $ \case
-  Intro (Abs var _) -> Just (name var)
+  Value (Abs var _) -> Just (name var)
   other -> foldr max Nothing other
 
 freeVariables :: Named var => Term var -> Set.Set Name
 freeVariables = cata $ \case
   Var name -> Set.singleton name
-  Intro (Abs var body) -> Set.delete (name var) body
+  Value (Abs var body) -> Set.delete (name var) body
   other -> fold other

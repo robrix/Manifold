@@ -9,7 +9,7 @@ import Manifold.Name
 import Manifold.Proof
 import Manifold.Term
 import Manifold.Term.Elim
-import Manifold.Value
+import Manifold.Value (Value(unValue), value)
 import Manifold.Value.Intro
 
 eval :: Member (Reader (Context Name Value)) effects
@@ -17,20 +17,20 @@ eval :: Member (Reader (Context Name Value)) effects
      -> Proof usage effects Value
 eval (Term term) = case term of
   Var name -> fmap constraintValue . contextLookup name <$> askEnv >>= maybe (error "free variable, should have been caught by typechecker") pure
-  Intro i -> case i of
-    Unit -> pure (Value Unit)
-    Bool b -> pure (Value (Bool b))
+  Value i -> case i of
+    Unit -> pure (value Unit)
+    Bool b -> pure (value (Bool b))
     Abs var body -> do
       env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . constraintName) <$> ask
-      pure (Value (Abs (name var ::: env) body))
-    Pair a b -> fmap Value . Pair <$> eval a <*> eval b
+      pure (value (Abs (name var ::: env) body))
+    Pair a b -> fmap value . Pair <$> eval a <*> eval b
   Elim e -> case e of
-    ExL pair -> eval pair >>= \ p -> case p of { Value (Pair a _) -> pure a ; _ -> error "exl on non-pair value, should have been caught by typechecker" }
-    ExR pair -> eval pair >>= \ p -> case p of { Value (Pair _ b) -> pure b ; _ -> error "exr on non-pair value, should have been caught by typechecker" }
+    ExL pair -> eval pair >>= \ p -> case unValue p of { Pair a _ -> pure a ; _ -> error "exl on non-pair value, should have been caught by typechecker" }
+    ExR pair -> eval pair >>= \ p -> case unValue p of { Pair _ b -> pure b ; _ -> error "exr on non-pair value, should have been caught by typechecker" }
     App f a -> do
       v <- eval f
-      case v of
-        Value (Abs (name ::: env) body) -> do
+      case unValue v of
+        Abs (name ::: env) body -> do
           -- FIXME: use the env
           -- FIXME: pi types
           a' <- eval a
@@ -38,8 +38,8 @@ eval (Term term) = case term of
         _ -> error "application of non-abstraction, should have been caught by typechecker"
     If c t e -> do
       v <- eval c
-      case v of
-        Value (Bool b) ->
+      case unValue v of
+        Bool b ->
           if b then
             eval t
           else
