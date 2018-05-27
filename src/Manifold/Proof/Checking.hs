@@ -68,7 +68,7 @@ check :: ( Eq usage
 check term expected = case (unTerm term, unType expected) of
   (Value (Abs var body), IntroT (Annotated name pi ::: _S :-> _T)) -> do
     sigma <- ask
-    _T' <- Annotated var (interpretPurpose sigma >< pi) ::: _S >- (infer body >>= unify _T)
+    _T' <- Annotated var (interpretPurpose sigma >< pi) ::: _S >- check body _T
     pure (Annotated name pi ::: _S .-> _T')
   _ -> do
     actual <- infer term
