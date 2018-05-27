@@ -9,6 +9,7 @@ import Data.Functor (($>))
 import Data.Semiring (zero)
 import Manifold.Constraint
 import Manifold.Context
+import Manifold.Declaration
 import Manifold.Expr
 import Manifold.Name
 import Manifold.Name.Annotated
@@ -19,6 +20,25 @@ import Manifold.Term
 import Manifold.Type
 import Manifold.Type.Formation
 import Manifold.Unification
+
+
+checkDeclaration :: ( Eq usage
+                    , Members '[ Exc (Error (Annotated usage))
+                               , Fresh
+                               , Reader Purpose
+                               , Reader (Context (Annotated usage) (Type (Annotated usage)))
+                               , State (Substitution (Type (Annotated usage)))
+                               ] effects
+                    , Monoid usage
+                    )
+                 => Declaration Name Term
+                 -> Proof usage effects (Declaration (Annotated usage) Term)
+checkDeclaration (Declaration (name ::: ty) term) = do
+  -- FIXME: extend the context while checking
+  -- FIXME: use the Purpose
+  ty' <- check term ty
+  pure (Declaration (Annotated name zero ::: ty') term)
+
 
 check :: ( Eq usage
          , Members '[ Exc (Error (Annotated usage))
