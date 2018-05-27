@@ -52,8 +52,8 @@ declaration :: (Monad m, TokenParsing m) => m (Decl.Declaration Name)
 
 -- | Parse a declaration.
 declaration = Decl.Declaration <$> signature <*> some definition
-  where signature = runUnlined $ Decl.Signature <$> name' <* colon <*> type' <* newline
-        definition = runUnlined $ Decl.Definition <$> name' <* op "=" <*> pure [] <*> term <* newline
+  where signature = runUnlined $ Decl.Signature <$> name <* colon <*> type' <* newline
+        definition = runUnlined $ Decl.Definition <$> name <* op "=" <*> pure [] <*> term <* newline
 
 
 
@@ -75,7 +75,7 @@ true = Term.true <$ preword "True"
 -- Right (Term {unTerm = Intro (Bool False)})
 false = Term.false <$ preword "False"
 
-var = Term.var <$> name' <?> "variable"
+var = Term.var <$> name <?> "variable"
 
 let' = Term.makeLet <$  preword "let"
                     <*> constraint <* op "="
@@ -100,7 +100,7 @@ lambda = foldr ((.) . Term.abs') id <$  op "\\"
 tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
 
 constraint :: (Monad m, TokenParsing m) => m (Constraint Name (Type.Type Name))
-constraint = parens ((:::) <$> name' <* colon <*> type')
+constraint = parens ((:::) <$> name <* colon <*> type')
 
 type', boolT, unitT, typeT :: (Monad m, TokenParsing m) => m (Type.Type Name)
 
@@ -111,7 +111,7 @@ type' = piType
         makePi ty1 (Just ty2) = I (-1) ::: ty1 Type..-> ty2
         product = atom `chainl1` ((Type..*) <$ symbolic '*') <?> "product type"
         atom = choice [ boolT, unitT, typeT, tvar ]
-        tvar = Type.tvar <$> name' <?> "type variable"
+        tvar = Type.tvar <$> name <?> "type variable"
 
 -- $
 -- >>> parseString boolT "Bool"
@@ -128,8 +128,8 @@ unitT = Type.unitT <$ preword "Unit"
 -- Right (Type {unType = Intro TypeT})
 typeT = Type.typeT <$ preword "Type"
 
-name' :: (Monad m, TokenParsing m) => m Name
-name' = N <$> identifier
+name :: (Monad m, TokenParsing m) => m Name
+name = N <$> identifier
 
 op :: TokenParsing m => String -> m String
 op = token . highlight Operator . string
