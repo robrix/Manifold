@@ -5,7 +5,7 @@ import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
-import Data.Semiring (zero)
+import Data.Semiring (Semiring(..), Unital(..), zero)
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Declaration
@@ -18,7 +18,8 @@ import Manifold.Purpose
 import Manifold.Substitution
 import Manifold.Term
 import Manifold.Term.Elim
-import Manifold.Type (Type, tvar, unitT, boolT, (.->), (.*))
+import Manifold.Type hiding (Var, Elim)
+import Manifold.Type.Intro
 import Manifold.Unification
 import Manifold.Value.Intro
 
@@ -27,6 +28,7 @@ checkModule :: ( Eq usage
                           , Fresh
                           ] effects
                , Monoid usage
+               , Unital usage
                )
             => Module Name (Term Name)
             -> Proof usage effects (Module (Annotated usage) (Term Name))
@@ -39,6 +41,7 @@ checkDeclaration :: ( Eq usage
                                , Reader (Context (Annotated usage) (Type (Annotated usage)))
                                ] effects
                     , Monoid usage
+                    , Unital usage
                     )
                  => Declaration Name (Term Name)
                  -> Proof usage effects (Declaration (Annotated usage) (Term Name))
@@ -57,13 +60,19 @@ check :: ( Eq usage
                     , State (Substitution (Type (Annotated usage)))
                     ] effects
          , Monoid usage
+         , Unital usage
          )
       => Term Name
       -> Type (Annotated usage)
       -> Proof usage effects (Type (Annotated usage))
-check term expected = do
-  actual <- infer term
-  unify actual expected
+check term expected = case (unTerm term, unType expected) of
+  (Value (Abs var body), IntroT (Annotated name pi ::: _S :-> _T)) -> do
+    sigma <- ask
+    _T' <- Annotated var (interpretPurpose sigma >< pi) ::: _S >- (infer body >>= unify _T)
+    pure (Annotated name pi ::: _S .-> _T')
+  _ -> do
+    actual <- infer term
+    unify actual expected
 
 infer :: ( Eq usage
          , Members '[ Exc (Error (Annotated usage))
@@ -73,6 +82,7 @@ infer :: ( Eq usage
                     , State (Substitution (Type (Annotated usage)))
                     ] effects
          , Monoid usage
+         , Unital usage
          )
       => Term Name
       -> Proof usage effects (Type (Annotated usage))
@@ -83,11 +93,6 @@ infer term = case unTerm term of
   Value i
     | Unit         <- i -> pure unitT
     | Bool _       <- i -> pure boolT
-    -- | Abs var body <- i -> do
-    --   ty' <- checkIsType ty
-    --   let binding = Annotated var zero
-    --   body' <- binding ::: ty' >- infer body
-    --   pure (binding ::: ty' .-> body')
     | Pair a b              <- i -> (.*) <$> infer a <*> infer b
   Elim e
     | ExL a    <- e -> do
