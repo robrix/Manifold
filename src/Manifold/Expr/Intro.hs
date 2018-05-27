@@ -2,6 +2,7 @@
 module Manifold.Expr.Intro where
 
 import Data.Bifoldable
+import Data.Bifunctor
 import Manifold.Pretty
 
 data Intro var scope recur
@@ -51,6 +52,9 @@ instance Trifunctor Intro where
 
 instance Bifoldable (Intro var) where
   bifoldMap = trifoldMap (const mempty)
+
+instance Bifunctor (Intro var) where
+  bimap = trimap id
 
 instance (Pretty var, Pretty scope, Pretty recur) => Pretty (Intro var scope recur) where
   prettyPrec d = \case
