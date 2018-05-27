@@ -19,8 +19,8 @@ argumentsParser = info
     (fullDesc
   <> progDesc "Manifold is a small experiment in quantitative type theory."
   <> header   "Manifold - a quantitative, dependently-typed language")
-  where options = (flag' (runIO @() repl) (short 'i' <> long "interactive" <> help "run in interactive mode (REPL)")
-              <|> runFile <$> strArgument (metavar "FILE" <> help "The program to run."))
+  where options = flag' (runIO @() repl) (short 'i' <> long "interactive" <> help "run in interactive mode (REPL)")
+              <|> runFile <$> strArgument (metavar "FILE" <> help "The program to run.")
 
 runFile :: FilePath -> IO ()
 runFile path = do
