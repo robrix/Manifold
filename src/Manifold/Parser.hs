@@ -1,5 +1,11 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving, TypeFamilies #-}
-module Manifold.Parser where
+module Manifold.Parser
+( Parser
+, parseFile
+, parseString
+, whole
+, term
+) where
 
 import Control.Applicative (Alternative(..))
 import Control.Monad.IO.Class (MonadIO)
