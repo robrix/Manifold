@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase #-}
 module Manifold.Expr.Intro where
 
+import Data.Bifoldable
 import Manifold.Pretty
 
 data Intro var scope recur
@@ -47,6 +48,9 @@ instance Trifunctor Intro where
     TypeT    -> TypeT
     v :-> b  -> f v :-> g b
     a :* b   -> h a :* h b
+
+instance Bifoldable (Intro var) where
+  bifoldMap = trifoldMap (const mempty)
 
 instance (Pretty var, Pretty scope, Pretty recur) => Pretty (Intro var scope recur) where
   prettyPrec d = \case
