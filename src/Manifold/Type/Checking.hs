@@ -7,11 +7,11 @@ import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Data.Semiring (zero)
-import Manifold.Name.Annotated
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Expr
 import Manifold.Name
+import Manifold.Name.Annotated
 import Manifold.Proof
 import Manifold.Purpose
 import Manifold.Substitution
