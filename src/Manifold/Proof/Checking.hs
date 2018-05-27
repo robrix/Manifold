@@ -44,8 +44,9 @@ checkDeclaration :: ( Eq usage
                  -> Proof usage effects (Declaration (Annotated usage) (Term Name))
 checkDeclaration (Declaration (name ::: ty) term) = do
   -- FIXME: extend the context while checking
-  ty' <- runReader Intensional (runSubstitution (check term ty))
-  pure (Declaration (Annotated name zero ::: ty') term)
+  ty' <- checkIsType ty
+  ty'' <- runReader Intensional (runSubstitution (check term ty'))
+  pure (Declaration (Annotated name zero ::: ty'') term)
 
 
 check :: ( Eq usage
@@ -58,12 +59,11 @@ check :: ( Eq usage
          , Monoid usage
          )
       => Term Name
-      -> Type Name
+      -> Type (Annotated usage)
       -> Proof usage effects (Type (Annotated usage))
 check term expected = do
-  expected' <- checkIsType expected
   actual <- infer term
-  unify actual expected'
+  unify actual expected
 
 infer :: ( Eq usage
          , Members '[ Exc (Error (Annotated usage))
@@ -104,7 +104,7 @@ infer term = case unTerm term of
       n <- I <$> fresh
       t1 <- freshName
       t2 <- freshName
-      _ <- check f (n ::: tvar t1 .-> tvar t2)
+      _ <- check f (Annotated n zero ::: tvar t1 .-> tvar t2)
       _ <- check a (tvar t1)
       pure (tvar t2)
     | If c t e <- e -> do
