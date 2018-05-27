@@ -49,18 +49,11 @@ whole p = whiteSpace *> p <* eof
 
 
 -- | Parse a term.
---
--- >>> parseString term "True"
--- Right (Term {unTerm = Intro (Bool True)})
--- >>> parseString term "False"
--- Right (Term {unTerm = Intro (Bool False)})
 term :: (Monad m, TokenParsing m) => m Term
 term = application
   where atom = choice [ true', false', try (rerep name <$> type'), var, let', lambda, tuple ]
         application = atom `chainl1` pure (#) <?> "function application"
         tuple = parens (chainl1 term (pair <$ comma) <|> pure unit) <?> "tuple"
-        true'  = true  <$ preword "True"
-        false' = false <$ preword "False"
         var = Term.var <$> name' <?> "variable"
         let' = makeLet <$  preword "let"
                        <*> constraint <* op "="
@@ -73,6 +66,18 @@ term = application
                                        <?> "lambda"
         constraint = parens ((:::) <$> name' <* colon <*> type')
 
+
+-- $
+-- >>> parseString true' "True"
+-- Right (Term {unTerm = Intro (Bool True)})
+true' :: (Monad m, TokenParsing m) => m Term
+true' = true  <$ preword "True"
+
+-- $
+-- >>> parseString false' "False"
+-- Right (Term {unTerm = Intro (Bool False)})
+false' :: (Monad m, TokenParsing m) => m Term
+false' = false <$ preword "False"
 
 type' :: (Monad m, TokenParsing m) => m (Type Name)
 type' = piType
