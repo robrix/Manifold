@@ -82,7 +82,8 @@ lambda = foldr ((.) . Term.abs') id <$  op "\\"
 constraint :: (Monad m, TokenParsing m) => m (Constraint Name (Type.Type Name))
 constraint = parens ((:::) <$> name' <* colon <*> type')
 
-type' :: (Monad m, TokenParsing m) => m (Type.Type Name)
+type', boolT, unitT, typeT :: (Monad m, TokenParsing m) => m (Type.Type Name)
+
 type' = piType
   where piType = (Type..->) <$> constraint <* op "->" <*> piType
                  <|> makePi <$> product <*> optional (op "->" *> piType)
@@ -91,8 +92,6 @@ type' = piType
         product = atom `chainl1` ((Type..*) <$ symbolic '*') <?> "product type"
         atom = choice [ boolT, unitT, typeT, tvar ]
         tvar = Type.tvar <$> name' <?> "type variable"
-
-boolT, unitT, typeT :: (Monad m, TokenParsing m) => m (Type.Type Name)
 
 -- $
 -- >>> parseString boolT "Bool"
