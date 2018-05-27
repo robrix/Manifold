@@ -27,7 +27,6 @@ checkModule :: ( Eq usage
                           , Fresh
                           , Reader Purpose
                           , Reader (Context (Annotated usage) (Type (Annotated usage)))
-                          , State (Substitution (Type (Annotated usage)))
                           ] effects
                , Monoid usage
                )
@@ -41,7 +40,6 @@ checkDeclaration :: ( Eq usage
                                , Fresh
                                , Reader Purpose
                                , Reader (Context (Annotated usage) (Type (Annotated usage)))
-                               , State (Substitution (Type (Annotated usage)))
                                ] effects
                     , Monoid usage
                     )
@@ -50,8 +48,8 @@ checkDeclaration :: ( Eq usage
 checkDeclaration (Declaration (name ::: ty) term) = do
   -- FIXME: extend the context while checking
   -- FIXME: use the Purpose
-  ty' <- check term ty
-  pure (Declaration (Annotated name zero ::: ty') term)
+  (ty', subst) <- runState mempty (check term ty)
+  pure (Declaration (Annotated name zero ::: apply subst ty') term)
 
 
 check :: ( Eq usage
