@@ -4,8 +4,9 @@ module Manifold.Term where
 import Data.Bifoldable
 import Data.Bifunctor
 import Data.Foldable (fold)
-import qualified Data.Set as Set
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
+import qualified Data.Set as Set
+import Data.Trifoldable
 import Manifold.Expr.Elim
 import Manifold.Expr.Intro
 import Manifold.Name

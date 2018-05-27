@@ -13,6 +13,7 @@ import Data.Bifunctor
 import Data.Foldable (fold)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import qualified Data.Set as Set
+import Data.Trifoldable
 import Manifold.Constraint
 import Manifold.Expr.Elim
 import Manifold.Expr.Intro

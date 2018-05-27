@@ -5,6 +5,7 @@ import Data.Bifoldable
 import Data.Bifunctor
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Data.Maybe (fromMaybe)
+import Data.Trifoldable
 import Manifold.Constraint
 import Manifold.Expr.Elim
 import Manifold.Expr.Intro

@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase #-}
 module Manifold.Expr.Intro where
 
+import Data.Trifoldable
 import Data.Bifoldable
 import Data.Bifunctor
 import Manifold.Pretty
@@ -22,9 +23,6 @@ data IntroT var scope recur
 
 infixr 0 :->
 infixl 7 :*
-
-class Trifoldable t where
-  trifoldMap :: Monoid m => (a -> m) -> (b -> m) -> (c -> m) -> t a b c -> m
 
 class Trifunctor t where
   trimap :: (a -> a') -> (b -> b') -> (c -> c') -> t a b c -> t a' b' c'

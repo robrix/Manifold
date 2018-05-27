@@ -13,7 +13,8 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Manifold.CLI
+  exposed-modules:     Data.Trifoldable
+                     , Manifold.CLI
                      , Manifold.Constraint
                      , Manifold.Context
                      , Manifold.Declaration
