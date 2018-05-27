@@ -56,3 +56,7 @@ askContext = ask
 constraint >- proof = local (|> constraint) proof
 
 infixl 1 >-
+
+
+freshName :: Member Fresh effects => Proof usage effects Name
+freshName = I <$> fresh
