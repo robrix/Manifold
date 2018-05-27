@@ -38,6 +38,7 @@ library
                      , Manifold.Substitution
                      , Manifold.Term
                      , Manifold.Type
+                     , Manifold.Type.Intro
                      , Manifold.Unification
                      , Manifold.Value
                      , Paths_Manifold

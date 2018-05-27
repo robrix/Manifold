@@ -12,6 +12,7 @@ import Manifold.Name
 import Manifold.Proof
 import Manifold.Substitution
 import Manifold.Type
+import Manifold.Type.Intro
 
 unify :: ( Eq var
          , Members '[ Exc (Error var)

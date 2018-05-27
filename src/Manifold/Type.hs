@@ -13,6 +13,7 @@ import Manifold.Expr.Intro
 import Manifold.Name
 import Manifold.Pretty
 import Manifold.Substitution
+import Manifold.Type.Intro
 
 newtype Type var = Type { unType :: Expr (Constraint var (Type var)) (Type var) }
   deriving (Eq, Ord, Show)

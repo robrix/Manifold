@@ -20,6 +20,7 @@ import Manifold.Expr.Elim
 import Manifold.Expr.Intro
 import Manifold.Name
 import Manifold.Pretty
+import Manifold.Type.Intro
 
 data Expr var recur
   = Var Name
