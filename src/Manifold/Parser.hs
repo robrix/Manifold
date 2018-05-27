@@ -94,8 +94,20 @@ type' = piType
         constraint = parens ((:::) <$> name' <* colon <*> type')
 
 boolT, unitT, typeT :: (Monad m, TokenParsing m) => m (Type.Type Name)
+
+-- $
+-- >>> parseString boolT "Bool"
+-- Right (Type {unType = Intro BoolT})
 boolT = Type.boolT <$ preword "Bool"
+
+-- $
+-- >>> parseString unitT "Unit"
+-- Right (Type {unType = Intro UnitT})
 unitT = Type.unitT <$ preword "Unit"
+
+-- $
+-- >>> parseString typeT "Type"
+-- Right (Type {unType = Intro TypeT})
 typeT = Type.typeT <$ preword "Type"
 
 name' :: (Monad m, TokenParsing m) => m Name
