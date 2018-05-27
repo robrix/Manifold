@@ -9,6 +9,7 @@ data Declaration var def = Declaration
   { declarationSignature  :: Constraint var (Type var)
   , declarationDefinition :: def
   }
+  deriving (Eq, Ord, Show)
 
 declarationName :: Named var => Declaration var def -> Name
 declarationName = constraintName . declarationSignature
@@ -18,3 +19,4 @@ data Definition var = Definition
   { definitionPatterns :: [var]
   , definitionBody     :: Term
   }
+  deriving (Eq, Ord, Show)

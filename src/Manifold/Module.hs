@@ -7,3 +7,4 @@ data Module var def = Module
   { moduleName         :: Name
   , moduleDeclarations :: [Declaration var def]
   }
+  deriving (Eq, Ord, Show)
