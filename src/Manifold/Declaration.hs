@@ -10,12 +10,12 @@ data Declaration var = Declaration
 
 
 data Signature var = Signature
-  { signatureName :: var
+  { signatureVar  :: var
   , signatureType :: Type var
   }
 
 data Definition var = Definition
-  { definitionName     :: var
+  { definitionVar      :: var
   , definitionPatterns :: [var]
   , definitionBody     :: Term
   }
