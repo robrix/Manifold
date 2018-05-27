@@ -23,6 +23,7 @@ library
                      , Manifold.Expr
                      , Manifold.Expr.Elim
                      , Manifold.Expr.Intro
+                     , Manifold.Module
                      , Manifold.Name
                      , Manifold.Name.Annotated
                      , Manifold.Parser
