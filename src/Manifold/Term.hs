@@ -9,9 +9,9 @@ import qualified Data.Set as Set
 import Data.Trifoldable
 import Data.Trifunctor
 import Manifold.Expr.Elim
-import Manifold.Expr.Intro
 import Manifold.Name
 import Manifold.Pretty
+import Manifold.Value.Intro
 
 newtype Term var = Term { unTerm :: Expr var (Term var) }
   deriving (Eq, Ord, Show)

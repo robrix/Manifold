@@ -4,10 +4,10 @@ module Manifold.Value where
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Manifold.Constraint
 import Manifold.Context
-import Manifold.Expr.Intro
 import Manifold.Name
 import Manifold.Pretty
 import Manifold.Term
+import Manifold.Value.Intro
 
 newtype Value = Value { unValue :: Intro (Constraint Name (Context Name Value)) (Term Name) Value }
   deriving (Eq, Ord, Show)

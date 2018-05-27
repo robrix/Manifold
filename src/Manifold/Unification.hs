@@ -7,12 +7,12 @@ import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Manifold.Constraint
 import Manifold.Expr.Elim
-import Manifold.Expr.Intro
 import Manifold.Name
 import Manifold.Proof
 import Manifold.Substitution
 import Manifold.Type
 import Manifold.Type.Intro
+import Manifold.Value.Intro
 
 unify :: ( Eq var
          , Members '[ Exc (Error var)

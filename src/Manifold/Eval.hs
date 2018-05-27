@@ -6,11 +6,11 @@ import Control.Monad.Effect.Reader
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Expr.Elim
-import Manifold.Expr.Intro
 import Manifold.Name
 import Manifold.Proof
 import Manifold.Term
 import Manifold.Value
+import Manifold.Value.Intro
 
 eval :: Member (Reader (Context Name Value)) effects
      => Term Name

@@ -10,7 +10,6 @@ import Manifold.Constraint
 import Manifold.Context
 import Manifold.Declaration
 import Manifold.Expr.Elim
-import Manifold.Expr.Intro
 import Manifold.Module
 import Manifold.Name
 import Manifold.Name.Annotated
@@ -21,6 +20,7 @@ import Manifold.Substitution
 import Manifold.Term
 import Manifold.Type (Type, tvar, unitT, boolT, (.->), (.*))
 import Manifold.Unification
+import Manifold.Value.Intro
 
 checkModule :: ( Eq usage
                , Members '[ Exc (Error (Annotated usage))

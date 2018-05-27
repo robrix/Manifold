@@ -22,7 +22,6 @@ library
                      , Manifold.Erasure
                      , Manifold.Eval
                      , Manifold.Expr.Elim
-                     , Manifold.Expr.Intro
                      , Manifold.Module
                      , Manifold.Name
                      , Manifold.Name.Annotated
@@ -40,6 +39,7 @@ library
                      , Manifold.Type.Intro
                      , Manifold.Unification
                      , Manifold.Value
+                     , Manifold.Value.Intro
                      , Paths_Manifold
   build-depends:       base >=4.11 && <4.12
                      , containers
