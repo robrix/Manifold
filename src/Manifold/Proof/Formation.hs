@@ -1,5 +1,5 @@
 {-# LANGUAGE DataKinds, FlexibleContexts #-}
-module Manifold.Type.Formation where
+module Manifold.Proof.Formation where
 
 import Control.Monad.Effect
 import Data.Semiring (zero)

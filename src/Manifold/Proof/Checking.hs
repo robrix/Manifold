@@ -1,5 +1,5 @@
 {-# LANGUAGE DataKinds, FlexibleContexts, ScopedTypeVariables, TypeApplications, TypeOperators #-}
-module Manifold.Type.Checking where
+module Manifold.Proof.Checking where
 
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
@@ -14,11 +14,11 @@ import Manifold.Expr
 import Manifold.Name
 import Manifold.Name.Annotated
 import Manifold.Proof
+import Manifold.Proof.Formation
 import Manifold.Purpose
 import Manifold.Substitution
 import Manifold.Term
 import Manifold.Type
-import Manifold.Type.Formation
 import Manifold.Unification
 
 

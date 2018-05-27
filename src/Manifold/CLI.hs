@@ -6,9 +6,9 @@ import Control.Monad.Effect
 import Data.Version (showVersion)
 import Manifold.Eval
 import Manifold.Parser
+import Manifold.Proof.Checking
 import Manifold.Purpose
 import Manifold.REPL
-import Manifold.Type.Checking
 import Options.Applicative as Options
 import qualified Paths_Manifold as Library (version)
 import System.Exit (exitFailure)
