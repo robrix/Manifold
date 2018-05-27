@@ -53,6 +53,10 @@ module' :: (Monad m, TokenParsing m) => m Name
 module' = keyword "module" *> qname <* keyword "where"
 
 
+signature :: (Monad m, TokenParsing m) => m [Constraint Name (Type.Type Name)]
+signature = makeSigs <$> commaSep1 name <* colon <*> type'
+  where makeSigs names ty = map (::: ty) names
+
 -- declaration :: (Monad m, TokenParsing m) => m (Decl.Declaration Name)
 --
 -- -- | Parse a declaration.
