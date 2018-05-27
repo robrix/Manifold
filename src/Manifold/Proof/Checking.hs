@@ -25,13 +25,12 @@ import Manifold.Unification
 checkModule :: ( Eq usage
                , Members '[ Exc (Error (Annotated usage))
                           , Fresh
-                          , Reader (Context (Annotated usage) (Type (Annotated usage)))
                           ] effects
                , Monoid usage
                )
             => Module Name Term
             -> Proof usage effects (Module (Annotated usage) Term)
-checkModule (Module name decls) = Module name <$> traverse checkDeclaration decls
+checkModule (Module name decls) = runContext (Module name <$> traverse checkDeclaration decls)
 
 
 checkDeclaration :: ( Eq usage
