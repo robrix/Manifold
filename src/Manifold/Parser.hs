@@ -48,13 +48,12 @@ whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
 
 
-term, true, false, let', lambda :: (Monad m, TokenParsing m) => m Term.Term
+term, true, false, let', lambda, tuple :: (Monad m, TokenParsing m) => m Term.Term
 
 -- | Parse a term.
 term = application
   where atom = choice [ true, false, try (rerep name <$> type'), var, let', lambda, tuple ]
         application = atom `chainl1` pure (Term.#) <?> "function application"
-        tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
         var = Term.var <$> name' <?> "variable"
 
 -- $
@@ -78,6 +77,7 @@ lambda = foldr ((.) . Term.abs') id <$  op "\\"
                                     <*> term
                                     <?> "lambda"
 
+tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
 
 constraint :: (Monad m, TokenParsing m) => m (Constraint Name (Type.Type Name))
 constraint = parens ((:::) <$> name' <* colon <*> type')
