@@ -1,11 +1,9 @@
 # `Manifold`
 
-An experiment in [quantitative type theory][] inspired by [@bentnib][] & [@pigworker][], using a [proof refinement][]–style approach due to [@beka_valentine][].
+An experiment in [quantitative type theory][] inspired by [@bentnib][] & [@pigworker][].
 
-[@beka_valentine]: https://twitter.com/beka_valentine
 [@bentnib]: https://twitter.com/bentnib
 [@pigworker]: https://twitter.com/pigworker
-[proof refinement]: http://languagengine.co/blog/bidirectional-proof-refinement/
 [quantitative type theory]: https://bentnib.org/quantitative-type-theory.html
 
 
