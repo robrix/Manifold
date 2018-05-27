@@ -33,6 +33,7 @@ checkModule :: ( Eq usage
             => Module Name (Term Name)
             -> Proof usage effects (Module (Annotated usage) (Term Name))
 checkModule (Module name decls) = runContext (Module name <$> traverse checkDeclaration decls)
+-- FIXME: extend the context while checking
 
 
 checkDeclaration :: ( Eq usage
@@ -46,7 +47,6 @@ checkDeclaration :: ( Eq usage
                  => Declaration Name (Term Name)
                  -> Proof usage effects (Declaration (Annotated usage) (Term Name))
 checkDeclaration (Declaration (name ::: ty) term) = do
-  -- FIXME: extend the context while checking
   ty' <- checkIsType ty
   ty'' <- runReader Intensional (runSubstitution (check term ty'))
   pure (Declaration (Annotated name zero ::: ty'') term)
