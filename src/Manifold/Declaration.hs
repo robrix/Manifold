@@ -1,25 +1,20 @@
 module Manifold.Declaration where
 
+import Manifold.Constraint
 import Manifold.Name
 import Manifold.Term
 import Manifold.Type
 
-data Declaration var = Declaration
-  { declarationSignature :: Signature var
-  , declarationDefinitions :: [Definition var]
+data Declaration var def = Declaration
+  { declarationConstraint :: Constraint var (Type var)
+  , declarationDefinition :: def
   }
 
-declarationName :: Named var => Declaration var -> Name
-declarationName = name . signatureVar . declarationSignature
+declarationName :: Named var => Declaration var def -> Name
+declarationName = constraintName . declarationConstraint
 
-
-data Signature var = Signature
-  { signatureVar  :: var
-  , signatureType :: Type var
-  }
 
 data Definition var = Definition
-  { definitionVar      :: var
-  , definitionPatterns :: [var]
+  { definitionPatterns :: [var]
   , definitionBody     :: Term
   }
