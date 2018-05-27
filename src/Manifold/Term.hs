@@ -57,18 +57,18 @@ exr :: Term -> Term
 exr = elim . ExR
 
 
-makeLet :: Named var => Constraint Name (Type var) -> Term -> Term -> Term
+makeLet :: Constraint Name (Type Name) -> Term -> Term -> Term
 makeLet (var ::: ty) value body = abs' (var ::: ty) body # value
 
-let' :: Named var => Type var -> Term -> (Term -> Term) -> Term
+let' :: Type Name -> Term -> (Term -> Term) -> Term
 let' ty value f = makeLet (name ::: ty) value body where (name, body) = bindVariable f
 
 
-abs' :: Named var => Constraint Name (Type var) -> Term -> Term
-abs' constraint body = intro (Abs (rerep name <$> constraint) body)
+abs' :: Constraint Name (Type Name) -> Term -> Term
+abs' constraint body = intro (Abs constraint body)
 
 
-lam :: Named var => Type var -> (Term -> Term) -> Term
+lam :: Type Name -> (Term -> Term) -> Term
 lam ty f = abs' (name ::: ty) body where (name, body) = bindVariable f
 
 
