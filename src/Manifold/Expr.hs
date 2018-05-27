@@ -4,7 +4,6 @@ module Manifold.Expr
 , IntroT(..)
 , Elim(..)
 , Expr(..)
-, rerep
 , bindVariable
 , freeVariables
 ) where
@@ -52,14 +51,6 @@ instance (Pretty var, Pretty recur) => Pretty (Expr var recur) where
   prettyPrec d (Intro  i) = prettyPrec d i
   prettyPrec d (IntroT i) = prettyPrec d i
   prettyPrec d (Elim e)   = prettyPrec d e
-
-
-
-rerep :: (Recursive t1, Base t1 ~ f (Constraint var1 t1), Corecursive t2, Base t2 ~ f (Constraint var2 t2), Bifunctor f)
-      => (var1 -> var2)
-      -> t1
-      -> t2
-rerep vars = go where go = cata (embed . first (bimap vars go))
 
 
 bindVariable :: (Corecursive t, Recursive t, Base t ~ Expr (Constraint var t'), Recursive t', Base t' ~ Expr (Constraint var t'), Named var) => (t -> t) -> (Name, t)
