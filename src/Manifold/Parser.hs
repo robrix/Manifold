@@ -134,6 +134,10 @@ name = N <$> identifier
 op :: TokenParsing m => String -> m String
 op = token . highlight Operator . string
 
+typeIdentifier :: (Monad m, TokenParsing m) => m String
+typeIdentifier =  ident (IdentifierStyle "identifier" upper alphaNum reservedWords Identifier ReservedIdentifier)
+          <|> try ((:[]) <$> token (parens (highlight Operator (oneOf ".,"))))
+
 identifier :: (Monad m, TokenParsing m) => m String
 identifier =  ident (IdentifierStyle "identifier" letter alphaNum reservedWords Identifier ReservedIdentifier)
           <|> try ((:[]) <$> token (parens (highlight Operator (oneOf ".,"))))
