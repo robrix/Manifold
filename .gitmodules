@@ -4,3 +4,6 @@
 [submodule "vendor/effects"]
 	path = vendor/effects
 	url = https://github.com/joshvera/effects.git
+[submodule "vendor/semilattices"]
+	path = vendor/semilattices
+	url = https://github.com/robrix/semilattices.git
