@@ -39,6 +39,9 @@ checkModule (Module name imports decls) = runContext (Module name imports <$> fo
           decl' <- checkDeclaration decl
           declarationSignature decl' >- (decl' :) <$> rest
 
+cacheEvaluated :: Member (State (ModuleTable (Annotated usage) (Term Name))) effects => Module (Annotated usage) (Term Name) -> Proof usage effects ()
+cacheEvaluated = modify' . insert
+
 
 checkDeclaration :: ( Eq usage
                     , Members '[ Exc (Error (Annotated usage))
