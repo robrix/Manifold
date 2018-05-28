@@ -27,3 +27,6 @@ newtype ModuleTable var def = ModuleTable { unModuleTable :: Map.Map Name (Modul
 
 fromModules :: [Module var def] -> ModuleTable var def
 fromModules = ModuleTable . Map.fromList . map ((,) . moduleName <*> id)
+
+insert :: Module var def -> ModuleTable var def -> ModuleTable var def
+insert m@(Module name _ _) = ModuleTable . Map.insert name m . unModuleTable
