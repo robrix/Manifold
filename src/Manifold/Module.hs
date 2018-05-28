@@ -23,7 +23,7 @@ moduleExports = map declarationSignature . moduleDeclarations
 instance (Pretty var, Pretty def) => Pretty (Module var def) where
   prettyPrec _ (Module name imports decls)
     = showString "module" . showChar ' ' . prettys name . showChar ' ' . showString "where" . showChar '\n' . showChar '\n'
-    . foldr (.) id (intersperse (showChar '\n') (map (fmap (showString "import" . showChar ' ') . prettys) imports)) . showChar '\n' . showChar '\n'
+    . foldr (.) id (intersperse (showChar '\n') (map (fmap (showString "import" . showChar ' ') . prettys) imports)) . (if null imports then id else showChar '\n' . showChar '\n')
     . foldr (.) id (intersperse (showChar '\n' . showChar '\n') (map prettys decls)) . showChar '\n'
 
 
