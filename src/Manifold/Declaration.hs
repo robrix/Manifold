@@ -13,7 +13,9 @@ data Declaration var def = Declaration
   deriving (Eq, Ord, Show)
 
 instance (Pretty var, Pretty def) => Pretty (Declaration var def) where
-  prettyPrec _ (Declaration sig def) = prettys sig . showChar '\n' . showChar '\t' . prettys def
+  prettyPrec _ (Declaration sig def)
+    = prettys sig . showChar '\n'
+    . prettys (constraintVar sig) . showChar ' ' . showChar '=' . showChar ' ' . prettys def
 
 declarationName :: Named var => Declaration var def -> Name
 declarationName = constraintName . declarationSignature
