@@ -29,6 +29,9 @@ noRuleToCheckIsType = throwError . NoRuleToCheckIsType
 noRuleToInferType :: Member (Exc (Error (Annotated usage))) effects => Term Name -> Proof usage effects a
 noRuleToInferType = throwError . NoRuleToInferType
 
+unknownModule :: Member (Exc (Error (Annotated usage))) effects => Name -> Proof usage effects a
+unknownModule = throwError . UnknownModule
+
 throwError :: Member (Exc (Error (Annotated usage))) effects => Error (Annotated usage) -> Proof usage effects a
 throwError = Exception.throwError
 
