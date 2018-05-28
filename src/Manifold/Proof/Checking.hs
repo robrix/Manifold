@@ -26,6 +26,8 @@ import Manifold.Value.Intro
 checkModule :: ( Eq usage
                , Members '[ Exc (Error (Annotated usage))
                           , Fresh
+                          , Reader (ModuleTable Name (Term Name))
+                          , State (ModuleTable (Annotated usage) (Term Name))
                           ] effects
                , Monoid usage
                , Unital usage

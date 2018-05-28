@@ -4,13 +4,19 @@ module Manifold.CLI where
 import Control.Monad ((>=>))
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
+import Control.Monad.Effect.Reader
+import Control.Monad.Effect.State
+import Data.Semilattice.Lower
 import Data.Version (showVersion)
+import Manifold.Module
+import Manifold.Name
 import Manifold.Name.Annotated
 import Manifold.Parser
 import Manifold.Pretty
 import Manifold.Proof
 import Manifold.Proof.Checking
 import Manifold.REPL
+import Manifold.Term
 import Options.Applicative as Options
 import qualified Paths_Manifold as Library (version)
 import System.Exit (exitFailure)
@@ -29,7 +35,12 @@ runFile paths = do
   ms <- traverse (parseFile (whole module') >=> maybe exitFailure pure) paths
   either (print @(Error (Annotated ())) >=> const exitFailure)
          prettyPrint
-         (run (runError (runFresh 0 (traverse (checkModule @()) ms))))
+         (run (runError
+              (runReader (fromModules ms)
+              (fmap fst
+              (runState (lowerBound @(ModuleTable (Annotated ()) (Term Name)))
+              (runFresh 0
+              (traverse (checkModule @()) ms)))))))
 
 
 versionString :: String
