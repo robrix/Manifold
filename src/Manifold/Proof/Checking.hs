@@ -124,6 +124,3 @@ runSubstitution = fmap (uncurry (flip apply)) . runState mempty
 runSigma :: (Monoid usage, Unital usage) => Purpose -> Proof usage (Reader usage ': effects) a -> Proof usage effects a
 runSigma Extensional = runReader zero
 runSigma Intensional = runReader one
-
-askPurpose :: (Effectful m, Member (Reader Purpose) effects) => m effects Purpose
-askPurpose = ask
