@@ -1,7 +1,7 @@
 module Prelude where
 
 id : (a : Type) -> a -> a
-id = \ a x . x
+id = \ _ x . x
 
 const : (a : Type) -> (b : Type) -> a -> b -> a
-const = \ a b x y . x
+const = \ _ _ x y . x

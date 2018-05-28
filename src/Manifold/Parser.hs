@@ -90,7 +90,7 @@ let' = Term.makeLet <$  keyword "let"
                     <?> "let"
 
 lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
-                                       <*> some name <* dot
+                                       <*> some pattern <* dot
                                        <*> term
                                        <?> "lambda"
 
@@ -138,27 +138,28 @@ typeT = Type.typeT <$ keyword "Type"
 tvar = Type.tvar <$> name <?> "type variable"
 
 
-name :: (Monad m, TokenParsing m) => m Name
+pattern, name, qname :: (Monad m, TokenParsing m) => m Name
+
+pattern = name <|> I (-1) <$ token (string "_")
+
 name = N <$> identifier
 
-qname :: (Monad m, TokenParsing m) => m Name
 qname = token (runUnspaced name')
   where name' = makeN <$> typeIdentifier <*> optional (dot *> name')
             <|>     N <$> identifier
         makeN s Nothing  = N s
         makeN s (Just n) = Q s n
 
-op :: TokenParsing m => String -> m String
-op = token . highlight Operator . string
+identifier, typeIdentifier :: (Monad m, TokenParsing m) => m String
 
-typeIdentifier :: (Monad m, TokenParsing m) => m String
-typeIdentifier =  ident (IdentifierStyle "type identifier" upper alphaNum reservedWords Identifier ReservedIdentifier)
-
-identifier :: (Monad m, TokenParsing m) => m String
-identifier =  ident (IdentifierStyle "identifier" letter alphaNum reservedWords Identifier ReservedIdentifier)
+identifier     = ident (IdentifierStyle "identifier" letter alphaNum reservedWords Identifier ReservedIdentifier)
+typeIdentifier = ident (IdentifierStyle "type identifier" upper alphaNum reservedWords Identifier ReservedIdentifier)
 
 reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where" ]
 
-keyword :: TokenParsing m => String -> m String
+keyword, op :: TokenParsing m => String -> m String
+
 keyword s = token (highlight ReservedIdentifier (string s <* notFollowedBy alphaNum)) <?> s
+
+op s = token (highlight Operator (string s)) <?> s
