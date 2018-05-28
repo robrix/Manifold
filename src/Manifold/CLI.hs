@@ -5,15 +5,12 @@ import Control.Monad ((>=>))
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
 import Data.Version (showVersion)
-import Manifold.Module
-import Manifold.Name
 import Manifold.Name.Annotated
 import Manifold.Parser
 import Manifold.Pretty
 import Manifold.Proof
 import Manifold.Proof.Checking
 import Manifold.REPL
-import Manifold.Term
 import Options.Applicative as Options
 import qualified Paths_Manifold as Library (version)
 import System.Exit (exitFailure)
@@ -25,14 +22,14 @@ argumentsParser = info
   <> progDesc "Manifold is a small experiment in quantitative type theory."
   <> header   "Manifold - a quantitative, dependently-typed language")
   where options = flag' (runIO @() repl) (short 'i' <> long "interactive" <> help "run in interactive mode (REPL)")
-              <|> runFile <$> strArgument (metavar "FILE" <> help "The file to check.")
+              <|> runFile <$> some (strArgument (metavar "FILES" <> help "The files to check."))
 
-runFile :: FilePath -> IO ()
-runFile path = do
-  m <- parseFile (whole module') path >>= maybe exitFailure pure
+runFile :: [FilePath] -> IO ()
+runFile paths = do
+  ms <- traverse (parseFile (whole module') >=> maybe exitFailure pure) paths
   either (print @(Error (Annotated ())) >=> const exitFailure)
-         (prettyPrint @(Module (Annotated ()) (Term Name)))
-         (run (runError (runFresh 0 (checkModule @() m))))
+         prettyPrint
+         (run (runError (runFresh 0 (traverse (checkModule @()) ms))))
 
 
 versionString :: String
