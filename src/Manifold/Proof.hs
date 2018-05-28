@@ -41,10 +41,10 @@ data Error var
 
 instance Pretty var => Pretty (Error var) where
   prettyPrec d err = showParen (d > 0) $ showString "error: " . case err of
-    FreeVariable name -> showString "free variable: " . prettyPrec 0 name
-    CannotUnify t1 t2 -> showString "cannot unify\n" . prettyPrec 0 t1 . showString "\nwith\n" . prettyPrec 0 t2
-    NoRuleToCheckIsType t -> showString "cannot prove " . prettyPrec 0 t . showString " is a valid type"
-    NoRuleToInferType t -> showString "cannot infer type of term " . prettyPrec 0 t
+    FreeVariable name -> showString "free variable: " . prettys name
+    CannotUnify t1 t2 -> showString "cannot unify\n" . prettys t1 . showString "\nwith\n" . prettys t2
+    NoRuleToCheckIsType t -> showString "cannot prove " . prettys t . showString " is a valid type"
+    NoRuleToInferType t -> showString "cannot infer type of term " . prettys t
 
 runError :: Proof usage (Exc (Error var) ': effects) a -> Proof usage effects (Either (Error var) a)
 runError = Exception.runError
