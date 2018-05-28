@@ -87,7 +87,7 @@ infer :: ( Eq usage
       => Term Name
       -> Proof usage effects (Type (Annotated usage))
 infer term = case unTerm term of
-  Var name                                 -> do
+  Var name -> do
     context <- askContext
     maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
   Value i
