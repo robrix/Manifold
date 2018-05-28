@@ -1,6 +1,8 @@
 {-# LANGUAGE DefaultSignatures #-}
 module Manifold.Pretty where
 
+import Text.Show
+
 class Pretty a where
   prettyPrec :: Int -> a -> ShowS
   default prettyPrec :: Show a => Int -> a -> ShowS
@@ -17,3 +19,6 @@ prettyPrint = putStrLn . pretty
 
 
 instance Pretty ()
+
+instance Pretty a => Pretty [a] where
+  prettyPrec _ = showListWith (prettyPrec 0)
