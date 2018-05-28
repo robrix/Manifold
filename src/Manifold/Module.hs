@@ -24,7 +24,7 @@ instance (Pretty var, Pretty def) => Pretty (Module var def) where
   prettyPrec _ (Module name imports decls)
     = showString "module" . showChar ' ' . prettys name . showChar ' ' . showString "where" . showChar '\n' . showChar '\n'
     . foldr (.) id (intersperse (showChar '\n') (map (fmap (showString "import" . showChar ' ') . prettys) imports)) . showChar '\n' . showChar '\n'
-    . foldr (.) id (intersperse (showChar '\n' . showChar '\n') (map prettys decls))
+    . foldr (.) id (intersperse (showChar '\n' . showChar '\n') (map prettys decls)) . showChar '\n'
 
 
 newtype ModuleTable var def = ModuleTable { unModuleTable :: Map.Map Name (Module var def) }
