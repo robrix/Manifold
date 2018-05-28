@@ -23,4 +23,4 @@ instance Pretty Name where
   prettyPrec _ (Q s n) = showString s . showChar '.' . prettys n
   prettyPrec _ (I n) = (if n < 0 then showChar '_' else id) . showString (replicate (succ i) (alphabet !! r))
     where alphabet = ['a'..'z']
-          (i, r) = abs n `divMod` length alphabet
+          (i, r) = (if n < 0 then abs (succ n) else n) `divMod` length alphabet
