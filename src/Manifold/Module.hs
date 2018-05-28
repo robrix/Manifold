@@ -1,7 +1,9 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Manifold.Module where
 
 import Data.List
 import qualified Data.Map as Map
+import Data.Semilattice.Lower
 import Manifold.Declaration
 import Manifold.Name
 import Manifold.Pretty
@@ -21,7 +23,7 @@ instance (Pretty var, Pretty def) => Pretty (Module var def) where
 
 
 newtype ModuleTable var def = ModuleTable { unModuleTable :: Map.Map Name (Module var def) }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Lower, Ord, Show)
 
 fromModules :: [Module var def] -> ModuleTable var def
 fromModules = ModuleTable . Map.fromList . map ((,) . moduleName <*> id)
