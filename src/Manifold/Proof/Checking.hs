@@ -54,6 +54,9 @@ cacheModule (Module name imports decls) = do
           decl' <- checkDeclaration decl
           declarationSignature decl' >- (decl' :) <$> rest
 
+lookupUnevaluated :: Member (Reader (ModuleTable Name (Term Name))) effects => Name -> Proof usage effects (Maybe (Module Name (Term Name)))
+lookupUnevaluated name = asks (Module.lookup name)
+
 lookupEvaluated :: Member (State (ModuleTable (Annotated usage) (Term Name))) effects => Name -> Proof usage effects (Maybe (Module (Annotated usage) (Term Name)))
 lookupEvaluated name = gets (Module.lookup name)
 
