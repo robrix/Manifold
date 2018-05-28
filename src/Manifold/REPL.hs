@@ -4,7 +4,6 @@ module Manifold.REPL where
 import Control.Applicative (Alternative(..))
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
-import Control.Monad.Effect.Reader
 import Data.Functor (($>))
 import Data.Semiring
 import Manifold.Name.Annotated
@@ -64,8 +63,8 @@ runREPL = interpret (\case
   Eval term -> runCheck Intensional (infer term) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
 
 
-runCheck :: Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': Reader Purpose ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
-runCheck purpose = runError . runSubstitution . runFresh 0 . runReader purpose . runContext
+runCheck :: (Monoid usage, Unital usage) => Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': Reader usage ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
+runCheck purpose = runError . runSubstitution . runFresh 0 . runSigma purpose . runContext
 
 runEval :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
 runEval = runEnv

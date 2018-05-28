@@ -48,14 +48,14 @@ checkDeclaration :: ( Eq usage
                  -> Proof usage effects (Declaration (Annotated usage) (Term Name))
 checkDeclaration (Declaration (name ::: ty) term) = do
   ty' <- checkIsType ty
-  ty'' <- runReader Intensional (runSubstitution (check term ty'))
+  ty'' <- runSigma Intensional (runSubstitution (check term ty'))
   pure (Declaration (Annotated name zero ::: ty'') term)
 
 
 check :: ( Eq usage
          , Members '[ Exc (Error (Annotated usage))
                     , Fresh
-                    , Reader Purpose
+                    , Reader usage
                     , Reader (Context (Annotated usage) (Type (Annotated usage)))
                     , State (Substitution (Type (Annotated usage)))
                     ] effects
@@ -68,7 +68,7 @@ check :: ( Eq usage
 check term expected = case (unTerm term, unType expected) of
   (Value (Abs var body), IntroT (Annotated name pi ::: _S :-> _T)) -> do
     sigma <- ask
-    _T' <- Annotated var (interpretPurpose sigma >< pi) ::: _S >- check body _T
+    _T' <- Annotated var (sigma >< pi) ::: _S >- check body _T
     pure (Annotated name pi ::: _S .-> _T')
   _ -> do
     actual <- infer term
@@ -77,7 +77,7 @@ check term expected = case (unTerm term, unType expected) of
 infer :: ( Eq usage
          , Members '[ Exc (Error (Annotated usage))
                     , Fresh
-                    , Reader Purpose
+                    , Reader usage
                     , Reader (Context (Annotated usage) (Type (Annotated usage)))
                     , State (Substitution (Type (Annotated usage)))
                     ] effects
@@ -123,6 +123,9 @@ infer term = case unTerm term of
 runSubstitution :: Named var => Proof usage (State (Substitution (Type var)) ': effects) (Type var) -> Proof usage effects (Type var)
 runSubstitution = fmap (uncurry (flip apply)) . runState mempty
 
+runSigma :: (Monoid usage, Unital usage) => Purpose -> Proof usage (Reader usage ': effects) a -> Proof usage effects a
+runSigma Extensional = runReader zero
+runSigma Intensional = runReader one
 
 askPurpose :: (Effectful m, Member (Reader Purpose) effects) => m effects Purpose
 askPurpose = ask
