@@ -90,33 +90,31 @@ infer term = case unTerm term of
   Var name -> do
     context <- askContext
     maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
-  Value i
-    | Unit     <- i -> pure unitT
-    | Bool _   <- i -> pure boolT
-    | Pair a b <- i -> (.*) <$> infer a <*> infer b
-  Elim e
-    | ExL a    <- e -> do
-      t1 <- freshName
-      t2 <- freshName
-      _ <- check a (tvar t1 .* tvar t2)
-      pure (tvar t1)
-    | ExR a    <- e -> do
-      t1 <- freshName
-      t2 <- freshName
-      _ <- check a (tvar t1 .* tvar t2)
-      pure (tvar t2)
-    | App f a  <- e -> do
-      n <- I <$> fresh
-      t1 <- freshName
-      t2 <- freshName
-      _ <- check f (Annotated n zero ::: tvar t1 .-> tvar t2)
-      _ <- check a (tvar t1)
-      pure (tvar t2)
-    | If c t e <- e -> do
-      _ <- check c boolT
-      t' <- infer t
-      e' <- infer e
-      unify t' e'
+  Value Unit       -> pure unitT
+  Value (Bool _)   -> pure boolT
+  Value (Pair a b) -> (.*) <$> infer a <*> infer b
+  Elim (ExL a) -> do
+    t1 <- freshName
+    t2 <- freshName
+    _ <- check a (tvar t1 .* tvar t2)
+    pure (tvar t1)
+  Elim (ExR a) -> do
+    t1 <- freshName
+    t2 <- freshName
+    _ <- check a (tvar t1 .* tvar t2)
+    pure (tvar t2)
+  Elim (App f a) -> do
+    n <- I <$> fresh
+    t1 <- freshName
+    t2 <- freshName
+    _ <- check f (Annotated n zero ::: tvar t1 .-> tvar t2)
+    _ <- check a (tvar t1)
+    pure (tvar t2)
+  Elim (If c t e) -> do
+    _ <- check c boolT
+    t' <- infer t
+    e' <- infer e
+    unify t' e'
   _ -> noRuleToInferType term
 
 
