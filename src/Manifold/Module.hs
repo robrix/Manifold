@@ -22,3 +22,6 @@ instance (Pretty var, Pretty def) => Pretty (Module var def) where
 
 newtype ModuleTable var def = ModuleTable { unModuleTable :: Map.Map Name (Module var def) }
   deriving (Eq, Ord, Show)
+
+fromModules :: [Module var def] -> ModuleTable var def
+fromModules = ModuleTable . Map.fromList . map ((,) . moduleName <*> id)
