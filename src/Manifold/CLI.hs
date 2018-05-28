@@ -30,7 +30,9 @@ argumentsParser = info
 runFile :: FilePath -> IO ()
 runFile path = do
   m <- parseFile (whole module') path >>= maybe exitFailure pure
-  either (print @(Error (Annotated ())) >=> const exitFailure) (prettyPrint @(Module (Annotated ()) (Term Name))) (run (runError (runFresh 0 (checkModule @() m))))
+  either (print @(Error (Annotated ())) >=> const exitFailure)
+         (prettyPrint @(Module (Annotated ()) (Term Name)))
+         (run (runError (runFresh 0 (checkModule @() m))))
 
 
 versionString :: String
