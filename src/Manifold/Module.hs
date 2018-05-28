@@ -4,9 +4,11 @@ module Manifold.Module where
 import Data.List
 import qualified Data.Map as Map
 import Data.Semilattice.Lower
+import Manifold.Constraint
 import Manifold.Declaration
 import Manifold.Name
 import Manifold.Pretty
+import Manifold.Type
 
 data Module var def = Module
   { moduleName         :: Name
@@ -14,6 +16,9 @@ data Module var def = Module
   , moduleDeclarations :: [Declaration var def]
   }
   deriving (Eq, Ord, Show)
+
+moduleExports :: Module var def -> [Constraint var (Type var)]
+moduleExports = map declarationSignature . moduleDeclarations
 
 instance (Pretty var, Pretty def) => Pretty (Module var def) where
   prettyPrec _ (Module name imports decls)
