@@ -55,8 +55,11 @@ module' = Module <$ keyword "module" <*> qname <* keyword "where" <*> many decla
 
 
 declaration :: (Monad m, TokenParsing m) => m (Declaration Name (Term.Term Name))
-declaration = Declaration <$> runUnlined (constraint <* token newline)
-                          <*  op "=" <*> term
+declaration = runUnlined (do
+  name <- identifier
+  ty' <- colon *> type' <* some newline
+  body <- token (highlight Identifier (string name)) *> op "=" *> term <* some newline
+  pure (Declaration (N name ::: ty') body))
 
 
 term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m (Term.Term Name)
