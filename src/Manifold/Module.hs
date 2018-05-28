@@ -30,3 +30,6 @@ fromModules = ModuleTable . Map.fromList . map ((,) . moduleName <*> id)
 
 insert :: Module var def -> ModuleTable var def -> ModuleTable var def
 insert m@(Module name _ _) = ModuleTable . Map.insert name m . unModuleTable
+
+lookup :: Name -> ModuleTable var def -> Maybe (Module var def)
+lookup name = Map.lookup name . unModuleTable
