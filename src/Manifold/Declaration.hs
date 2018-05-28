@@ -20,6 +20,9 @@ instance (Pretty var, Pretty def) => Pretty (Declaration var def) where
 declarationName :: Named var => Declaration var def -> Name
 declarationName = constraintName . declarationSignature
 
+declarationType :: Declaration var def -> Type var
+declarationType = constraintValue . declarationSignature
+
 
 data Definition var = Definition
   { definitionPatterns :: [var]
