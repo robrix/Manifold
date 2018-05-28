@@ -3,7 +3,6 @@ module Manifold.CLI where
 
 import Control.Monad ((>=>))
 import Control.Monad.Effect
-import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
 import Data.Semilattice.Lower
@@ -39,8 +38,7 @@ runFile paths = do
               (runReader (fromModules ms)
               (fmap fst
               (runState (lowerBound @(ModuleTable (Annotated ()) (Term Name)))
-              (runFresh 0
-              (traverse (checkModule @()) ms)))))))
+              (traverse (checkModule @()) ms))))))
 
 
 versionString :: String

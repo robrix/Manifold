@@ -25,7 +25,6 @@ import Manifold.Value.Intro
 
 checkModule :: ( Eq usage
                , Members '[ Exc (Error (Annotated usage))
-                          , Fresh
                           , Reader (ModuleTable Name (Term Name))
                           , State (ModuleTable (Annotated usage) (Term Name))
                           ] effects
@@ -34,7 +33,23 @@ checkModule :: ( Eq usage
                )
             => Module Name (Term Name)
             -> Proof usage effects (Module (Annotated usage) (Term Name))
-checkModule (Module name imports decls) = runContext (Module name imports <$> foldr combine (pure []) decls)
+checkModule m = lookupEvaluated (moduleName m) >>= maybe (cacheModule m) pure
+
+cacheModule :: ( Eq usage
+               , Members '[ Exc (Error (Annotated usage))
+                          , Reader (ModuleTable Name (Term Name))
+                          , State (ModuleTable (Annotated usage) (Term Name))
+                          ] effects
+               , Monoid usage
+               , Unital usage
+               )
+            => Module Name (Term Name)
+            -> Proof usage effects (Module (Annotated usage) (Term Name))
+cacheModule (Module name imports decls) = do
+  cacheEvaluated (Module name imports [])
+  decls' <- runFresh 0 (runContext (foldr combine (pure []) decls))
+  let m = Module name imports decls'
+  m <$ cacheEvaluated m
   where combine decl rest = do
           decl' <- checkDeclaration decl
           declarationSignature decl' >- (decl' :) <$> rest
