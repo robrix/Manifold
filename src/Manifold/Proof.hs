@@ -37,6 +37,7 @@ data Error var
   | CannotUnify (Type var) (Type var)
   | NoRuleToCheckIsType (Type Name)
   | NoRuleToInferType (Term Name)
+  | UnknownModule Name
   deriving (Eq, Ord, Show)
 
 instance Pretty var => Pretty (Error var) where
@@ -45,6 +46,7 @@ instance Pretty var => Pretty (Error var) where
     CannotUnify t1 t2 -> showString "cannot unify\n" . prettys t1 . showString "\nwith\n" . prettys t2
     NoRuleToCheckIsType t -> showString "cannot prove " . prettys t . showString " is a valid type"
     NoRuleToInferType t -> showString "cannot infer type of term " . prettys t
+    UnknownModule name -> showString "unknown module: " . prettys name
 
 runError :: Proof usage (Exc (Error var) ': effects) a -> Proof usage effects (Either (Error var) a)
 runError = Exception.runError
