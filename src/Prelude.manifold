@@ -1,1 +1,3 @@
 module Prelude where
+
+import Base.Function

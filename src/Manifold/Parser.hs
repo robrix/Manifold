@@ -15,7 +15,7 @@ import Control.Monad.IO.Class (MonadIO)
 import qualified Data.HashSet as HashSet
 import Manifold.Constraint
 import Manifold.Declaration
-import Manifold.Module
+import Manifold.Module (Module(Module))
 import Manifold.Name (Name(..))
 import qualified Manifold.Term as Term
 import qualified Manifold.Type as Type
@@ -52,8 +52,13 @@ whole p = whiteSpace *> p <* eof
 
 
 module' :: (Monad m, TokenParsing m) => m (Module Name (Term.Term Name))
-module' = Module <$ keyword "module" <*> qname <* keyword "where" <*> many declaration
+module' = Module <$  keyword "module" <*> moduleName <* keyword "where"
+                 <*> many import'
+                 <*> many declaration
 
+
+import' :: (Monad m, TokenParsing m) => m Name
+import' = keyword "import" *> moduleName
 
 declaration :: (Monad m, TokenParsing m) => m (Declaration Name (Term.Term Name))
 declaration = runUnlined (do
@@ -138,15 +143,14 @@ typeT = Type.typeT <$ keyword "Type"
 tvar = Type.tvar <$> name <?> "type variable"
 
 
-pattern, name, qname :: (Monad m, TokenParsing m) => m Name
+pattern, name, moduleName :: (Monad m, TokenParsing m) => m Name
 
 pattern = name <|> I (-1) <$ token (string "_")
 
 name = N <$> identifier
 
-qname = token (runUnspaced name')
+moduleName = token (runUnspaced name')
   where name' = makeN <$> typeIdentifier <*> optional (dot *> name')
-            <|>     N <$> identifier
         makeN s Nothing  = N s
         makeN s (Just n) = Q s n
 
@@ -156,7 +160,7 @@ identifier     = ident (IdentifierStyle "identifier" letter alphaNum reservedWor
 typeIdentifier = ident (IdentifierStyle "type identifier" upper alphaNum reservedWords Identifier ReservedIdentifier)
 
 reservedWords :: HashSet.HashSet String
-reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where" ]
+reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where", "import" ]
 
 keyword, op :: TokenParsing m => String -> m String
 

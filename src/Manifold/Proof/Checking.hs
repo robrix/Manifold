@@ -32,7 +32,7 @@ checkModule :: ( Eq usage
                )
             => Module Name (Term Name)
             -> Proof usage effects (Module (Annotated usage) (Term Name))
-checkModule (Module name decls) = runContext (Module name <$> foldr combine (pure []) decls)
+checkModule (Module name imports decls) = runContext (Module name imports <$> foldr combine (pure []) decls)
   where combine decl rest = do
           decl' <- checkDeclaration decl
           declarationSignature decl' >- (decl' :) <$> rest

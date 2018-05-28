@@ -7,11 +7,13 @@ import Manifold.Pretty
 
 data Module var def = Module
   { moduleName         :: Name
+  , moduleImports      :: [Name]
   , moduleDeclarations :: [Declaration var def]
   }
   deriving (Eq, Ord, Show)
 
 instance (Pretty var, Pretty def) => Pretty (Module var def) where
-  prettyPrec _ (Module name decls)
+  prettyPrec _ (Module name imports decls)
     = showString "module" . showChar ' ' . prettys name . showChar ' ' . showString "where" . showChar '\n' . showChar '\n'
+    . foldr (.) id (intersperse (showChar '\n') (map (fmap (showString "import" . showChar ' ') . prettys) imports)) . showChar '\n' . showChar '\n'
     . foldr (.) id (intersperse (showChar '\n' . showChar '\n') (map prettys decls))
