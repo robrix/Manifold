@@ -9,7 +9,7 @@ import Data.Semiring (Semiring(..), Unital(..), zero)
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Declaration
-import Manifold.Module
+import Manifold.Module as Module
 import Manifold.Name
 import Manifold.Name.Annotated
 import Manifold.Proof
@@ -38,6 +38,9 @@ checkModule (Module name imports decls) = runContext (Module name imports <$> fo
   where combine decl rest = do
           decl' <- checkDeclaration decl
           declarationSignature decl' >- (decl' :) <$> rest
+
+lookupEvaluated :: Member (State (ModuleTable (Annotated usage) (Term Name))) effects => Name -> Proof usage effects (Maybe (Module (Annotated usage) (Term Name)))
+lookupEvaluated name = gets (Module.lookup name)
 
 cacheEvaluated :: Member (State (ModuleTable (Annotated usage) (Term Name))) effects => Module (Annotated usage) (Term Name) -> Proof usage effects ()
 cacheEvaluated = modify' . insert
