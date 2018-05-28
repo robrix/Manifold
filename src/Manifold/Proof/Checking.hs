@@ -47,7 +47,8 @@ cacheModule :: ( Eq usage
             -> Proof usage effects (Module (Annotated usage) (Term Name))
 cacheModule (Module name imports decls) = do
   cacheEvaluated (Module name imports [])
-  decls' <- runFresh 0 (runContext (foldr combine (pure []) decls))
+  imports' <- traverse (\ name -> lookupUnevaluated name >>= maybe (unknownModule name) checkModule) imports
+  decls' <- runFresh 0 (runContext (foldr (>-) (foldr combine (pure []) decls) (imports' >>= moduleExports)))
   let m = Module name imports decls'
   m <$ cacheEvaluated m
   where combine decl rest = do
