@@ -5,6 +5,7 @@ import Data.Bifoldable
 import Data.Bifunctor
 import Data.Trifoldable
 import Data.Trifunctor
+import Manifold.Constructor
 import Manifold.Pretty
 
 data Intro var scope recur
@@ -14,12 +15,6 @@ data Intro var scope recur
   | Pair recur recur
   | Data Constructor [recur]
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
-
-newtype Constructor = Constructor String
-  deriving (Eq, Ord, Show)
-
-instance Pretty Constructor where
-  prettyPrec _ (Constructor s) = showString s
 
 instance Trifoldable Intro where
   trifoldMap f g h = \case
