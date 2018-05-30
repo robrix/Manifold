@@ -1,10 +1,10 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase #-}
 module Manifold.Value.Intro where
 
-import Data.Trifoldable
-import Data.Trifunctor
 import Data.Bifoldable
 import Data.Bifunctor
+import Data.Trifoldable
+import Data.Trifunctor
 import Manifold.Pretty
 
 data Intro var scope recur
@@ -12,21 +12,30 @@ data Intro var scope recur
   | Bool Bool
   | Abs var scope
   | Pair recur recur
+  | Data Constructor [recur]
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
+
+newtype Constructor = Constructor String
+  deriving (Eq, Ord, Show)
+
+instance Pretty Constructor where
+  prettyPrec _ (Constructor s) = showString s
 
 instance Trifoldable Intro where
   trifoldMap f g h = \case
-    Unit     -> mempty
-    Bool _   -> mempty
-    Abs v b  -> f v <> g b
-    Pair a b -> h a <> h b
+    Unit      -> mempty
+    Bool _    -> mempty
+    Abs v b   -> f v <> g b
+    Pair a b  -> h a <> h b
+    Data _ as -> foldMap h as
 
 instance Trifunctor Intro where
   trimap f g h = \case
-    Unit     -> Unit
-    Bool b   -> Bool b
-    Abs v b  -> f v `Abs` g b
-    Pair a b -> h a `Pair` h b
+    Unit      -> Unit
+    Bool b    -> Bool b
+    Abs v b   -> f v `Abs` g b
+    Pair a b  -> h a `Pair` h b
+    Data c as -> Data c (map h as)
 
 instance Bifoldable (Intro var) where
   bifoldMap = trifoldMap (const mempty)
@@ -40,3 +49,4 @@ instance (Pretty var, Pretty scope, Pretty recur) => Pretty (Intro var scope rec
     Bool b -> showsPrec d b
     Abs v b -> showParen (d > 0) $ showChar '\\' . showChar ' ' . prettyPrec 0 v . showChar ' '  . showChar '.' . showChar ' ' . prettyPrec 0 b
     Pair a b -> showParen (d > (-1)) $ prettyPrec (-1) a . showChar ',' . showChar ' ' . prettyPrec 0 b
+    Data c as -> showParen (d > 10) $ prettyPrec 10 c . foldr (.) id (map (fmap (showChar ' ') . prettyPrec 11) as)

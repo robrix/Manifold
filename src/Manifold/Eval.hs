@@ -24,6 +24,7 @@ eval (Term term) = case term of
       env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . constraintName) <$> ask
       pure (value (Abs (name var ::: env) body))
     Pair a b -> fmap value . Pair <$> eval a <*> eval b
+    Data c as -> value . Data c <$> traverse eval as
   Elim e -> case e of
     ExL pair -> eval pair >>= \ p -> case unValue p of { Pair a _ -> pure a ; _ -> error "exl on non-pair value, should have been caught by typechecker" }
     ExR pair -> eval pair >>= \ p -> case unValue p of { Pair _ b -> pure b ; _ -> error "exr on non-pair value, should have been caught by typechecker" }
