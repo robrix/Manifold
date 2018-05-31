@@ -73,7 +73,7 @@ binding = runUnlined (do
 dataType = runUnlined $ do
   name <- keyword "data" *> constructorName
   ty <- colon *> type'
-  constructors <- [] <$ newline <|> keyword "where" *> token newline *> (constructor `sepBy` token newline)
+  constructors <- [] <$ some newline <|> keyword "where" *> token newline *> many (constructor <* token newline)
   pure (Datatype (name ::: ty) constructors)
   where constructor = (:::) <$> constructorName <* colon <*> type' <* token newline
 
