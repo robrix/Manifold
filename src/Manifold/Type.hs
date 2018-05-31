@@ -53,7 +53,7 @@ typeT :: Type var
 typeT = tintroT TypeT
 
 unitT :: Type var
-unitT = tintroT UnitT
+unitT = typeC (Q "Prelude" (N "Unit")) []
 
 boolT :: Type var
 boolT = tintroT BoolT
