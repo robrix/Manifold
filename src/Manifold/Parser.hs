@@ -23,6 +23,7 @@ import qualified Manifold.Type as Type
 import Prelude hiding (product)
 import Text.Parser.Char
 import Text.Parser.Combinators
+import Text.Parser.LookAhead
 import Text.Parser.Token
 import Text.Parser.Token.Highlight
 import Text.Parser.Token.Style
@@ -32,7 +33,7 @@ import Text.Trifecta.Delta
 import Text.Trifecta.Indentation
 
 newtype Parser a = Parser { runParser :: IndentationParserT Token Trifecta.Parser a }
-  deriving (Alternative, Applicative, CharParsing, DeltaParsing, Functor, IndentationParsing, MarkParsing Delta, Monad, MonadPlus, Parsing)
+  deriving (Alternative, Applicative, CharParsing, DeltaParsing, Functor, IndentationParsing, LookAheadParsing, MarkParsing Delta, Monad, MonadPlus, Parsing)
 
 instance TokenParsing Parser where
   someSpace = Parser $ buildSomeSpaceParser someSpace haskellCommentStyle
