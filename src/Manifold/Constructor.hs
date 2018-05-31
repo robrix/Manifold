@@ -1,9 +1,10 @@
 module Manifold.Constructor where
 
+import Manifold.Name
 import Manifold.Pretty
 
-newtype Constructor = Constructor String
+newtype Constructor = Constructor Name
   deriving (Eq, Ord, Show)
 
 instance Pretty Constructor where
-  prettyPrec _ (Constructor s) = showString s
+  prettyPrec d (Constructor n) = prettyPrec d n
