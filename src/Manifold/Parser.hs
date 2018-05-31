@@ -31,8 +31,8 @@ import qualified Text.Trifecta as Trifecta
 import Text.Trifecta.Delta
 import Text.Trifecta.Indentation
 
-newtype Parser a = Parser { runParser :: Trifecta.Parser a }
-  deriving (Alternative, Applicative, CharParsing, DeltaParsing, Functor, MarkParsing Delta, Monad, MonadPlus, Parsing)
+newtype Parser a = Parser { runParser :: IndentationParserT Token Trifecta.Parser a }
+  deriving (Alternative, Applicative, CharParsing, DeltaParsing, Functor, IndentationParsing, MarkParsing Delta, Monad, MonadPlus, Parsing)
 
 instance TokenParsing Parser where
   someSpace = Parser $ buildSomeSpaceParser someSpace haskellCommentStyle
@@ -40,10 +40,12 @@ instance TokenParsing Parser where
   highlight h = Parser . highlight h . runParser
 
 parseFile :: MonadIO m => Parser a -> FilePath -> m (Maybe a)
-parseFile (Parser p) = Trifecta.parseFromFile p
+parseFile (Parser p) = Trifecta.parseFromFile (evalIndentationParserT p indentation)
 
 parseString :: Parser a -> String -> Either String a
-parseString (Parser p) = toResult . Trifecta.parseString p mempty
+parseString (Parser p) = toResult . Trifecta.parseString (evalIndentationParserT p indentation) mempty
+
+indentation = mkIndentationState 0 infIndentation False Eq
 
 toResult :: Trifecta.Result a -> Either String a
 toResult r = case r of
