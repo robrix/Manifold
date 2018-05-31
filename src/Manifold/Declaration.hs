@@ -6,7 +6,8 @@ import Manifold.Pretty
 import Manifold.Term
 import Manifold.Type
 
-data Declaration var def = Binding (Constraint var (Type var)) def
+data Declaration var def
+  = Binding (Constraint var (Type var)) def
   deriving (Eq, Ord, Show)
 
 instance (Pretty var, Pretty def) => Pretty (Declaration var def) where
