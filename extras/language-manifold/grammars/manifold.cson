@@ -1,0 +1,1330 @@
+'fileTypes': [
+  'manifold'
+]
+'name': 'Manifold'
+'scopeName': 'source.manifold'
+'macros':
+  'identStartCharClass': '[\\p{Ll}_\\p{Lu}\\p{Lt}]'
+  'identContCharClass': '[\\p{Ll}_\\p{Lu}\\p{Lt}\']'
+  'identCharClass': '[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']'
+  'functionNameOne': '[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*'
+  'classNameOne': '[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*'
+  'functionName': '(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*'
+  'className': '[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*'
+  'operatorChar': '(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))'
+  'operator': '(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+'
+  'operatorFun': '(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\))'
+  'basicChar': '[\\ -\\[\\]-~]'
+  'escapeChar': '\\\\(?:NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC1|DC2|DC3|DC4|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|[abfnrtv\\\\\\"\'\\&])'
+  'octalChar': '(?:\\\\o[0-7]+)'
+  'hexChar': '(?:\\\\x[0-9A-Fa-f]+)'
+  'controlChar': '(?:\\\\\\^[A-Z@\\[\\]\\\\^_])'
+  'character': '(?:[\\ -\\[\\]-~]|\\\\(?:NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC1|DC2|DC3|DC4|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|[abfnrtv\\\\\\"\'\\&])|(?:\\\\o[0-7]+)|(?:\\\\x[0-9A-Fa-f]+)|(?:\\\\\\^[A-Z@\\[\\]\\\\^_])|(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))'
+  'functionList': '((?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\)))(?:(?:\\s*,\\s*)(?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\))))*)'
+  'functionTypeDeclaration': '(?:(?:((?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\)))(?:(?:\\s*,\\s*)(?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\))))*)\\s*((?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))))'
+  'colonOperator': '(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))'
+  'ctorTypeDeclaration': '(?:(?:((?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\)))(?:(?:\\s*,\\s*)(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\))))*))(?:\\s*((?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))))'
+  'ctorArgs': '(?!deriving)(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:(?!deriving)(?:[\\w()\'→⇒\\[\\],]|->|=>)+\\s*)+)'
+  'ctor': '(?:(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))([\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*)\\s*)(?:((?:(?!deriving)(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:(?!deriving)(?:[\\w()\'→⇒\\[\\],]|->|=>)+\\s*)+))(?:(?:\\s+)(?:(?!deriving)(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:(?!deriving)(?:[\\w()\'→⇒\\[\\],]|->|=>)+\\s*)+)))*)?))'
+  'typeDeclOne': '(?:(?!(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))where(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])))(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*))'
+  'typeDecl': '(?>(?:(?:(?!(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))where(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])))(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)))(?:\\s+(?:(?!(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))where(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])))(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)))*)'
+  'indentChar': '[ \\t]'
+  'indentBlockStart': '^([ \\t]*)'
+  'indentBlockEnd': '^(?!\\1[ \\t]|[ \\t]*$)'
+  'indentBlockCont': '^(?!\\1|[ \\t]*$)'
+  'maybeBirdTrack': '^'
+  'lb': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))'
+  'lbrel': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}\'])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))'
+  'rb': '(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+  'b': '(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))|(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])))'
+  'data_def': '((?:(?!(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?:=|--+)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))|(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))where(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))|{-).|{-.*?-})*)'
+  'scoped_assignment': '(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?:<-|=)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))'
+'repository':
+  'block_comment':
+    'patterns': [
+      {
+        'name': 'comment.block.haddock.manifold'
+        'begin': '\\{-\\s*[|^]'
+        'end': '-\\}'
+        'applyEndPatternLast': 1
+        'beginCaptures':
+          '0':
+            'name': 'punctuation.definition.comment.haddock.manifold'
+        'endCaptures':
+          '0':
+            'name': 'punctuation.definition.comment.haddock.manifold'
+        'patterns': [
+          {
+            'include': '#block_comment'
+          }
+        ]
+      }
+      {
+        'name': 'comment.block.manifold'
+        'begin': '\\{-'
+        'end': '-\\}'
+        'applyEndPatternLast': 1
+        'beginCaptures':
+          '0':
+            'name': 'punctuation.definition.comment.block.start.manifold'
+        'endCaptures':
+          '0':
+            'name': 'punctuation.definition.comment.block.end.manifold'
+        'patterns': [
+          {
+            'include': '#block_comment'
+          }
+        ]
+      }
+    ]
+  'comments':
+    'patterns': [
+      {
+        'begin': '(^[ \\t]+)?(?=--+\\s+[|^])'
+        'end': '(?!\\G)'
+        'patterns': [
+          {
+            'name': 'comment.line.double-dash.haddock.manifold'
+            'begin': '(--+)\\s+([|^])'
+            'end': '$'
+            'beginCaptures':
+              '1':
+                'name': 'punctuation.definition.comment.manifold'
+              '2':
+                'name': 'punctuation.definition.comment.haddock.manifold'
+          }
+        ]
+      }
+      {
+        'begin': '(^[ \\t]+)?(?=--+(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))'
+        'end': '(?!\\G)'
+        'patterns': [
+          {
+            'name': 'comment.line.double-dash.manifold'
+            'begin': '--'
+            'end': '$'
+            'beginCaptures':
+              '0':
+                'name': 'punctuation.definition.comment.manifold'
+          }
+        ]
+      }
+      {
+        'include': '#block_comment'
+      }
+    ]
+  'characters':
+    'patterns': [
+      {
+        'match': '\\\\(?:NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC1|DC2|DC3|DC4|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|[abfnrtv\\\\\\"\'\\&])'
+        'name': 'constant.character.escape.manifold'
+      }
+      {
+        'match': '(?:\\\\o[0-7]+)'
+        'name': 'constant.character.escape.octal.manifold'
+      }
+      {
+        'match': '(?:\\\\x[0-9A-Fa-f]+)'
+        'name': 'constant.character.escape.hexadecimal.manifold'
+      }
+      {
+        'match': '(?:\\\\\\^[A-Z@\\[\\]\\\\^_])'
+        'name': 'constant.character.escape.control.manifold'
+      }
+    ]
+  'module_exports':
+    'patterns': [
+      {
+        'name': 'meta.declaration.exports.manifold'
+        'begin': '\\('
+        'end': '\\)'
+        'applyEndPatternLast': 1
+        'patterns': [
+          {
+            'include': '#comments'
+          }
+          {
+            'include': '#c_preprocessor'
+          }
+          {
+            'begin': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(module)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+            'end': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))([\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+            'beginCaptures':
+              '1':
+                'name': 'keyword.other.manifold'
+            'endCaptures':
+              '1':
+                'name': 'support.other.module.manifold'
+            'patterns': [
+              {
+                'include': '#invalid'
+              }
+            ]
+          }
+          {
+            'include': '#function_name'
+          }
+          {
+            'include': '#type_name'
+          }
+          {
+            'include': '#comma'
+          }
+          {
+            'name': 'meta.other.constructor-list.manifold'
+            'begin': '(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))\\s*\\('
+            'end': '\\)'
+            'patterns': [
+              {
+                'include': '#comments'
+              }
+              {
+                'include': '#c_preprocessor'
+              }
+              {
+                'include': '#type_ctor'
+              }
+              {
+                'include': '#attribute_name'
+              }
+              {
+                'include': '#comma'
+              }
+              {
+                'match': '\\.\\.'
+                'name': 'keyword.operator.wildcard.manifold'
+              }
+            ]
+          }
+          {
+            'include': '#infix_op'
+          }
+        ]
+      }
+    ]
+  'module_name':
+    'patterns': [
+      {
+        'name': 'support.other.module.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+      }
+    ]
+  'module_name_prefix':
+    'patterns': [
+      {
+        'name': 'support.other.module.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.'
+      }
+    ]
+  'pragma':
+    'patterns': [
+      {
+        'name': 'meta.preprocessor.manifold'
+        'begin': '\\{-#'
+        'end': '#-\\}'
+        'patterns': [
+          {
+            'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))((?i:NOTINLINE CONSTRUCTORLIKE|NOINLINE CONSTRUCTORLIKE|INLINE CONSTRUCTORLIKE|SPECIALISE NOTINLINE|SPECIALIZE NOTINLINE|SPECIALISE NOINLINE|SPECIALIZE NOINLINE|NOTINLINE CONLIKE|SPECIALISE INLINE|SPECIALIZE INLINE|NOINLINE CONLIKE|VECTORISE SCALAR|VECTORIZE SCALAR|OPTIONS_HADDOCK|INLINE CONLIKE|OPTIONS_DERIVE|OPTIONS_CATCH|OPTIONS_NHC98|OPTIONS_HUGS|OVERLAPPABLE|NOVECTORISE|NOVECTORIZE|OPTIONS_GHC|OPTIONS_JHC|OPTIONS_YHC|OVERLAPPING|DEPRECATED|INCOHERENT|INLINEABLE|SPECIALISE|SPECIALIZE|GENERATED|INLINABLE|NOTINLINE|VECTORISE|VECTORIZE|CONTRACT|LANGUAGE|NOINLINE|NOUNPACK|OVERLAPS|INCLUDE|MINIMAL|OPTIONS|WARNING|CFILES|INLINE|SOURCE|UNPACK|CTYPE|RULES|CORE|LINE|ANN|SCC))(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+            'name': 'keyword.other.preprocessor.manifold'
+          }
+        ]
+      }
+    ]
+  'function_type_declaration':
+    'patterns': [
+      {
+        'name': 'meta.function.type-declaration.manifold'
+        'begin': '^([ \\t]*)(?:(?:((?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\)))(?:(?:\\s*,\\s*)(?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\))))*)\\s*((?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))))'
+        'end': '^(?!\\1[ \\t]|[ \\t]*$)|(?=(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?:<-|=)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))'
+        'contentName': 'meta.type-signature.manifold'
+        'beginCaptures':
+          '2':
+            'patterns': [
+              {
+                'include': '#function_name'
+              }
+              {
+                'include': '#infix_op'
+              }
+            ]
+          '3':
+            'name': 'keyword.other.colon.manifold'
+        'patterns': [
+          {
+            'include': '#type_signature'
+          }
+        ]
+      }
+    ]
+  'multiline_type_declaration':
+    'patterns': [
+      {
+        'name': 'meta.multiline.type-declaration.manifold'
+        'begin': '^([ \\t]*)((?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))'
+        'end': '^(?!\\1|[ \\t]*$)|(?=(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?:<-|=)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))'
+        'contentName': 'meta.type-signature.manifold'
+        'beginCaptures':
+          '2':
+            'name': 'keyword.other.colon.manifold'
+        'patterns': [
+          {
+            'include': '#type_signature'
+          }
+        ]
+      }
+    ]
+  'lazy_function_type_signature':
+    'patterns': [
+      {
+        'name': 'meta.function.type-declaration.manifold'
+        'begin': '^([ \\t]*)(((?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\)))(?:(?:\\s*,\\s*)(?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\))))*))\\s*$'
+        'end': '^(?!\\1[ \\t]|[ \\t]*$)'
+        'contentName': 'meta.type-signature.manifold'
+        'beginCaptures':
+          '2':
+            'patterns': [
+              {
+                'include': '#function_name'
+              }
+              {
+                'include': '#infix_op'
+              }
+            ]
+        'patterns': [
+          {
+            'include': '#colon_operator'
+          }
+          {
+            'include': '#type_signature'
+          }
+        ]
+      }
+    ]
+  'colon_operator':
+    'patterns': [
+      {
+        'name': 'keyword.other.colon.manifold'
+        'match': '(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))'
+      }
+    ]
+  'ctor_type_declaration':
+    'patterns': [
+      {
+        'name': 'meta.ctor.type-declaration.manifold'
+        'begin': '^([ \\t]*)(?:(?:((?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\)))(?:(?:\\s*,\\s*)(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\))))*))(?:\\s*((?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))))'
+        'end': '^(?!\\1[ \\t]|[ \\t]*$)'
+        'contentName': 'meta.type-signature.manifold'
+        'beginCaptures':
+          '2':
+            'patterns': [
+              {
+                'include': '#type_ctor'
+              }
+              {
+                'include': '#infix_op'
+              }
+            ]
+          '3':
+            'name': 'keyword.other.colon.manifold'
+        'patterns': [
+          {
+            'include': '#type_signature'
+          }
+        ]
+      }
+    ]
+  'record_field_declaration':
+    'patterns': [
+      {
+        'name': 'meta.record-field.type-declaration.manifold'
+        'begin': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(?:(?:((?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\)))(?:(?:\\s*,\\s*)(?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\))))*)\\s*((?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))))'
+        'end': '(?=(?:(?:((?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\)))(?:(?:\\s*,\\s*)(?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\))))*)\\s*((?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))))|})'
+        'contentName': 'meta.type-signature.manifold'
+        'beginCaptures':
+          '1':
+            'patterns': [
+              {
+                'include': '#attribute_name'
+              }
+              {
+                'include': '#infix_op'
+              }
+            ]
+          '2':
+            'name': 'keyword.other.colon.manifold'
+        'patterns': [
+          {
+            'include': '#type_signature'
+          }
+        ]
+      }
+    ]
+  'type_signature':
+    'patterns': [
+      {
+        'include': '#pragma'
+      }
+      {
+        'include': '#comments'
+      }
+      {
+        'name': 'keyword.other.forall.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))forall(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+      }
+      {
+        'match': '\'(\\(\\))'
+        'name': 'constant.language.unit.promoted.manifold'
+        'captures':
+          '1':
+            'patterns': [
+              {
+                'include': '#unit'
+              }
+            ]
+      }
+      {
+        'include': '#unit'
+      }
+      {
+        'match': '\'(\\[\\])'
+        'name': 'constant.language.empty-list.promoted.manifold'
+        'captures':
+          '1':
+            'patterns': [
+              {
+                'include': '#empty_list'
+              }
+            ]
+      }
+      {
+        'include': '#empty_list'
+      }
+      {
+        'include': '#string'
+      }
+      {
+        'name': 'keyword.other.arrow.manifold'
+        'match': '(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?:->|→)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))'
+      }
+      {
+        'name': 'keyword.other.big-arrow.manifold'
+        'match': '(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?:=>|⇒)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))'
+      }
+      {
+        'match': '\'((?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+)'
+        'name': 'keyword.operator.promoted.manifold'
+        'captures':
+          '1':
+            'patterns': [
+              {
+                'include': '#operator'
+              }
+            ]
+      }
+      {
+        'include': '#operator'
+      }
+      {
+        'name': 'variable.other.generic-type.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+      }
+      {
+        'name': 'entity.name.type.promoted.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}\'])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))\'([\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'captures':
+          '1':
+            'patterns': [
+              {
+                'include': '#type_name'
+              }
+            ]
+      }
+      {
+        'include': '#type_name'
+      }
+      {
+        'include': '#lit_num'
+      }
+    ]
+  'unit':
+    'patterns': [
+      {
+        'name': 'constant.language.unit.manifold'
+        'match': '\\(\\)'
+      }
+    ]
+  'empty_list':
+    'patterns': [
+      {
+        'name': 'constant.language.empty-list.manifold'
+        'match': '\\[\\]'
+      }
+    ]
+  'deriving':
+    'patterns': [
+      {
+        'include': '#deriving_list'
+      }
+      {
+        'include': '#deriving_simple'
+      }
+      {
+        'include': '#deriving_keyword'
+      }
+    ]
+  'deriving_keyword':
+    'patterns': [
+      {
+        'name': 'meta.deriving.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(deriving)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'captures':
+          '1':
+            'name': 'keyword.other.manifold'
+      }
+    ]
+  'deriving_list':
+    'patterns': [
+      {
+        'name': 'meta.deriving.manifold'
+        'begin': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(deriving)\\s*\\('
+        'end': '\\)'
+        'beginCaptures':
+          '1':
+            'name': 'keyword.other.manifold'
+        'patterns': [
+          {
+            'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))([\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+            'captures':
+              '1':
+                'name': 'entity.other.inherited-class.manifold'
+          }
+        ]
+      }
+    ]
+  'deriving_simple':
+    'patterns': [
+      {
+        'name': 'meta.deriving.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(deriving)\\s*([\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'captures':
+          '1':
+            'name': 'keyword.other.manifold'
+          '2':
+            'name': 'entity.other.inherited-class.manifold'
+      }
+    ]
+  'infix_function':
+    'patterns': [
+      {
+        'name': 'keyword.operator.function.infix.manifold'
+        'match': '(`)(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(`)'
+        'captures':
+          '1':
+            'name': 'punctuation.definition.entity.manifold'
+          '2':
+            'name': 'punctuation.definition.entity.manifold'
+      }
+    ]
+  'quasi_quotes':
+    'patterns': [
+      {
+        'begin': '(\\[)((?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)(\\|)'
+        'end': '(\\|)(\\])'
+        'beginCaptures':
+          '1':
+            'name': 'punctuation.definition.quasiquotes.begin.manifold'
+          '2':
+            'name': 'entity.name.tag.manifold'
+            'patterns': [
+              {
+                'include': '#module_name_prefix'
+              }
+            ]
+        'endCaptures':
+          '2':
+            'name': 'punctuation.definition.quasiquotes.end.manifold'
+        'contentName': 'quoted.quasiquotes.manifold'
+      }
+    ]
+  'module_decl':
+    'patterns': [
+      {
+        'name': 'meta.declaration.module.manifold'
+        'begin': '^([ \\t]*)(module)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'end': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(where)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))|^(?!\\1[ \\t]|[ \\t]*$)'
+        'beginCaptures':
+          '2':
+            'name': 'keyword.other.manifold'
+        'endCaptures':
+          '1':
+            'name': 'keyword.other.manifold'
+        'patterns': [
+          {
+            'include': '#comments'
+          }
+          {
+            'include': '#module_name'
+          }
+          {
+            'include': '#module_exports'
+          }
+          {
+            'include': '#invalid'
+          }
+        ]
+      }
+    ]
+  'hsig_decl':
+    'patterns': [
+      {
+        'name': 'meta.declaration.module.manifold'
+        'begin': '^([ \\t]*)(signature)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'end': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(where)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))|^(?!\\1[ \\t]|[ \\t]*$)'
+        'beginCaptures':
+          '2':
+            'name': 'keyword.other.manifold'
+        'endCaptures':
+          '1':
+            'name': 'keyword.other.manifold'
+        'patterns': [
+          {
+            'include': '#comments'
+          }
+          {
+            'include': '#module_name'
+          }
+          {
+            'include': '#module_exports'
+          }
+          {
+            'include': '#invalid'
+          }
+        ]
+      }
+    ]
+  'class_decl':
+    'patterns': [
+      {
+        'name': 'meta.declaration.class.manifold'
+        'begin': '^([ \\t]*)(class)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'end': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(where)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))|^(?!\\1[ \\t]|[ \\t]*$)'
+        'beginCaptures':
+          '2':
+            'name': 'keyword.other.class.manifold'
+        'endCaptures':
+          '1':
+            'name': 'keyword.other.manifold'
+        'patterns': [
+          {
+            'include': '#type_signature'
+          }
+        ]
+      }
+    ]
+  'instance_decl':
+    'patterns': [
+      {
+        'name': 'meta.declaration.instance.manifold'
+        'begin': '^([ \\t]*)(instance)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'end': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(where)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))|^(?!\\1[ \\t]|[ \\t]*$)'
+        'contentName': 'meta.type-signature.manifold'
+        'beginCaptures':
+          '2':
+            'name': 'keyword.other.manifold'
+        'endCaptures':
+          '1':
+            'name': 'keyword.other.manifold'
+        'patterns': [
+          {
+            'include': '#pragma'
+          }
+          {
+            'include': '#type_signature'
+          }
+        ]
+      }
+    ]
+  'deriving_instance_decl':
+    'patterns': [
+      {
+        'name': 'meta.declaration.instance.deriving.manifold'
+        'begin': '^([ \\t]*)(deriving\\s+instance)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'end': '^(?!\\1[ \\t]|[ \\t]*$)'
+        'contentName': 'meta.type-signature.manifold'
+        'beginCaptures':
+          '2':
+            'name': 'keyword.other.manifold'
+        'patterns': [
+          {
+            'include': '#pragma'
+          }
+          {
+            'include': '#type_signature'
+          }
+        ]
+      }
+    ]
+  'foreign_import':
+    'patterns': [
+      {
+        'name': 'meta.foreign.manifold'
+        'begin': '^([ \\t]*)(foreign)\\s+(import|export)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'end': '^(?!\\1[ \\t]|[ \\t]*$)'
+        'beginCaptures':
+          '2':
+            'name': 'keyword.other.manifold'
+          '3':
+            'name': 'keyword.other.manifold'
+        'patterns': [
+          {
+            'match': '(?:un)?safe'
+            'captures':
+              '0':
+                'name': 'keyword.other.manifold'
+          }
+          {
+            'include': '#function_type_declaration'
+          }
+          {
+            'include': '#haskell_expr'
+          }
+          {
+            'include': '#comments'
+          }
+        ]
+      }
+    ]
+  'regular_import':
+    'patterns': [
+      {
+        'name': 'meta.import.manifold'
+        'begin': '^([ \\t]*)(import)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'end': '^(?!\\1[ \\t]|[ \\t]*$)'
+        'beginCaptures':
+          '2':
+            'name': 'keyword.other.manifold'
+        'patterns': [
+          {
+            'include': '#module_name'
+          }
+          {
+            'include': '#module_exports'
+          }
+          {
+            'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(qualified|as|hiding)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+            'captures':
+              '1':
+                'name': 'keyword.other.manifold'
+          }
+          {
+            'include': '#comments'
+          }
+        ]
+      }
+    ]
+  'data_decl':
+    'patterns': [
+      {
+        'name': 'meta.declaration.type.data.manifold'
+        'begin': '^([ \\t]*)(data|newtype)\\s+((?:(?!(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?:=|--+)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))|(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))where(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))|{-).|{-.*?-})*)'
+        'end': '^(?!\\1[ \\t]|[ \\t]*$)'
+        'beginCaptures':
+          '2':
+            'name': 'keyword.other.data.manifold'
+          '3':
+            'name': 'meta.type-signature.manifold'
+            'patterns': [
+              {
+                'include': '#family_and_instance'
+              }
+              {
+                'include': '#type_signature'
+              }
+            ]
+        'patterns': [
+          {
+            'include': '#comments'
+          }
+          {
+            'include': '#where'
+          }
+          {
+            'include': '#deriving'
+          }
+          {
+            'include': '#assignment_op'
+          }
+          {
+            'match': '(?:(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))([\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*)\\s*)(?:((?:(?!deriving)(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:(?!deriving)(?:[\\w()\'→⇒\\[\\],]|->|=>)+\\s*)+))(?:(?:\\s+)(?:(?!deriving)(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*|(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:(?!deriving)(?:[\\w()\'→⇒\\[\\],]|->|=>)+\\s*)+)))*)?))'
+            'captures':
+              '1':
+                'patterns': [
+                  {
+                    'include': '#type_ctor'
+                  }
+                ]
+              '2':
+                'name': 'meta.type-signature.manifold'
+                'patterns': [
+                  {
+                    'include': '#type_signature'
+                  }
+                ]
+          }
+          {
+            'match': '\\|'
+            'captures':
+              '0':
+                'name': 'punctuation.separator.pipe.manifold'
+          }
+          {
+            'name': 'meta.declaration.type.data.record.block.manifold'
+            'begin': '\\{'
+            'beginCaptures':
+              '0':
+                'name': 'keyword.operator.record.begin.manifold'
+            'end': '\\}'
+            'endCaptures':
+              '0':
+                'name': 'keyword.operator.record.end.manifold'
+            'patterns': [
+              {
+                'include': '#comments'
+              }
+              {
+                'include': '#comma'
+              }
+              {
+                'include': '#record_field_declaration'
+              }
+            ]
+          }
+          {
+            'include': '#ctor_type_declaration'
+          }
+        ]
+      }
+    ]
+  'type_alias':
+    'patterns': [
+      {
+        'name': 'meta.declaration.type.type.manifold'
+        'begin': '^([ \\t]*)(type)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'end': '^(?!\\1[ \\t]|[ \\t]*$)'
+        'contentName': 'meta.type-signature.manifold'
+        'beginCaptures':
+          '2':
+            'name': 'keyword.other.type.manifold'
+        'patterns': [
+          {
+            'include': '#comments'
+          }
+          {
+            'include': '#family_and_instance'
+          }
+          {
+            'include': '#where'
+          }
+          {
+            'include': '#assignment_op'
+          }
+          {
+            'include': '#type_signature'
+          }
+        ]
+      }
+    ]
+  'keywords':
+    'patterns': [
+      {
+        'name': 'keyword.other.$1.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(deriving|where|data|type|newtype)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+      }
+      {
+        'name': 'keyword.operator.$1.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(infix[lr]?)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+      }
+      {
+        'name': 'keyword.control.$1.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(do|if|then|else|case|of|let|in|default|mdo|rec|proc)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+      }
+    ]
+  'c_preprocessor':
+    'patterns': [
+      {
+        'name': 'meta.preprocessor.c.manifold'
+        'begin': '^(?=#)'
+        'end': '(?<!\\\\)(?=$)'
+        'patterns': [
+          {
+            'match': '^#\\S+'
+            'name': 'keyword.control.c.manifold'
+          }
+        ]
+      }
+    ]
+  'string':
+    'patterns': [
+      {
+        'name': 'string.quoted.double.manifold'
+        'begin': '"'
+        'end': '"'
+        'beginCaptures':
+          '0':
+            'name': 'punctuation.definition.string.begin.manifold'
+        'endCaptures':
+          '0':
+            'name': 'punctuation.definition.string.end.manifold'
+        'patterns': [
+          {
+            'include': '#characters'
+          }
+          {
+            'begin': '\\\\\\s'
+            'end': '\\\\'
+            'beginCaptures':
+              '0':
+                'name': 'markup.other.escape.newline.begin.manifold'
+            'endCaptures':
+              '0':
+                'name': 'markup.other.escape.newline.end.manifold'
+            'patterns': [
+              {
+                'include': '#invalid'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  'newline_escape':
+    'patterns': [
+      {
+        'name': 'markup.other.escape.newline.manifold'
+        'match': '\\\\$'
+      }
+    ]
+  'quoted_character':
+    'patterns': [
+      {
+        'name': 'string.quoted.single.manifold'
+        'match': '(\')((?:[\\ -\\[\\]-~]|\\\\(?:NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC1|DC2|DC3|DC4|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|[abfnrtv\\\\\\"\'\\&])|(?:\\\\o[0-7]+)|(?:\\\\x[0-9A-Fa-f]+)|(?:\\\\\\^[A-Z@\\[\\]\\\\^_])|(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))(\')'
+        'captures':
+          '1':
+            'name': 'punctuation.definition.string.begin.manifold'
+          '2':
+            'patterns': [
+              {
+                'include': '#characters'
+              }
+            ]
+          '3':
+            'name': 'punctuation.definition.string.end.manifold'
+      }
+    ]
+  'scoped_type':
+    'patterns': [
+      {
+        'match': '\\(((?<paren>(?:(?!\\(|\\)).|\\(\\g<paren>\\))*)(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))(?<paren2>(?:(?!\\(|\\)).|\\(\\g<paren2>\\))*))\\)'
+        'captures':
+          '1':
+            'patterns': [
+              {
+                'include': '#haskell_expr'
+              }
+            ]
+      }
+      {
+        'match': '((?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))((?:(?!{-|(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?:<-|=|--+)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))|$).|{-.*?-})*)'
+        'captures':
+          '1':
+            'name': 'keyword.other.colon.manifold'
+          '2':
+            'name': 'meta.type-signature.manifold'
+            'patterns': [
+              {
+                'include': '#type_signature'
+              }
+            ]
+      }
+    ]
+  'scoped_type_override':
+    'patterns': [
+      {
+        'match': '^([ \\t]*)(?:(?:((?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\)))(?:(?:\\s*,\\s*)(?:(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*|(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\))))*)\\s*((?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?::)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))))((?:(?!{-|(?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?:--+)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))))).|{-.*?-})*)((?:(?<!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))(?:<-|=)(?!(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\'])))))'
+        'captures':
+          '2':
+            'patterns': [
+              {
+                'include': '#identifier'
+              }
+            ]
+          '3':
+            'name': 'keyword.other.colon.manifold'
+          '4':
+            'name': 'meta.type-signature.manifold'
+            'patterns': [
+              {
+                'include': '#type_signature'
+              }
+            ]
+          '5':
+            'patterns': [
+              {
+                'include': '#assignment_op'
+              }
+              {
+                'include': '#operator'
+              }
+            ]
+      }
+    ]
+  'comma':
+    'patterns': [
+      {
+        'name': 'punctuation.separator.comma.manifold'
+        'match': ','
+      }
+    ]
+  'lit_num':
+    'patterns': [
+      {
+        'name': 'constant.numeric.hexfloat.manifold'
+        'match': '0[xX][0-9a-fA-F_]*(?:\\.[0-9a-fA-F_]+(?:[pP][+-]?[0-9_]+)?|[pP][+-]?[0-9_]+)'
+      }
+      {
+        'name': 'constant.numeric.hexadecimal.manifold'
+        'match': '0[xX][_0-9a-fA-F]+'
+      }
+      {
+        'name': 'constant.numeric.octal.manifold'
+        'match': '0[oO][_0-7]+'
+      }
+      {
+        'name': 'constant.numeric.binary.manifold'
+        'match': '0[bB][_01]+'
+      }
+      {
+        'name': 'constant.numeric.float.manifold'
+        'match': '[0-9][0-9_]*(?:\\.[0-9_]+(?:[eE][+-]?[0-9_]+)?|[eE][+-]?[0-9_]+)'
+      }
+      {
+        'name': 'constant.numeric.decimal.manifold'
+        'match': '[0-9][_0-9]*'
+      }
+    ]
+  'operator':
+    'patterns': [
+      {
+        'name': 'keyword.operator.manifold'
+        'match': '(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+'
+        'captures':
+          '0':
+            'patterns': [
+              {
+                'include': '#module_name_prefix'
+              }
+              {
+                'name': 'support.operator.prelude.manifold'
+                'match': '^(\\!\\!|\\$\\!|\\$|\\&\\&|\\*|\\*\\*|\\*\\>|\\+|\\+\\+|\\-|\\.|\\/|\\/\\=|\\<\\$|\\<\\$\\>|\\<|\\<\\*|\\<\\*\\>|\\<\\=|\\=\\<\\<|\\=\\=|\\>|\\>\\=|\\>\\>|\\>\\>\\=|\\^|\\^\\^|\\|\\|)$'
+              }
+            ]
+      }
+    ]
+  'infix_op':
+    'patterns': [
+      {
+        'name': 'entity.name.function.operator.manifold'
+        'match': '(?:\\((?!--+\\))(?:(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?(?:[\\p{S}\\p{P}](?<![(),;\\[\\]`{}_"\']))+\\))'
+        'captures':
+          '0':
+            'patterns': [
+              {
+                'include': '#module_name_prefix'
+              }
+              {
+                'name': 'support.operator.prelude.manifold'
+                'match': '^\\((\\!\\!|\\$\\!|\\$|\\&\\&|\\*|\\*\\*|\\*\\>|\\+|\\+\\+|\\-|\\.|\\/|\\/\\=|\\<\\$|\\<\\$\\>|\\<|\\<\\*|\\<\\*\\>|\\<\\=|\\=\\<\\<|\\=\\=|\\>|\\>\\=|\\>\\>|\\>\\>\\=|\\^|\\^\\^|\\|\\|)\\)$'
+              }
+            ]
+      }
+    ]
+  'identifier':
+    'patterns': [
+      {
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'name': 'identifier.manifold'
+        'captures':
+          '0':
+            'patterns': [
+              {
+                'include': '#module_name_prefix'
+              }
+              {
+                'name': 'support.function.prelude.$1.manifold'
+                'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(abs|acos|acosh|all|and|any|appendFile|asTypeOf|asin|asinh|atan|atan2|atanh|break|ceiling|compare|concat|concatMap|const|cos|cosh|curry|cycle|decodeFloat|div|divMod|drop|dropWhile|either|elem|encodeFloat|enumFrom|enumFromThen|enumFromThenTo|enumFromTo|error|errorWithoutStackTrace|even|exp|exponent|fail|filter|flip|floatDigits|floatRadix|floatRange|floor|fmap|foldMap|foldl|foldl1|foldr|foldr1|fromEnum|fromInteger|fromIntegral|fromRational|fst|gcd|getChar|getContents|getLine|head|id|init|interact|ioError|isDenormalized|isIEEE|isInfinite|isNaN|isNegativeZero|iterate|last|lcm|length|lex|lines|log|logBase|lookup|map|mapM|mapM_|mappend|max|maxBound|maximum|maybe|mconcat|mempty|min|minBound|minimum|mod|negate|not|notElem|null|odd|or|otherwise|pi|pred|print|product|properFraction|pure|putChar|putStr|putStrLn|quot|quotRem|read|readFile|readIO|readList|readLn|readParen|reads|readsPrec|realToFrac|recip|rem|repeat|replicate|return|reverse|round|scaleFloat|scanl|scanl1|scanr|scanr1|seq|sequence|sequenceA|sequence_|show|showChar|showList|showParen|showString|shows|showsPrec|significand|signum|sin|sinh|snd|span|splitAt|sqrt|subtract|succ|sum|tail|take|takeWhile|tan|tanh|toEnum|toInteger|toRational|traverse|truncate|uncurry|undefined|unlines|until|unwords|unzip|unzip3|userError|words|writeFile|zip|zip3|zipWith|zipWith3)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+              }
+            ]
+      }
+    ]
+  'type_name':
+    'patterns': [
+      {
+        'name': 'entity.name.type.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'captures':
+          '0':
+            'patterns': [
+              {
+                'include': '#module_name_prefix'
+              }
+              {
+                'name': 'entity.other.inherited-class.prelude.$1.manifold'
+                'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(Applicative|Bounded|Enum|Eq|Floating|Foldable|Fractional|Functor|Integral|Monad|Monoid|Num|Ord|Read|Real|RealFloat|RealFrac|Show|Traversable)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+              }
+              {
+                'name': 'support.class.prelude.$1.manifold'
+                'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(Either|FilePath|IO|IOError|Integer|Ordering|Rational|ReadS|ShowS|String|Bool|Char|Double|Float|Int|Just|Maybe|Nothing|Word)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+              }
+            ]
+      }
+    ]
+  'type_ctor':
+    'patterns': [
+      {
+        'name': 'entity.name.tag.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'captures':
+          '0':
+            'patterns': [
+              {
+                'include': '#module_name_prefix'
+              }
+              {
+                'name': 'support.tag.prelude.$1.manifold'
+                'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(EQ|GT|LT|Left|Right|True|False)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+              }
+            ]
+      }
+    ]
+  'where':
+    'patterns': [
+      {
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))where(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'name': 'keyword.other.manifold'
+      }
+    ]
+  'family_and_instance':
+    'patterns': [
+      {
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(family|instance)(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'name': 'keyword.other.manifold'
+      }
+    ]
+  'invalid':
+    'patterns': [
+      {
+        'match': '\\S+'
+        'name': 'invalid.illegal.character-not-allowed-here.manifold'
+      }
+    ]
+  'function_name':
+    'patterns': [
+      {
+        'name': 'entity.name.function.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+        'captures':
+          '0':
+            'patterns': [
+              {
+                'include': '#module_name_prefix'
+              }
+            ]
+      }
+    ]
+  'assignment_op':
+    'patterns': [
+      {
+        'match': '='
+        'captures':
+          '0':
+            'name': 'keyword.operator.assignment.manifold'
+      }
+    ]
+  'attribute_name':
+    'patterns': [
+      {
+        'name': 'entity.other.attribute-name.manifold'
+        'match': '(?:(?=[\\p{Ll}_\\p{Lu}\\p{Lt}])(?<![\\p{Ll}_\\p{Lu}\\p{Lt}\']))(?:[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:\\.[\\p{Lu}\\p{Lt}][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*)*\\.)?[\\p{Ll}_][\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']*(?:(?<=[\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\'])(?![\\p{Ll}_\\p{Lu}\\p{Lt}\\p{Nd}\']))'
+      }
+    ]
+  'liquidhaskell_annotation':
+    'patterns': [
+      {
+        'name': 'block.liquidhaskell.manifold'
+        'contentName': 'block.liquidhaskell.annotation.manifold'
+        'begin': '\\{-@(?!#)'
+        'end': '@-\\}'
+        'patterns': [
+          {
+            'include': 'annotation.liquidhaskell.manifold'
+          }
+        ]
+      }
+    ]
+  'shebang':
+    'patterns': [
+      {
+        'name': 'comment.line.shebang.manifold'
+        'match': '^\\#\\!.*\\brunhaskell\\b.*$'
+      }
+    ]
+  'haskell_expr':
+    'patterns': [
+      {
+        'include': '#infix_function'
+      }
+      {
+        'include': '#unit'
+      }
+      {
+        'include': '#empty_list'
+      }
+      {
+        'include': '#quasi_quotes'
+      }
+      {
+        'include': '#keywords'
+      }
+      {
+        'include': '#pragma'
+      }
+      {
+        'include': '#string'
+      }
+      {
+        'include': '#newline_escape'
+      }
+      {
+        'include': '#quoted_character'
+      }
+      {
+        'include': '#comments'
+      }
+      {
+        'include': '#infix_op'
+      }
+      {
+        'include': '#comma'
+      }
+      {
+        'include': '#lit_num'
+      }
+      {
+        'include': '#scoped_type'
+      }
+      {
+        'include': '#operator'
+      }
+      {
+        'include': '#identifier'
+      }
+      {
+        'include': '#type_ctor'
+      }
+    ]
+  'common_toplevel':
+    'patterns': [
+      {
+        'include': '#class_decl'
+      }
+      {
+        'include': '#instance_decl'
+      }
+      {
+        'include': '#deriving_instance_decl'
+      }
+      {
+        'include': '#foreign_import'
+      }
+      {
+        'include': '#regular_import'
+      }
+      {
+        'include': '#data_decl'
+      }
+      {
+        'include': '#type_alias'
+      }
+      {
+        'include': '#c_preprocessor'
+      }
+    ]
+  'function_type_declaration_with_scoped_type':
+    'patterns': [
+      {
+        'include': '#scoped_type_override'
+      }
+      {
+        'include': '#function_type_declaration'
+      }
+      {
+        'include': '#multiline_type_declaration'
+      }
+    ]
+  'haskell_toplevel':
+    'patterns': [
+      {
+        'include': '#liquidhaskell_annotation'
+      }
+      {
+        'include': '#common_toplevel'
+      }
+      {
+        'include': '#function_type_declaration_with_scoped_type'
+      }
+      {
+        'include': '#haskell_expr'
+      }
+    ]
+  'hsig_toplevel':
+    'patterns': [
+      {
+        'include': '#common_toplevel'
+      }
+      {
+        'include': '#function_type_declaration'
+      }
+      {
+        'include': '#lazy_function_type_signature'
+      }
+      {
+        'include': '#comments'
+      }
+    ]
+  'haskell_source':
+    'patterns': [
+      {
+        'include': '#shebang'
+      }
+      {
+        'include': '#module_decl'
+      }
+      {
+        'include': '#haskell_toplevel'
+      }
+    ]
+  'hsig_source':
+    'patterns': [
+      {
+        'include': '#hsig_decl'
+      }
+      {
+        'include': '#hsig_toplevel'
+      }
+    ]
+'patterns': [
+  {
+    'include': '#haskell_source'
+  }
+]
