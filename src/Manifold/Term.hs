@@ -58,6 +58,10 @@ exr :: Term var -> Term var
 exr = elim . ExR
 
 
+dataC :: Name -> [Term var] -> Term var
+dataC c ts = intro (Data c ts)
+
+
 makeLet :: var -> Term var -> Term var -> Term var
 makeLet var value body = makeAbs var body # value
 
