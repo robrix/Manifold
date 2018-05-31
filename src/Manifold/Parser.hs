@@ -45,6 +45,7 @@ parseFile (Parser p) = Trifecta.parseFromFile (evalIndentationParserT p indentat
 parseString :: Parser a -> String -> Either String a
 parseString (Parser p) = toResult . Trifecta.parseString (evalIndentationParserT p indentation) mempty
 
+indentation :: IndentationState
 indentation = mkIndentationState 0 infIndentation False Eq
 
 toResult :: Trifecta.Result a -> Either String a
