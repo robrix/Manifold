@@ -23,6 +23,10 @@ declarationSignature :: Declaration var def -> Constraint var (Type var)
 declarationSignature (Binding sig _) = sig
 declarationSignature (Datatype sig _) = sig
 
+declarationSignatures :: Declaration var def -> [Constraint var (Type var)]
+declarationSignatures (Binding sig _) = [sig]
+declarationSignatures (Datatype sig constructors) = sig : constructors
+
 declarationName :: Named var => Declaration var def -> Name
 declarationName = constraintName . declarationSignature
 
