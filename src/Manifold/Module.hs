@@ -1,6 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Manifold.Module where
 
+import Control.Monad ((<=<))
 import Data.List
 import qualified Data.Map as Map
 import Data.Semilattice.Lower
@@ -18,7 +19,7 @@ data Module var def = Module
   deriving (Eq, Ord, Show)
 
 moduleExports :: Module var def -> [Constraint var (Type var)]
-moduleExports = map declarationSignature . moduleDeclarations
+moduleExports = declarationSignatures <=< moduleDeclarations
 
 instance (Pretty var, Pretty def) => Pretty (Module var def) where
   prettyPrec _ (Module name imports decls)
