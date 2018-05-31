@@ -11,6 +11,7 @@ module Manifold.Parser
 ) where
 
 import Control.Applicative (Alternative(..))
+import Control.Monad (MonadPlus)
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.HashSet as HashSet
 import Manifold.Constraint
@@ -25,11 +26,12 @@ import Text.Parser.Combinators
 import Text.Parser.Token
 import Text.Parser.Token.Highlight
 import Text.Parser.Token.Style
+import Text.Trifecta hiding (Parser, parseString)
 import qualified Text.Trifecta as Trifecta
 import Text.Trifecta.Indentation
 
 newtype Parser f a = Parser { runParser :: f a }
-  deriving (Alternative, Applicative, CharParsing, Functor, IndentationParsing, Monad, Parsing)
+  deriving (Alternative, Applicative, CharParsing, DeltaParsing, Functor, IndentationParsing, Monad, MonadPlus, Parsing)
 
 instance TokenParsing f => TokenParsing (Parser f) where
   someSpace = Parser $ buildSomeSpaceParser someSpace haskellCommentStyle
