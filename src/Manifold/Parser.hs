@@ -63,9 +63,9 @@ import' = keyword "import" *> moduleName
 declaration :: (Monad m, TokenParsing m) => m (Declaration Name (Term.Term Name))
 declaration = runUnlined (do
   name <- identifier
-  ty' <- colon *> type' <* some newline
+  ty <- colon *> type' <* some newline
   body <- token (highlight Identifier (string name)) *> op "=" *> term <* some newline
-  pure (Binding (N name ::: ty') body))
+  pure (Binding (N name ::: ty) body))
 
 
 term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m (Term.Term Name)
