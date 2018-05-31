@@ -73,6 +73,12 @@ a .* b = tintroT (a :* b)
 infixl 7 .*
 
 
+(#) :: Type var -> Type var -> Type var
+f # a = telim (App f a)
+
+infixl 9 #
+
+
 instance Foldable Type where
   foldMap f = bifoldMap (bifoldMap f (foldMap f)) (foldMap f) . unType
 

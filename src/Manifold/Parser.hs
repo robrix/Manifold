@@ -132,7 +132,7 @@ tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple
 constraint :: (Monad m, TokenParsing m) => m (Constraint Name (Type.Type Name))
 constraint = (:::) <$> name <* colon <*> type'
 
-type', piType, product, boolT, unitT, typeT, typeC, tvar :: (Monad m, TokenParsing m) => m (Type.Type Name)
+type', piType, product, typeApplication, boolT, unitT, typeT, typeC, tvar :: (Monad m, TokenParsing m) => m (Type.Type Name)
 
 type' = piType
 
@@ -141,7 +141,9 @@ piType = (Type..->) <$> parens constraint <* op "->" <*> piType
   where makePi ty1 Nothing = ty1
         makePi ty1 (Just ty2) = I (-1) ::: ty1 Type..-> ty2
 
-product = atom `chainl1` ((Type..*) <$ symbolic '*') <?> "product type"
+product = typeApplication `chainl1` ((Type..*) <$ symbolic '*') <?> "product type"
+
+typeApplication = atom `chainl1` pure (Type.#) <?> "type application"
   where atom = choice [ boolT, unitT, typeT, typeC, tvar ]
 
 -- $
