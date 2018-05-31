@@ -169,7 +169,7 @@ pattern, name, constructorName, moduleName :: (Monad m, TokenParsing m) => m Nam
 pattern = name <|> I (-1) <$ token (string "_")
 
 name = N <$> identifier
-constructorName = N <$> typeIdentifier
+constructorName = N <$> typeIdentifier <?> "constructor name"
 
 moduleName = token (runUnspaced name')
   where name' = makeN <$> typeIdentifier <*> optional (dot *> name')
@@ -178,8 +178,8 @@ moduleName = token (runUnspaced name')
 
 identifier, typeIdentifier :: (Monad m, TokenParsing m) => m String
 
-identifier     = ident (IdentifierStyle "identifier" lower alphaNum reservedWords Identifier ReservedIdentifier)
-typeIdentifier = ident (IdentifierStyle "type identifier" upper alphaNum reservedWords Identifier ReservedIdentifier)
+identifier     = ident (IdentifierStyle "identifier" lower alphaNum reservedWords Identifier ReservedIdentifier) <?> "identifier"
+typeIdentifier = ident (IdentifierStyle "type identifier" upper alphaNum reservedWords Identifier ReservedIdentifier) <?> "type identifier"
 
 reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where", "import", "data" ]
