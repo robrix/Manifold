@@ -55,6 +55,6 @@ runEnv :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage 
 runEnv = runReader emptyContext
 
 
-newtype Environment = Environment { unEnvironment :: [Binding] }
+type Environment = Context Name Value
 
 data Binding = Name := Value
