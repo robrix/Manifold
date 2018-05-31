@@ -8,6 +8,7 @@ import Data.Maybe (fromMaybe)
 import Data.Trifoldable
 import Data.Trifunctor
 import Manifold.Constraint
+import Manifold.Constructor
 import Manifold.Name
 import Manifold.Pretty
 import Manifold.Substitution
@@ -57,6 +58,9 @@ unitT = tintroT UnitT
 
 boolT :: Type var
 boolT = tintroT BoolT
+
+typeC :: Constructor -> [Type var] -> Type var
+typeC c ts = tintroT (TypeC c ts)
 
 
 (.->) :: Constraint var (Type var) -> Type var -> Type var
