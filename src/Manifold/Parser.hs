@@ -72,11 +72,11 @@ declaration, binding, dataType :: (Monad m, TokenParsing m) => m (Declaration Na
 
 declaration = choice [ binding, dataType ]
 
-binding = runUnlined (do
+binding = runUnlined $ do
   name <- identifier
   ty <- colon *> type' <* some newline
   body <- token (highlight Identifier (string name)) *> op "=" *> term <* some newline
-  pure (Binding (N name ::: ty) body))
+  pure (Binding (N name ::: ty) body)
 
 dataType = runUnlined $ do
   name <- keyword "data" *> constructorName
