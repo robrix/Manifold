@@ -2,4 +2,4 @@ module Prelude where
 
 import Base.Function
 
-data Void : Type
+data Void : Type {}

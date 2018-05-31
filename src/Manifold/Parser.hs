@@ -79,15 +79,15 @@ binding = runUnlined $ do
   pure (Binding (N name ::: ty) body)
   <?> "binding"
 
-dataType = runUnlined $
+dataType =
   Datatype <$> ((:::) <$ keyword "data" <*> constructorName <* colon <*> type')
-           <*> ([] <$ some nl <|> keyword "where" *> token nl *> many (constructor <* token nl))
+           <*> braces (constructor `sepBy` semi)
            <?> "datatype"
-  where constructor = (:::) <$> constructorName <* colon <*> type' <* token nl
+  where constructor = (:::) <$> constructorName <* colon <*> type' <?> "constructor"
 
 
-nl :: CharParsing m => m Char
-nl = newline <?> "newline"
+nl :: TokenParsing m => m Char
+nl = token newline <?> "newline"
 
 
 term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m (Term.Term Name)
