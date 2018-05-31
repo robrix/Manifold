@@ -28,20 +28,21 @@ import Text.Parser.Token.Highlight
 import Text.Parser.Token.Style
 import Text.Trifecta hiding (Parser, parseString)
 import qualified Text.Trifecta as Trifecta
+import Text.Trifecta.Delta
 import Text.Trifecta.Indentation
 
-newtype Parser f a = Parser { runParser :: f a }
-  deriving (Alternative, Applicative, CharParsing, DeltaParsing, Functor, IndentationParsing, Monad, MonadPlus, Parsing)
+newtype Parser a = Parser { runParser :: Trifecta.Parser a }
+  deriving (Alternative, Applicative, CharParsing, DeltaParsing, Functor, MarkParsing Delta, Monad, MonadPlus, Parsing)
 
-instance TokenParsing f => TokenParsing (Parser f) where
+instance TokenParsing Parser where
   someSpace = Parser $ buildSomeSpaceParser someSpace haskellCommentStyle
   nesting = Parser . nesting . runParser
   highlight h = Parser . highlight h . runParser
 
-parseFile :: MonadIO m => Parser Trifecta.Parser a -> FilePath -> m (Maybe a)
+parseFile :: MonadIO m => Parser a -> FilePath -> m (Maybe a)
 parseFile (Parser p) = Trifecta.parseFromFile p
 
-parseString :: Parser Trifecta.Parser a -> String -> Either String a
+parseString :: Parser a -> String -> Either String a
 parseString (Parser p) = toResult . Trifecta.parseString p mempty
 
 toResult :: Trifecta.Result a -> Either String a

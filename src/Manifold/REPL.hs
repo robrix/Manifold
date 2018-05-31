@@ -30,7 +30,7 @@ handleInput str = case Parser.parseString command str of
   Left err -> output err *> repl
   Right action -> action
 
-command :: (Members '[Prompt, REPL usage] effects, Monoid usage, Pretty usage) => Parser.Parser Trifecta.Parser (Proof usage effects ())
+command :: (Members '[Prompt, REPL usage] effects, Monoid usage, Pretty usage) => Parser.Parser (Proof usage effects ())
 command = whole (meta <|> eval <$> term) <?> "command"
   where meta = colon
           *> ((long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
