@@ -10,6 +10,7 @@ module Manifold.Context
 import Data.Bifunctor
 import Data.List
 import Data.Module.Class
+import Data.Semilattice.Lower
 import Data.Semiring (Semiring(..))
 import Manifold.Constraint
 import Manifold.Name
@@ -17,7 +18,7 @@ import Manifold.Name.Annotated
 import Manifold.Pretty
 
 newtype Context var ty = Context { unContext :: [Constraint var ty] }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Lower, Ord, Show)
 
 contextLookup :: Named var => Name -> Context var ty -> Maybe (Constraint var ty)
 contextLookup name = find ((== name) . constraintName) . unContext
