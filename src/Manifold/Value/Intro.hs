@@ -5,7 +5,6 @@ import Data.Bifoldable
 import Data.Bifunctor
 import Data.Trifoldable
 import Data.Trifunctor
-import Manifold.Constructor
 import Manifold.Pretty
 
 data Intro var scope recur
@@ -13,7 +12,7 @@ data Intro var scope recur
   | Bool Bool
   | Abs var scope
   | Pair recur recur
-  | Data Constructor [recur]
+  | Data var [recur]
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 instance Trifoldable Intro where
@@ -22,7 +21,7 @@ instance Trifoldable Intro where
     Bool _    -> mempty
     Abs v b   -> f v <> g b
     Pair a b  -> h a <> h b
-    Data _ as -> foldMap h as
+    Data c as -> f c <> foldMap h as
 
 instance Trifunctor Intro where
   trimap f g h = \case
@@ -30,7 +29,7 @@ instance Trifunctor Intro where
     Bool b    -> Bool b
     Abs v b   -> f v `Abs` g b
     Pair a b  -> h a `Pair` h b
-    Data c as -> Data c (map h as)
+    Data c as -> Data (f c) (map h as)
 
 instance Bifoldable (Intro var) where
   bifoldMap = trifoldMap (const mempty)

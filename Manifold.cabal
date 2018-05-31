@@ -17,7 +17,6 @@ library
                      , Data.Trifunctor
                      , Manifold.CLI
                      , Manifold.Constraint
-                     , Manifold.Constructor
                      , Manifold.Context
                      , Manifold.Declaration
                      , Manifold.Erasure

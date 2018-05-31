@@ -5,14 +5,13 @@ import Data.Trifoldable
 import Data.Trifunctor
 import Data.Bifoldable
 import Data.Bifunctor
-import Manifold.Constructor
 import Manifold.Pretty
 
 data IntroT var scope recur
   = UnitT
   | BoolT
   | TypeT
-  | TypeC Constructor [recur]
+  | TypeC var [recur]
   | var :-> scope
   | recur :* recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
@@ -23,21 +22,21 @@ infixl 7 :*
 
 instance Trifoldable IntroT where
   trifoldMap f g h = \case
-    UnitT     -> mempty
-    BoolT     -> mempty
-    TypeT     -> mempty
-    TypeC _ as -> foldMap h as
-    v :-> b   -> f v <> g b
-    a :* b    -> h a <> h b
+    UnitT      -> mempty
+    BoolT      -> mempty
+    TypeT      -> mempty
+    TypeC c as -> f c <>foldMap h as
+    v :-> b    -> f v <> g b
+    a :* b     -> h a <> h b
 
 instance Trifunctor IntroT where
   trimap f g h = \case
-    UnitT     -> UnitT
-    BoolT     -> BoolT
-    TypeT     -> TypeT
-    TypeC c as -> TypeC c (map h as)
-    v :-> b   -> f v :-> g b
-    a :* b    -> h a :* h b
+    UnitT      -> UnitT
+    BoolT      -> BoolT
+    TypeT      -> TypeT
+    TypeC c as -> TypeC (f c) (map h as)
+    v :-> b    -> f v :-> g b
+    a :* b     -> h a :* h b
 
 instance Bifoldable (IntroT var) where
   bifoldMap = trifoldMap (const mempty)
