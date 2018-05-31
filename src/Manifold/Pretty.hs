@@ -18,6 +18,10 @@ prettyPrint :: Pretty a => a -> IO ()
 prettyPrint = putStrLn . pretty
 
 
+showSpace :: ShowS -> ShowS
+showSpace s = showChar ' ' . s . showChar ' '
+
+
 instance Pretty ()
 
 instance Pretty a => Pretty [a] where
