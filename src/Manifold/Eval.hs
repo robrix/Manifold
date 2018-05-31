@@ -12,7 +12,7 @@ import Manifold.Term.Elim
 import Manifold.Value (Value(unValue), value)
 import Manifold.Value.Intro
 
-eval :: Member (Reader (Context Name Value)) effects
+eval :: Member (Reader Environment) effects
      => Term Name
      -> Proof usage effects Value
 eval (Term term) = case term of
@@ -47,11 +47,11 @@ eval (Term term) = case term of
             eval e
         _ -> error "branch on non-boolean, should have been caught by typechecker"
 
-askEnv :: Member (Reader (Context Name Value)) effects => Proof usage effects (Context Name Value)
+askEnv :: Member (Reader Environment) effects => Proof usage effects Environment
 askEnv = ask
 
 
-runEnv :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
+runEnv :: Proof usage (Reader Environment ': effects) a -> Proof usage effects a
 runEnv = runReader emptyContext
 
 
