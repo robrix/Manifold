@@ -44,6 +44,10 @@ unify t1 t2
     (IntroT i1, IntroT i2)
       | BoolT   <- i1, BoolT   <- i2 -> pure boolT
       | TypeT   <- i1, TypeT   <- i2 -> pure typeT
+      | TypeC n1 ts1 <- i1
+      , TypeC n2 ts2 <- i2
+      , n1 == n2
+      , length ts1 == length ts2 -> typeC n2 <$> sequenceA (zipWith unify ts1 ts2)
       | v1 ::: t1 :-> b1 <- i1
       , v2 ::: t2 :-> b2 <- i2 -> do
         n' <- I <$> fresh
