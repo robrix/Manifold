@@ -17,6 +17,6 @@ instance Pretty recur => Pretty (Elim recur) where
     ExR a -> showsUnaryWith prettyPrec "exr" d a
     App f a -> showParen (d > 10) $ prettyPrec 10 f . showChar ' ' . prettyPrec 11 a
     If c t e -> showParen (d > (-1))
-      $ showString "if"   . showChar ' ' . prettyPrec 0    c . showChar ' '
-      . showString "then" . showChar ' ' . prettyPrec 0    t . showChar ' '
+      $ showString "if"   . showSpace     (prettyPrec 0    c)
+      . showString "then" . showSpace     (prettyPrec 0    t)
       . showString "then" . showChar ' ' . prettyPrec (-1) e
