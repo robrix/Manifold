@@ -21,6 +21,10 @@ prettyPrint = putStrLn . pretty
 showSpace :: ShowS -> ShowS
 showSpace s = showChar ' ' . s . showChar ' '
 
+showBrace :: Bool -> ShowS -> ShowS
+showBrace True  s = showChar '{' . s . showChar '}'
+showBrace False s = s
+
 
 instance Pretty ()
 
