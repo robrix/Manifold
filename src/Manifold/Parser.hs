@@ -74,15 +74,20 @@ declaration = choice [ binding, dataType ]
 
 binding = runUnlined $ do
   name <- identifier
-  ty <- colon *> type' <* some newline
-  body <- token (highlight Identifier (string name)) *> op "=" *> term <* some newline
+  ty <- colon *> type' <* some nl
+  body <- token (highlight Identifier (string name)) *> op "=" *> term <* some nl
   pure (Binding (N name ::: ty) body)
+  <?> "binding"
 
-dataType = runUnlined (
+dataType = runUnlined $
   Datatype <$> ((:::) <$ keyword "data" <*> constructorName <* colon <*> type')
-           <*> ([] <$ some newline <|> keyword "where" *> token newline *> many (constructor <* token newline)))
-  where constructor = (:::) <$> constructorName <* colon <*> type' <* token newline
+           <*> ([] <$ some nl <|> keyword "where" *> token nl *> many (constructor <* token nl))
+           <?> "datatype"
+  where constructor = (:::) <$> constructorName <* colon <*> type' <* token nl
 
+
+nl :: CharParsing m => m Char
+nl = newline <?> "newline"
 
 
 term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m (Term.Term Name)
@@ -134,8 +139,8 @@ type', piType, product, typeApplication, boolT, unitT, typeT, typeC, tvar :: (Mo
 
 type' = piType
 
-piType = (Type..->) <$> parens constraint <* op "->" <*> piType
-  <|> makePi <$> product <*> optional (op "->" *> piType)
+piType = ((Type..->) <$> parens constraint <* op "->" <*> piType <?> "dependent function type")
+  <|> (makePi <$> product <*> optional (op "->" *> piType) <?> "function type")
   where makePi ty1 Nothing = ty1
         makePi ty1 (Just ty2) = I (-1) ::: ty1 Type..-> ty2
 
@@ -159,19 +164,19 @@ unitT = Type.unitT <$ keyword "Unit"
 -- Right (Type {unType = Intro TypeT})
 typeT = Type.typeT <$ keyword "Type"
 
-typeC = Type.typeC <$> constructorName <*> many type'
+typeC = Type.typeC <$> constructorName <*> many type' <?> "type constructor"
 
 tvar = Type.tvar <$> name <?> "type variable"
 
 
 pattern, name, constructorName, moduleName :: (Monad m, TokenParsing m) => m Name
 
-pattern = name <|> I (-1) <$ token (string "_")
+pattern = name <|> I (-1) <$ token (string "_") <?> "pattern"
 
-name = N <$> identifier
+name = N <$> identifier <?> "name"
 constructorName = N <$> typeIdentifier <?> "constructor name"
 
-moduleName = token (runUnspaced name')
+moduleName = token (runUnspaced name') <?> "module name"
   where name' = makeN <$> typeIdentifier <*> optional (dot *> name')
         makeN s Nothing  = N s
         makeN s (Just n) = Q s n
