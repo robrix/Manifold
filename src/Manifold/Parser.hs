@@ -78,11 +78,9 @@ binding = runUnlined $ do
   body <- token (highlight Identifier (string name)) *> op "=" *> term <* some newline
   pure (Binding (N name ::: ty) body)
 
-dataType = runUnlined $ do
-  name <- keyword "data" *> constructorName
-  ty <- colon *> type'
-  constructors <- [] <$ some newline <|> keyword "where" *> token newline *> many (constructor <* token newline)
-  pure (Datatype (name ::: ty) constructors)
+dataType = runUnlined (
+  Datatype <$> ((:::) <$ keyword "data" <*> constructorName <* colon <*> type')
+           <*> ([] <$ some newline <|> keyword "where" *> token newline *> many (constructor <* token newline)))
   where constructor = (:::) <$> constructorName <* colon <*> type' <* token newline
 
 
