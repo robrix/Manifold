@@ -3,3 +3,5 @@ module Prelude where
 import Base.Function
 
 data Void : Type {}
+
+data Unit : Type { Unit : Unit }

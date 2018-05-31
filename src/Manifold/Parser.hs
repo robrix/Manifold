@@ -129,7 +129,7 @@ lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
 tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
 
 
-type', piType, product, typeApplication, boolT, unitT, typeT, typeC, tvar :: (Monad m, TokenParsing m) => m (Type.Type Name)
+type', piType, product, typeApplication, boolT, typeT, typeC, tvar :: (Monad m, TokenParsing m) => m (Type.Type Name)
 
 type' = piType
 
@@ -142,17 +142,12 @@ piType = ((Type..->) <$> parens constraint <* op "->" <*> piType <?> "dependent 
 product = typeApplication `chainl1` ((Type..*) <$ symbolic '*') <?> "product type"
 
 typeApplication = atom `chainl1` pure (Type.#) <?> "type application"
-  where atom = choice [ boolT, unitT, typeT, typeC, tvar ]
+  where atom = choice [ boolT, typeT, typeC, tvar ]
 
 -- $
 -- >>> parseString boolT "Bool"
 -- Right (Type {unType = Intro BoolT})
 boolT = Type.boolT <$ keyword "Bool"
-
--- $
--- >>> parseString unitT "Unit"
--- Right (Type {unType = Intro UnitT})
-unitT = Type.unitT <$ keyword "Unit"
 
 -- $
 -- >>> parseString typeT "Type"
