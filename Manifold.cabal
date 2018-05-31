@@ -45,6 +45,7 @@ library
                      , containers
                      , effects
                      , haskeline
+                     , indentation-trifecta
                      , optparse-applicative
                      , parsers
                      , recursion-schemes

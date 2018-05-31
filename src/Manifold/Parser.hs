@@ -26,9 +26,10 @@ import Text.Parser.Token
 import Text.Parser.Token.Highlight
 import Text.Parser.Token.Style
 import qualified Text.Trifecta as Trifecta
+import Text.Trifecta.Indentation
 
 newtype Parser f a = Parser { runParser :: f a }
-  deriving (Alternative, Applicative, CharParsing, Functor, Monad, Parsing)
+  deriving (Alternative, Applicative, CharParsing, Functor, IndentationParsing, Monad, Parsing)
 
 instance TokenParsing f => TokenParsing (Parser f) where
   someSpace = Parser $ buildSomeSpaceParser someSpace haskellCommentStyle
