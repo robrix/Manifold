@@ -53,3 +53,6 @@ askEnv = ask
 
 runEnv :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
 runEnv = runReader emptyContext
+
+
+data Binding = Name := Value
