@@ -147,17 +147,17 @@ typeApplication = atom `chainl1` pure (Type.#) <?> "type application"
 -- $
 -- >>> parseString boolT "Bool"
 -- Right (Type {unType = Intro BoolT})
-boolT = Type.boolT <$ keyword "Bool"
+boolT = try (Type.boolT <$ keyword "Bool" <* notFollowedBy alphaNum) <?> "Bool"
 
 -- $
 -- >>> parseString unitT "Unit"
 -- Right (Type {unType = Intro UnitT})
-unitT = Type.unitT <$ keyword "Unit"
+unitT = try (Type.unitT <$ keyword "Unit" <* notFollowedBy alphaNum) <?> "Unit"
 
 -- $
 -- >>> parseString typeT "Type"
 -- Right (Type {unType = Intro TypeT})
-typeT = Type.typeT <$ keyword "Type"
+typeT = try (Type.typeT <$ keyword "Type" <* notFollowedBy alphaNum) <?> "Type"
 
 typeC = Type.typeC <$> constructorName <*> many type' <?> "type constructor"
 
