@@ -35,7 +35,7 @@ eval (Term term) = case term of
           -- FIXME: use the env
           -- FIXME: pi types
           a' <- eval a
-          env `seq` name ::: a' >- eval body
+          env `seq` name .= a' $ eval body
         _ -> error "application of non-abstraction, should have been caught by typechecker"
     If c t e -> do
       v <- eval c
@@ -57,4 +57,8 @@ runEnv = runReader emptyContext
 
 type Environment = Context Name Value
 
-data Binding = Name := Value
+
+(.=) :: Member (Reader Environment) effects => Name -> Value -> Proof usage effects a -> Proof usage effects a
+name .= value = local (|> (name ::: value))
+
+infixl 1 .=
