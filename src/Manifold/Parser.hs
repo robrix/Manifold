@@ -60,12 +60,23 @@ module' = Module <$  keyword "module" <*> moduleName <* keyword "where"
 import' :: (Monad m, TokenParsing m) => m Name
 import' = keyword "import" *> moduleName
 
-declaration :: (Monad m, TokenParsing m) => m (Declaration Name (Term.Term Name))
-declaration = runUnlined (do
+declaration, binding, dataType :: (Monad m, TokenParsing m) => m (Declaration Name (Term.Term Name))
+
+declaration = choice [ binding, dataType ]
+
+binding = runUnlined (do
   name <- identifier
   ty <- colon *> type' <* some newline
   body <- token (highlight Identifier (string name)) *> op "=" *> term <* some newline
   pure (Binding (N name ::: ty) body))
+
+dataType = runUnlined $ do
+  name <- keyword "data" *> constructorName
+  ty <- colon *> type'
+  constructors <- keyword "where" *> token newline *> op "=" *> (constructor `sepBy` op "=") <|> pure []
+  pure (Datatype (name ::: ty) constructors)
+  where constructor = (:::) <$> constructorName <* colon <*> type' <* token newline
+
 
 
 term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m (Term.Term Name)
@@ -143,11 +154,12 @@ typeT = Type.typeT <$ keyword "Type"
 tvar = Type.tvar <$> name <?> "type variable"
 
 
-pattern, name, moduleName :: (Monad m, TokenParsing m) => m Name
+pattern, name, constructorName, moduleName :: (Monad m, TokenParsing m) => m Name
 
 pattern = name <|> I (-1) <$ token (string "_")
 
 name = N <$> identifier
+constructorName = N <$> typeIdentifier
 
 moduleName = token (runUnspaced name')
   where name' = makeN <$> typeIdentifier <*> optional (dot *> name')
@@ -160,7 +172,7 @@ identifier     = ident (IdentifierStyle "identifier" letter alphaNum reservedWor
 typeIdentifier = ident (IdentifierStyle "type identifier" upper alphaNum reservedWords Identifier ReservedIdentifier)
 
 reservedWords :: HashSet.HashSet String
-reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where", "import" ]
+reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where", "import", "data" ]
 
 keyword, op :: TokenParsing m => String -> m String
 
