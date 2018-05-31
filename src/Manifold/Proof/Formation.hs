@@ -25,6 +25,7 @@ checkIsType ty = case unType ty of
   IntroT UnitT -> pure unitT
   IntroT BoolT -> pure boolT
   IntroT TypeT -> pure typeT
+  IntroT (TypeC c ts) -> typeC c <$> traverse checkIsType ts
   IntroT (var ::: _S :-> _T) -> do
     _S' <- checkIsType _S
     let binding = Annotated var zero
