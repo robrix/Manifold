@@ -80,6 +80,12 @@ checkDeclaration (Binding (name ::: ty) term) = do
   let annotated = Annotated name one
   ty'' <- annotated ::: ty' >- runSigma Intensional (runSubstitution (check term ty'))
   pure (Binding (annotated ::: ty'') term)
+checkDeclaration (Datatype (name ::: ty) constructors) = do
+  ty' <- checkIsType ty
+  let annotated = Annotated name zero
+  constructors' <- annotated ::: ty' >- runSigma Extensional (traverse checkConstructor constructors)
+  pure (Datatype (annotated ::: ty') constructors')
+  where checkConstructor (name ::: ty) = (Annotated name zero :::) <$> checkIsType ty
 
 
 check :: ( Eq usage
