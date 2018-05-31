@@ -147,17 +147,17 @@ typeApplication = atom `chainl1` pure (Type.#) <?> "type application"
 -- $
 -- >>> parseString boolT "Bool"
 -- Right (Type {unType = Intro BoolT})
-boolT = try (Type.boolT <$ keyword "Bool" <* notFollowedBy alphaNum) <?> "Bool"
+boolT = Type.boolT <$ keyword "Bool"
 
 -- $
 -- >>> parseString unitT "Unit"
 -- Right (Type {unType = Intro UnitT})
-unitT = try (Type.unitT <$ keyword "Unit" <* notFollowedBy alphaNum) <?> "Unit"
+unitT = Type.unitT <$ keyword "Unit"
 
 -- $
 -- >>> parseString typeT "Type"
 -- Right (Type {unType = Intro TypeT})
-typeT = try (Type.typeT <$ keyword "Type" <* notFollowedBy alphaNum) <?> "Type"
+typeT = Type.typeT <$ keyword "Type"
 
 typeC = Type.typeC <$> constructorName <*> many type' <?> "type constructor"
 
@@ -186,6 +186,6 @@ reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where"
 
 keyword, op :: TokenParsing m => String -> m String
 
-keyword s = token (highlight ReservedIdentifier (string s <* notFollowedBy alphaNum)) <?> s
+keyword s = token (highlight ReservedIdentifier (try (string s <* notFollowedBy alphaNum))) <?> s
 
 op s = token (highlight Operator (string s)) <?> s
