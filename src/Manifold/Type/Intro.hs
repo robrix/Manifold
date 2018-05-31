@@ -1,17 +1,18 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase #-}
 module Manifold.Type.Intro where
 
-import Data.Trifoldable
-import Data.Trifunctor
 import Data.Bifoldable
 import Data.Bifunctor
+import Data.Trifoldable
+import Data.Trifunctor
+import Manifold.Name
 import Manifold.Pretty
 
 data IntroT var scope recur
   = UnitT
   | BoolT
   | TypeT
-  | TypeC var [recur]
+  | TypeC Name [recur]
   | var :-> scope
   | recur :* recur
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
@@ -25,7 +26,7 @@ instance Trifoldable IntroT where
     UnitT      -> mempty
     BoolT      -> mempty
     TypeT      -> mempty
-    TypeC c as -> f c <>foldMap h as
+    TypeC _ as -> foldMap h as
     v :-> b    -> f v <> g b
     a :* b     -> h a <> h b
 
@@ -34,7 +35,7 @@ instance Trifunctor IntroT where
     UnitT      -> UnitT
     BoolT      -> BoolT
     TypeT      -> TypeT
-    TypeC c as -> TypeC (f c) (map h as)
+    TypeC c as -> TypeC c (map h as)
     v :-> b    -> f v :-> g b
     a :* b     -> h a :* h b
 

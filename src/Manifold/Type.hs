@@ -58,7 +58,7 @@ unitT = tintroT UnitT
 boolT :: Type var
 boolT = tintroT BoolT
 
-typeC :: Constraint var (Type var) -> [Type var] -> Type var
+typeC :: Name -> [Type var] -> Type var
 typeC c ts = tintroT (TypeC c ts)
 
 
