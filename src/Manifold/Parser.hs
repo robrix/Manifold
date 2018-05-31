@@ -132,8 +132,6 @@ lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
 -- Right (Term {unTerm = Intro (Pair (Term {unTerm = Intro (Pair (Term {unTerm = Intro Unit}) (Term {unTerm = Intro (Bool True)}))}) (Term {unTerm = Intro (Bool False)}))})
 tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
 
-constraint :: (Monad m, TokenParsing m) => m (Constraint Name (Type.Type Name))
-constraint = (:::) <$> name <* colon <*> type'
 
 type', piType, product, typeApplication, boolT, unitT, typeT, typeC, tvar :: (Monad m, TokenParsing m) => m (Type.Type Name)
 
@@ -143,6 +141,7 @@ piType = ((Type..->) <$> parens constraint <* op "->" <*> piType <?> "dependent 
   <|> (makePi <$> product <*> optional (op "->" *> piType) <?> "function type")
   where makePi ty1 Nothing = ty1
         makePi ty1 (Just ty2) = I (-1) ::: ty1 Type..-> ty2
+        constraint = (:::) <$> name <* colon <*> type'
 
 product = typeApplication `chainl1` ((Type..*) <$ symbolic '*') <?> "product type"
 
