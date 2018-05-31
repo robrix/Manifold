@@ -178,7 +178,7 @@ moduleName = token (runUnspaced name')
 
 identifier, typeIdentifier :: (Monad m, TokenParsing m) => m String
 
-identifier     = ident (IdentifierStyle "identifier" letter alphaNum reservedWords Identifier ReservedIdentifier)
+identifier     = ident (IdentifierStyle "identifier" lower alphaNum reservedWords Identifier ReservedIdentifier)
 typeIdentifier = ident (IdentifierStyle "type identifier" upper alphaNum reservedWords Identifier ReservedIdentifier)
 
 reservedWords :: HashSet.HashSet String
