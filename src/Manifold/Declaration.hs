@@ -15,6 +15,8 @@ instance (Pretty var, Pretty def) => Pretty (Declaration var def) where
   prettyPrec _ (Binding sig def)
     = prettys sig . showChar '\n'
     . prettys (constraintVar sig) . showChar ' ' . showChar '=' . showChar ' ' . prettys def
+  prettyPrec _ (Datatype sig [])
+    = showString "data" . showChar ' ' . prettys sig . showChar '\n'
   prettyPrec _ (Datatype sig constructors)
     = showString "data" . showChar ' ' . prettys sig . showChar ' ' . showString "where" . showChar '\n'
     . foldr (.) id (map (\ c -> showChar ' ' . showChar ' ' . prettys c . showChar '\n') constructors)
