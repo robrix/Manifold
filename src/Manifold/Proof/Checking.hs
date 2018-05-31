@@ -75,11 +75,11 @@ checkDeclaration :: ( Eq usage
                     )
                  => Declaration Name (Term Name)
                  -> Proof usage effects (Declaration (Annotated usage) (Term Name))
-checkDeclaration (Declaration (name ::: ty) term) = do
+checkDeclaration (Binding (name ::: ty) term) = do
   ty' <- checkIsType ty
   let annotated = Annotated name one
   ty'' <- annotated ::: ty' >- runSigma Intensional (runSubstitution (check term ty'))
-  pure (Declaration (annotated ::: ty'') term)
+  pure (Binding (annotated ::: ty'') term)
 
 
 check :: ( Eq usage

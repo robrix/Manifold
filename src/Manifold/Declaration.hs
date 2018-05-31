@@ -6,16 +6,16 @@ import Manifold.Pretty
 import Manifold.Term
 import Manifold.Type
 
-data Declaration var def = Declaration (Constraint var (Type var)) def
+data Declaration var def = Binding (Constraint var (Type var)) def
   deriving (Eq, Ord, Show)
 
 instance (Pretty var, Pretty def) => Pretty (Declaration var def) where
-  prettyPrec _ (Declaration sig def)
+  prettyPrec _ (Binding sig def)
     = prettys sig . showChar '\n'
     . prettys (constraintVar sig) . showChar ' ' . showChar '=' . showChar ' ' . prettys def
 
 declarationSignature :: Declaration var def -> Constraint var (Type var)
-declarationSignature (Declaration sig _) = sig
+declarationSignature (Binding sig _) = sig
 
 declarationName :: Named var => Declaration var def -> Name
 declarationName = constraintName . declarationSignature
