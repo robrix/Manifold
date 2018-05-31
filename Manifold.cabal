@@ -25,6 +25,7 @@ library
                      , Manifold.Name
                      , Manifold.Name.Annotated
                      , Manifold.Parser
+                     , Manifold.Pattern
                      , Manifold.Pretty
                      , Manifold.Prompt
                      , Manifold.Proof
