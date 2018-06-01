@@ -84,10 +84,10 @@ declaration, binding, dataType :: (Monad m, TokenParsing m) => m (Declaration Na
 
 declaration = choice [ binding, dataType ]
 
-binding = runUnlined $ do
+binding = do
   name <- identifier
-  ty <- colon *> type' <* some nl
-  body <- token (highlight Identifier (string name)) *> op "=" *> term <* some nl
+  ty <- colon *> type'
+  body <- token (highlight Identifier (string name)) *> op "=" *> term
   pure (Binding (N name ::: ty) body)
   <?> "binding"
 
@@ -96,12 +96,6 @@ dataType =
            <*> braces (constructor `sepBy` semi)
            <?> "datatype"
   where constructor = (:::) <$> constructorName <* colon <*> type' <?> "constructor"
-
-
-nl, nls :: TokenParsing m => m ()
-
-nl = () <$ newline <?> "newline"
-nls = () <$ many (token newline <?> "newline")
 
 
 term, application, true, false, var, let', lambda, tuple, case' :: (Monad m, TokenParsing m) => m (Term.Term Name)
@@ -145,9 +139,9 @@ lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
 -- Right (Term {unTerm = Intro (Pair (Term {unTerm = Intro (Bool True)}) (Term {unTerm = Intro (Bool False)}))})
 -- >>> parseString tuple "((), True, False)"
 -- Right (Term {unTerm = Intro (Pair (Term {unTerm = Intro (Pair (Term {unTerm = Intro Unit}) (Term {unTerm = Intro (Bool True)}))}) (Term {unTerm = Intro (Bool False)}))})
-tuple = parens (chainl1 (nls *> term <* nls) (Term.pair <$ nls <* comma <* nls) <|> pure Term.unit) <?> "tuple"
+tuple = parens (term `chainl1` (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
 
-case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <* nls <*> braces (((,) <$> pattern <* nls <* op "->" <* nls <*> term) `sepBy` (nls <* semi <* nls))
+case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <*> braces (((,) <$> pattern <* op "->" <*> term) `sepBy` semi)
 
 pattern :: (Monad m, TokenParsing m) => m Pattern
 pattern = Variable <$> name
