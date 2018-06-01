@@ -111,9 +111,9 @@ signature, binding :: MonadParsing m => m (Name -> Decl)
 
 declaration = choice [ name <**> (signature <|> binding), datatype ]
 
-signature = flip Sig <$ colon <*> localIndentation Gt (absoluteIndentation type') <?> "type signature"
+signature = flip Sig <$ colon <*> type' <?> "type signature"
 
-binding = flip Bind <$ op "=" <*> localIndentation Gt (absoluteIndentation term) <?> "binding"
+binding = flip Bind <$ op "=" <*> term <?> "binding"
 
 datatype = fmap Done $
   Datatype <$> ((:::) <$ keyword "data" <*> constructorName <* colon <*> type')
