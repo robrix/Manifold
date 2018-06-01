@@ -13,6 +13,7 @@ module Manifold.Parser
 import Control.Applicative (Alternative(..))
 import Control.Monad (MonadPlus)
 import Control.Monad.IO.Class (MonadIO)
+-- import qualified Data.ByteString.Char8 as BS
 import Data.Char
 import qualified Data.HashSet as HashSet
 import Manifold.Constraint
@@ -32,25 +33,38 @@ import Text.Parser.Token.Style
 import Text.Trifecta hiding (Parser, parseString)
 import qualified Text.Trifecta as Trifecta
 import Text.Trifecta.Delta
+import Text.Trifecta.Indentation
 
-newtype Parser a = Parser { runParser :: Trifecta.Parser a }
+type Parser = IndentationParserT Char Inner
+
+newtype Inner a = Inner { runInner :: Trifecta.Parser a }
   deriving (Alternative, Applicative, CharParsing, DeltaParsing, Functor, LookAheadParsing, MarkParsing Delta, Monad, MonadPlus, Parsing)
 
-instance TokenParsing Parser where
-  someSpace = Parser $ buildSomeSpaceParser (skipSome (satisfy isSpace)) haskellCommentStyle
-  nesting = Parser . nesting . runParser
-  highlight h = Parser . highlight h . runParser
+instance TokenParsing Inner where
+  someSpace = Inner $ buildSomeSpaceParser (skipSome (satisfy isSpace)) haskellCommentStyle
+  nesting = Inner . nesting . runInner
+  highlight h = Inner . highlight h . runInner
 
 parseFile :: MonadIO m => Parser a -> FilePath -> m (Maybe a)
-parseFile (Parser p) = Trifecta.parseFromFile p
+parseFile p = parseFromFile (runInner (whiteSpace *> evalCharIndentationParserT p indentst))
 
 parseString :: Parser a -> String -> Either String a
-parseString (Parser p) = toResult . Trifecta.parseString p mempty
+parseString p = toResult . Trifecta.parseString (runInner (evalCharIndentationParserT p indentst)) mempty -- directed
 
 toResult :: Trifecta.Result a -> Either String a
 toResult r = case r of
   Trifecta.Success a -> Right a
   Trifecta.Failure info -> Left (show (Trifecta._errDoc info))
+
+
+evalCharIndentationParserT :: Monad m => IndentationParserT Char m a -> IndentationState -> m a
+evalCharIndentationParserT = evalIndentationParserT
+
+-- evalTokenIndentationParserT :: Monad m => IndentationParserT Token m a -> IndentationState -> m a
+-- evalTokenIndentationParserT = evalIndentationParserT
+
+-- directed = Directed BS.empty 0 0 0 0
+indentst = mkIndentationState 0 infIndentation True Gt
 
 
 whole :: TokenParsing m => m a -> m a
