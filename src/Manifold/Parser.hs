@@ -18,7 +18,7 @@ import Manifold.Constraint
 import Manifold.Declaration
 import Manifold.Module (Module(Module))
 import Manifold.Name (Name(..))
-import Manifold.Pattern
+import Manifold.Pattern as Pattern
 import qualified Manifold.Term as Term
 import qualified Manifold.Type as Type
 import Prelude hiding (product)
@@ -133,7 +133,10 @@ tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple
 case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <* optional nl <*> braces (((,) <$> pattern <* op "->" <*> term) `sepBy` semi)
 
 pattern :: (Monad m, TokenParsing m) => m Pattern
-pattern = Variable <$> name <|> Wildcard <$ token (string "_") <?> "pattern"
+pattern = Variable <$> name
+      <|> (Wildcard <$ token (string "_") <?> "_")
+      <|> (Pattern.Constructor <$> constructorName <*> pure [] <?> "nullary data constructor")
+      <|> parens (Pattern.Constructor <$> constructorName <*> many pattern <?> "n-ary data constructor")
 
 
 type', piType, product, typeApplication, boolT, typeT, typeC, tvar :: (Monad m, TokenParsing m) => m (Type.Type Name)
