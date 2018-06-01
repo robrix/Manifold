@@ -63,7 +63,7 @@ askContext = ask
 
 
 -- | Extend the context with a local assumption.
-(>-) :: Member (Reader (Context var recur)) effects => Constraint var recur -> Proof usage effects a -> Proof usage effects a
+(>-) :: Member (Reader (Context (Annotated usage) recur)) effects => Constraint (Annotated usage) recur -> Proof usage effects a -> Proof usage effects a
 constraint >- proof = local (|> constraint) proof
 
 infixl 1 >-
