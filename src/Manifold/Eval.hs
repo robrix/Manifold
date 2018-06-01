@@ -1,15 +1,17 @@
 {-# LANGUAGE DataKinds, FlexibleContexts, TypeOperators #-}
 module Manifold.Eval where
 
+import Control.Applicative
 import Control.Monad.Effect
 import Control.Monad.Effect.Reader
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Name
+import Manifold.Pattern
 import Manifold.Proof
-import Manifold.Term
+import Manifold.Term as Term
 import Manifold.Term.Elim
-import Manifold.Value (Value(unValue), value)
+import Manifold.Value as Value
 import Manifold.Value.Intro
 
 eval :: Member (Reader Environment) effects
@@ -17,7 +19,7 @@ eval :: Member (Reader Environment) effects
      -> Proof usage effects Value
 eval (Term term) = case term of
   Var name -> fmap constraintValue . contextLookup name <$> askEnv >>= maybe (error "free variable, should have been caught by typechecker") pure
-  Value i -> case i of
+  Term.Value i -> case i of
     Unit -> pure (value Unit)
     Bool b -> pure (value (Bool b))
     Abs var body -> do
@@ -46,6 +48,11 @@ eval (Term term) = case term of
           else
             eval e
         _ -> error "branch on non-boolean, should have been caught by typechecker"
+    Case s bs -> do
+      s' <- eval s
+      case foldr (\ (pattern, branch) rest -> flip (,) branch <$> match s' pattern <|> rest) Nothing bs of
+        Just (f, a) -> f (eval a)
+        _ -> error "non-exhaustive pattern match, should have been caught by typechecker"
 
 askEnv :: Member (Reader Environment) effects => Proof usage effects Environment
 askEnv = ask
@@ -62,3 +69,11 @@ type Environment = Context Name Value
 name .= value = (name ::: value >-)
 
 infixl 1 .=
+
+
+match :: Member (Reader Environment) effects => Value -> Pattern -> Maybe (Proof usage effects a -> Proof usage effects a)
+match _ Wildcard = Just id
+match s (Variable name) = Just (name .= s)
+match (Value.Value (Data c vs)) (Constructor c' ps)
+  | c == c', length vs == length ps = foldr (.) id <$> sequenceA (zipWith match vs ps)
+match _ _ = Nothing
