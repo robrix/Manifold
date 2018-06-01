@@ -142,7 +142,10 @@ lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
 -- Right (Term {unTerm = Intro (Pair (Term {unTerm = Intro (Pair (Term {unTerm = Intro Unit}) (Term {unTerm = Intro (Bool True)}))}) (Term {unTerm = Intro (Bool False)}))})
 tuple = parens (term `chainl1` (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
 
-case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <*> braces (((,) <$> pattern <* op "->" <*> term) `sepBy` semi)
+case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <*>
+  (   braces (match `sepBy` semi)
+  <|> localIndentation Gt (many (absoluteIndentation match)))
+  where match = (,) <$> pattern <* op "->" <*> term
 
 pattern :: (Monad m, TokenParsing m) => m Pattern
 pattern = Variable <$> name
