@@ -75,7 +75,7 @@ whole p = whiteSpace *> p <* eof
 module' :: MonadParsing m => m (Module Name (Term.Term Name))
 module' = do
   name <- keyword "module" *> moduleName <* keyword "where"
-  (imports, declarations) <- absoluteIndentation $ (,) <$> many import' <*> many declaration
+  (imports, declarations) <- (,) <$> many (absoluteIndentation import') <*> many (absoluteIndentation declaration)
   pure (Module name imports declarations)
 
 
