@@ -13,6 +13,7 @@ module Manifold.Parser
 import Control.Applicative (Alternative(..))
 import Control.Monad (MonadPlus)
 import Control.Monad.IO.Class (MonadIO)
+import Data.Char
 import qualified Data.HashSet as HashSet
 import Manifold.Constraint
 import Manifold.Declaration
@@ -36,7 +37,7 @@ newtype Parser a = Parser { runParser :: Trifecta.Parser a }
   deriving (Alternative, Applicative, CharParsing, DeltaParsing, Functor, LookAheadParsing, MarkParsing Delta, Monad, MonadPlus, Parsing)
 
 instance TokenParsing Parser where
-  someSpace = Parser $ buildSomeSpaceParser someSpace haskellCommentStyle
+  someSpace = Parser $ buildSomeSpaceParser (skipSome (satisfy isSpace)) haskellCommentStyle
   nesting = Parser . nesting . runParser
   highlight h = Parser . highlight h . runParser
 
