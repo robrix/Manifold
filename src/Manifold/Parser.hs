@@ -18,6 +18,7 @@ import Manifold.Constraint
 import Manifold.Declaration
 import Manifold.Module (Module(Module))
 import Manifold.Name (Name(..))
+import Manifold.Pattern
 import qualified Manifold.Term as Term
 import qualified Manifold.Type as Type
 import Prelude hiding (product)
@@ -86,13 +87,13 @@ nl :: TokenParsing m => m Char
 nl = token newline <?> "newline"
 
 
-term, application, true, false, var, let', lambda, tuple :: (Monad m, TokenParsing m) => m (Term.Term Name)
+term, application, true, false, var, let', lambda, tuple, case' :: (Monad m, TokenParsing m) => m (Term.Term Name)
 
 -- | Parse a term.
 term = application
 
 application = atom `chainl1` pure (Term.#) <?> "function application"
-  where atom = choice [ true, false, var, let', lambda, tuple ]
+  where atom = choice [ true, false, var, let', lambda, tuple, case' ]
 
 -- $
 -- >>> parseString true "True"
@@ -116,6 +117,7 @@ lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
                                        <*> some pattern <* dot
                                        <*> term
                                        <?> "lambda"
+  where pattern = name <|> I (-1) <$ token (string "_") <?> "pattern"
 
 -- $
 -- >>> parseString tuple "()"
@@ -127,6 +129,11 @@ lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
 -- >>> parseString tuple "((), True, False)"
 -- Right (Term {unTerm = Intro (Pair (Term {unTerm = Intro (Pair (Term {unTerm = Intro Unit}) (Term {unTerm = Intro (Bool True)}))}) (Term {unTerm = Intro (Bool False)}))})
 tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
+
+case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <*> braces (((,) <$> pattern <* op "->" <*> term) `sepBy` semi)
+
+pattern :: (Monad m, TokenParsing m) => m Pattern
+pattern = Variable <$> name <|> Wildcard <$ token (string "_") <?> "pattern"
 
 
 type', piType, product, typeApplication, boolT, typeT, typeC, tvar :: (Monad m, TokenParsing m) => m (Type.Type Name)
@@ -159,9 +166,7 @@ typeC = Type.typeC <$> constructorName <*> many type' <?> "type constructor"
 tvar = Type.tvar <$> name <?> "type variable"
 
 
-pattern, name, constructorName, moduleName :: (Monad m, TokenParsing m) => m Name
-
-pattern = name <|> I (-1) <$ token (string "_") <?> "pattern"
+name, constructorName, moduleName :: (Monad m, TokenParsing m) => m Name
 
 name = N <$> identifier <?> "name"
 constructorName = N <$> typeIdentifier <?> "constructor name"
@@ -177,7 +182,7 @@ identifier     = ident (IdentifierStyle "identifier" lower alphaNum reservedWord
 typeIdentifier = ident (IdentifierStyle "type identifier" upper alphaNum reservedWords Identifier ReservedIdentifier) <?> "type identifier"
 
 reservedWords :: HashSet.HashSet String
-reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where", "import", "data" ]
+reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where", "import", "data", "case", "of" ]
 
 keyword, op :: TokenParsing m => String -> m String
 
