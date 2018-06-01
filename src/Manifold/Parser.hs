@@ -13,7 +13,7 @@ module Manifold.Parser
 import Control.Applicative (Alternative(..))
 import Control.Monad (MonadPlus)
 import Control.Monad.IO.Class (MonadIO)
--- import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Char8 as BS
 import Data.Char
 import qualified Data.HashSet as HashSet
 import Manifold.Constraint
@@ -50,7 +50,7 @@ parseFile :: MonadIO m => Parser a -> FilePath -> m (Maybe a)
 parseFile p = parseFromFile (runInner (whiteSpace *> evalCharIndentationParserT p indentst))
 
 parseString :: Parser a -> String -> Either String a
-parseString p = toResult . Trifecta.parseString (runInner (evalCharIndentationParserT p indentst)) mempty -- directed
+parseString p = toResult . Trifecta.parseString (runInner (evalCharIndentationParserT p indentst)) directed
 
 toResult :: Trifecta.Result a -> Either String a
 toResult r = case r of
@@ -64,7 +64,7 @@ evalCharIndentationParserT = evalIndentationParserT
 -- evalTokenIndentationParserT :: Monad m => IndentationParserT Token m a -> IndentationState -> m a
 -- evalTokenIndentationParserT = evalIndentationParserT
 
--- directed = Directed BS.empty 0 0 0 0
+directed = Directed BS.empty 0 0 0 0
 indentst = mkIndentationState 0 infIndentation True Gt
 
 
