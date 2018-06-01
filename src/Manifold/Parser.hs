@@ -95,9 +95,12 @@ binding = do
 
 datatype =
   Datatype <$> ((:::) <$ keyword "data" <*> constructorName <* colon <*> type')
-           <*> braces (constructor `sepBy` semi)
+           <*> option [] (keyword "where" *> gconstructors)
            <?> "datatype"
-  where constructor = (:::) <$> constructorName <* colon <*> type' <?> "constructor"
+  where gconstructors =
+          (   braces (constructor `sepBy` semi)
+          <|> localIndentation Gt (many (absoluteIndentation constructor)))
+        constructor = (:::) <$> constructorName <* colon <*> type' <?> "constructor"
 
 
 term, application, true, false, var, let', lambda, tuple, case' :: MonadParsing m => m (Term.Term Name)
