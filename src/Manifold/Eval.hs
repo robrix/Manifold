@@ -59,6 +59,6 @@ type Environment = Context Name Value
 
 
 (.=) :: Member (Reader Environment) effects => Name -> Value -> Proof usage effects a -> Proof usage effects a
-name .= value = local (|> (name ::: value))
+name .= value = (name ::: value >-)
 
 infixl 1 .=
