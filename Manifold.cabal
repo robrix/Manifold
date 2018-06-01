@@ -46,7 +46,6 @@ library
                      , bytestring
                      , containers
                      , effects
-                     , hashable
                      , haskeline
                      , indentation-trifecta
                      , optparse-applicative

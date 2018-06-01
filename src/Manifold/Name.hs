@@ -1,15 +1,12 @@
-{-# LANGUAGE DeriveAnyClass, DeriveGeneric #-}
 module Manifold.Name where
 
-import Data.Hashable
-import GHC.Generics
 import Manifold.Pretty
 
 data Name
   = N String
   | Q String Name
   | I Int
-  deriving (Eq, Generic, Hashable, Ord, Show)
+  deriving (Eq, Ord, Show)
 
 
 class Named n where
