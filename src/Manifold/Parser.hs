@@ -82,9 +82,9 @@ module' = do
 import' :: (Monad m, TokenParsing m) => m Name
 import' = keyword "import" *> moduleName
 
-declaration, binding, dataType :: MonadParsing m => m (Declaration Name (Term.Term Name))
+declaration, binding, datatype :: MonadParsing m => m (Declaration Name (Term.Term Name))
 
-declaration = choice [ binding, dataType ]
+declaration = choice [ binding, datatype ]
 
 binding = do
   name <- identifier
@@ -93,7 +93,7 @@ binding = do
   pure (Binding (N name ::: ty) body)
   <?> "binding"
 
-dataType =
+datatype =
   Datatype <$> ((:::) <$ keyword "data" <*> constructorName <* colon <*> type')
            <*> braces (constructor `sepBy` semi)
            <?> "datatype"
