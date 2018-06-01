@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, ScopedTypeVariables, TypeApplications, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, TypeApplications, TypeOperators #-}
 module Manifold.Proof.Checking where
 
 import Control.Monad.Effect
