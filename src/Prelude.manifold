@@ -7,4 +7,3 @@ data Void : Type
 
 data Unit : Type where
   Unit : Unit
-
