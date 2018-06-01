@@ -174,8 +174,8 @@ case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <*>
   where match = (,) <$> pattern <* op "->" <*> term
 
 pattern :: (Monad m, TokenParsing m) => m Pattern
-pattern = Variable <$> name
-      <|> (Wildcard <$ token (string "_") <?> "_")
+pattern = (Variable <$> name <?> "binding pattern")
+      <|> (Wildcard <$ token (string "_") <?> "wildcard pattern")
       <|> (Pattern.Constructor <$> constructorName <*> pure [] <?> "nullary data constructor")
       <|> parens (Pattern.Constructor <$> constructorName <*> many pattern <?> "n-ary data constructor")
 
