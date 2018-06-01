@@ -6,3 +6,8 @@ data Void : Type
 
 data Unit : Type where
   Unit : Unit
+
+not : Bool -> Bool
+not = \ b . case b of
+  True  -> False
+  False -> True
