@@ -1,4 +1,4 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving, TypeFamilies #-}
+{-# LANGUAGE ConstraintKinds, GeneralizedNewtypeDeriving, TypeFamilies #-}
 module Manifold.Parser
 ( Parser
 -- * Parsing
@@ -36,6 +36,7 @@ import Text.Trifecta.Delta
 import Text.Trifecta.Indentation
 
 type Parser = IndentationParserT Char Inner
+type MonadParsing m = (IndentationParsing m, Monad m, TokenParsing m)
 
 newtype Inner a = Inner { runInner :: Trifecta.Parser a }
   deriving (Alternative, Applicative, CharParsing, DeltaParsing, Functor, LookAheadParsing, MarkParsing Delta, Monad, MonadPlus, Parsing)
@@ -71,7 +72,7 @@ whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
 
 
-module' :: (Monad m, TokenParsing m) => m (Module Name (Term.Term Name))
+module' :: MonadParsing m => m (Module Name (Term.Term Name))
 module' = Module <$  keyword "module" <*> moduleName <* keyword "where"
                  <*> many import'
                  <*> many declaration
@@ -80,7 +81,7 @@ module' = Module <$  keyword "module" <*> moduleName <* keyword "where"
 import' :: (Monad m, TokenParsing m) => m Name
 import' = keyword "import" *> moduleName
 
-declaration, binding, dataType :: (Monad m, TokenParsing m) => m (Declaration Name (Term.Term Name))
+declaration, binding, dataType :: MonadParsing m => m (Declaration Name (Term.Term Name))
 
 declaration = choice [ binding, dataType ]
 
@@ -98,7 +99,7 @@ dataType =
   where constructor = (:::) <$> constructorName <* colon <*> type' <?> "constructor"
 
 
-term, application, true, false, var, let', lambda, tuple, case' :: (Monad m, TokenParsing m) => m (Term.Term Name)
+term, application, true, false, var, let', lambda, tuple, case' :: MonadParsing m => m (Term.Term Name)
 
 -- | Parse a term.
 term = application
