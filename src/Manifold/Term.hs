@@ -9,6 +9,7 @@ import qualified Data.Set as Set
 import Data.Trifoldable
 import Data.Trifunctor
 import Manifold.Name
+import Manifold.Pattern
 import Manifold.Pretty
 import Manifold.Term.Elim
 import Manifold.Value.Intro
@@ -80,6 +81,10 @@ lam f = makeAbs name body where (name, body) = bindVariable f
 f # a = elim (App f a)
 
 infixl 9 #
+
+
+case' :: Term var -> [(Pattern, Term var)] -> Term var
+case' s bs = elim (Case s bs)
 
 
 data Expr var recur
