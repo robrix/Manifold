@@ -32,7 +32,7 @@ argumentsParser = info
 runFile :: [FilePath] -> IO ()
 runFile paths = do
   ms <- traverse (parseFile (whole module') >=> maybe exitFailure pure) paths
-  either (print @(Error (Annotated ())) >=> const exitFailure)
+  either (prettyPrint @(Error (Annotated ())) >=> const exitFailure)
          prettyPrint
          (run (runError
               (runReader (fromModules ms)
