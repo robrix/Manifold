@@ -10,17 +10,20 @@ module Manifold.Parser
 , term
 ) where
 
-import Control.Applicative (Alternative(..))
+import Control.Applicative (Alternative(..), (<**>))
 import Control.Monad (MonadPlus)
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.ByteString.Char8 as BS
 import Data.Char
+import Data.Function (on)
 import qualified Data.HashSet as HashSet
+import Data.List (deleteBy)
 import Manifold.Constraint
 import Manifold.Declaration
 import Manifold.Module (Module(Module))
 import Manifold.Name (Name(..))
 import Manifold.Pattern as Pattern
+import Manifold.Pretty
 import qualified Manifold.Term as Term
 import qualified Manifold.Type as Type
 import Prelude hiding (product)
@@ -68,32 +71,51 @@ directed = Directed BS.empty 0 0 0 0
 indentst = mkIndentationState 0 infIndentation True Gt
 
 
-whole :: TokenParsing m => m a -> m a
 whole p = whiteSpace *> p <* eof
+whole :: TokenParsing m => m a -> m a
 
 
 module' :: MonadParsing m => m (Module Name (Term.Term Name))
-module' = do
-  name <- keyword "module" *> moduleName <* keyword "where"
-  (imports, declarations) <- (,) <$> many (absoluteIndentation import') <*> many (absoluteIndentation declaration)
-  pure (Module name imports declarations)
+module' =
+  Module <$ keyword "module" <*> moduleName <* keyword "where"
+         <*> imports
+         <*> declarations
+  where imports = many (absoluteIndentation import')
+        declarations = many (absoluteIndentation declaration) >>= resolve
+        resolve decls = checkDecls [] $ foldr combine [] decls
+        combine (Done d) rest = ((declarationName d, Done d) : rest)
+        combine (Sig name ty) rest = case lookup name rest of
+          Just (Bind name tm) -> (name, Done (Binding (name ::: ty) tm)) : deleteBy ((==) `on` fst) (name, Bind name tm) rest
+          _ -> (name, Sig name ty) : rest
+        combine (Bind name tm) rest = case lookup name rest of
+          Just (Sig name ty) -> (name, Done (Binding (name ::: ty) tm)) : deleteBy ((==) `on` fst) (name, Sig name ty) rest
+          _ -> (name, Bind name tm) : rest
+        checkDecls names ((name, Done d) : ds)
+          | name `notElem` names = (d :) <$> checkDecls (name:names) ds
+          | otherwise = fail ("redundant definition of " <> pretty name)
+        checkDecls _ ((name, Sig _ _) : _) = fail ("no definition for " <> pretty name)
+        checkDecls _ ((name, Bind _ _) : _) = fail ("no signature for " <> pretty name)
+        checkDecls _ [] = pure []
+
+data Decl
+  = Sig Name (Type.Type Name)
+  | Bind Name (Term.Term Name)
+  | Done (Declaration Name (Term.Term Name))
 
 
 import' :: (Monad m, TokenParsing m) => m Name
 import' = keyword "import" *> moduleName
 
-declaration, binding, datatype :: MonadParsing m => m (Declaration Name (Term.Term Name))
+declaration, datatype :: MonadParsing m => m Decl
+signature, binding :: MonadParsing m => m (Name -> Decl)
 
-declaration = choice [ binding, datatype ]
+declaration = choice [ name <**> (signature <|> binding), datatype ]
 
-binding = do
-  name <- identifier
-  ty <- colon *> type'
-  body <- token (highlight Identifier (string name)) *> op "=" *> term
-  pure (Binding (N name ::: ty) body)
-  <?> "binding"
+signature = flip Sig <$ colon <*> localIndentation Gt (absoluteIndentation type') <?> "type signature"
 
-datatype =
+binding = flip Bind <$ op "=" <*> localIndentation Gt (absoluteIndentation term) <?> "binding"
+
+datatype = fmap Done $
   Datatype <$> ((:::) <$ keyword "data" <*> constructorName <* colon <*> type')
            <*> option [] (keyword "where" *> gconstructors)
            <?> "datatype"
