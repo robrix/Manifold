@@ -83,8 +83,10 @@ dataType =
   where constructor = (:::) <$> constructorName <* colon <*> type' <?> "constructor"
 
 
-nl :: TokenParsing m => m Char
-nl = token newline <?> "newline"
+nl, nls :: TokenParsing m => m ()
+
+nl = () <$ newline <?> "newline"
+nls = () <$ many (token newline <?> "newline")
 
 
 term, application, true, false, var, let', lambda, tuple, case' :: (Monad m, TokenParsing m) => m (Term.Term Name)
@@ -128,9 +130,9 @@ lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
 -- Right (Term {unTerm = Intro (Pair (Term {unTerm = Intro (Bool True)}) (Term {unTerm = Intro (Bool False)}))})
 -- >>> parseString tuple "((), True, False)"
 -- Right (Term {unTerm = Intro (Pair (Term {unTerm = Intro (Pair (Term {unTerm = Intro Unit}) (Term {unTerm = Intro (Bool True)}))}) (Term {unTerm = Intro (Bool False)}))})
-tuple = parens (chainl1 term (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
+tuple = parens (chainl1 (nls *> term <* nls) (Term.pair <$ nls <* comma <* nls) <|> pure Term.unit) <?> "tuple"
 
-case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <* optional nl <*> braces (((,) <$> pattern <* many nl <* op "->" <* many nl <*> term <* many nl) `sepBy` (semi <* many nl))
+case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <* nls <*> braces (((,) <$> pattern <* nls <* op "->" <* nls <*> term) `sepBy` (nls <* semi <* nls))
 
 pattern :: (Monad m, TokenParsing m) => m Pattern
 pattern = Variable <$> name
