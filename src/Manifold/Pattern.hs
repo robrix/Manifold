@@ -14,4 +14,4 @@ instance Pretty Pattern where
   prettyPrec d = \case
     Wildcard -> showChar '_'
     Variable name -> prettyPrec d name
-    Constructor name patterns -> showParen (d > 10) $ prettyPrec 10 name . foldr (.) id (map (fmap (showChar ' ') . prettyPrec 11) patterns)
+    Constructor name patterns -> showParen (d > 10) $ prettyPrec 10 name . foldr ((.) . fmap (showChar ' ') . prettyPrec 11) id patterns
