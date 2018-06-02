@@ -220,8 +220,8 @@ moduleName = token (runUnspaced name') <?> "module name"
 
 identifier, typeIdentifier :: (Monad m, TokenParsing m) => m String
 
-identifier     = ident (IdentifierStyle "identifier" lower alphaNum reservedWords Identifier ReservedIdentifier) <?> "identifier"
-typeIdentifier = ident (IdentifierStyle "type identifier" upper alphaNum reservedWords Identifier ReservedIdentifier) <?> "type identifier"
+identifier     = ident (IdentifierStyle "identifier" lower (alphaNum <|> char '\'') reservedWords Identifier ReservedIdentifier) <?> "identifier"
+typeIdentifier = ident (IdentifierStyle "type identifier" upper (alphaNum <|> char '\'') reservedWords Identifier ReservedIdentifier) <?> "type identifier"
 
 reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where", "import", "data", "case", "of" ]
