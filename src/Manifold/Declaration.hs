@@ -15,7 +15,7 @@ instance (Pretty var, Pretty def) => Pretty (Declaration var def) where
   prettyPrec _ (Binding sig def)
     = vsep [ pretty sig, pretty (constraintVar sig) <+> equals <+> pretty def ]
   prettyPrec _ (Datatype sig [])
-    = prettyString "data" <+> pretty sig <> line
+    = prettyString "data" <+> pretty sig
   prettyPrec _ (Datatype sig constructors)
     = nest 2 . vsep
       $ prettyString "data" <+> pretty sig <+> prettyString "where"
