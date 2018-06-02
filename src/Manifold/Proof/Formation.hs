@@ -5,6 +5,7 @@ import Control.Monad.Effect
 import Data.Semiring (zero)
 import Manifold.Constraint
 import Manifold.Context
+import Manifold.Term.Elim
 import Manifold.Type.Intro
 import Manifold.Name
 import Manifold.Name.Annotated
@@ -28,4 +29,5 @@ checkIsType ty = case unType ty of
     _T' <- binding ::: _S' >- checkIsType _T
     pure (binding ::: _S' .-> _T')
   IntroT (_S :* _T) -> (.*) <$> checkIsType _S <*> checkIsType _T
+  Elim (App f a) -> (#) <$> checkIsType f <*> checkIsType a
   _ -> noRuleToCheckIsType ty
