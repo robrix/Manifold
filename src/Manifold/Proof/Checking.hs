@@ -134,8 +134,7 @@ checkPattern :: ( Eq usage
 checkPattern Wildcard                    _       = id
 checkPattern (Variable name)             subject = (Annotated name zero ::: subject >-)
 checkPattern (Constructor name patterns) subject = \ action -> do
-  context <- askContext
-  conTy <- maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
+  conTy <- lookupType name
   checkPatterns conTy patterns action
   where checkPatterns ty                                 []       = (unify ty subject >>)
         checkPatterns (Type (IntroT (_ ::: ty :-> ret))) (p : ps) = checkPattern p ty . checkPatterns ret ps
@@ -154,9 +153,7 @@ infer :: ( Eq usage
       => Term Name
       -> Proof usage effects (Type (Annotated usage))
 infer term = case unTerm term of
-  Var name -> do
-    context <- askContext
-    maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
+  Var name -> lookupType name
   Value Unit       -> pure unitT
   Value (Bool _)   -> pure boolT
   Value (Pair a b) -> (.*) <$> infer a <*> infer b

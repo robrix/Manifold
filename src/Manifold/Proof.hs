@@ -69,5 +69,15 @@ constraint >- proof = local (|> constraint) proof
 infixl 1 >-
 
 
+lookupType :: ( Member (Exc (Error (Annotated usage))) effects
+              , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
+              )
+           => Name
+           -> Proof usage effects (Type (Annotated usage))
+lookupType name = do
+  context <- askContext
+  maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
+
+
 freshName :: Member Fresh effects => Proof usage effects Name
 freshName = I <$> fresh
