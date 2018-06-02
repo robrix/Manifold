@@ -22,7 +22,7 @@ newtype Context var ty = Context { unContext :: [Constraint var ty] }
   deriving (Eq, Lower, Ord, Show)
 
 contextLookup :: Named var => Name -> Context var ty -> Maybe (Constraint var ty)
-contextLookup name = find ((== name) . constraintName) . unContext
+contextLookup name = contextFind ((== name) . constraintName)
 
 contextFind :: (Constraint var ty -> Bool) -> Context var ty -> Maybe (Constraint var ty)
 contextFind predicate = find predicate . unContext
