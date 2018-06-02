@@ -2,7 +2,6 @@
 module Manifold.Module where
 
 import Control.Monad ((<=<))
-import Data.List (intersperse)
 import qualified Data.Map as Map
 import Data.Semilattice.Lower
 import Manifold.Constraint
