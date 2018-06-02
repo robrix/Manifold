@@ -183,7 +183,7 @@ pattern = (Variable <$> name <?> "binding pattern")
   where pattern' = pattern <|> (Pattern.Constructor <$> constructorName <*> many pattern <?> "n-ary data constructor pattern")
 
 
-type', piType, product, typeApplication, boolT, typeT, typeC, tvar :: (Monad m, TokenParsing m) => m (Type.Type Name)
+type', piType, product, typeApplication, typeT, typeC, tvar :: (Monad m, TokenParsing m) => m (Type.Type Name)
 
 type' = piType
 
@@ -196,12 +196,7 @@ piType = ((Type..->) <$> parens constraint <* op "->" <*> piType <?> "dependent 
 product = typeApplication `chainl1` ((Type..*) <$ op "*") <?> "product type"
 
 typeApplication = atom `chainl1` pure (Type.#) <?> "type application"
-  where atom = choice [ boolT, typeT, typeC, tvar ]
-
--- $
--- >>> parseString boolT "Bool"
--- Right (Type {unType = IntroT BoolT})
-boolT = Type.boolT <$ keyword "Bool"
+  where atom = choice [ typeT, typeC, tvar ]
 
 -- $
 -- >>> parseString typeT "Type"
