@@ -12,4 +12,4 @@ instance Named (Annotated usage) where
   setName n b = b { annotatedName = n }
 
 instance Pretty usage => Pretty (Annotated usage) where
-  prettyPrec d (Annotated name usage) = prettyPrec d name . showChar ' ' . showChar '@' . prettyPrec d usage
+  prettyPrec d (Annotated name usage) = prettyPrec d name . prettyPrec d usage
