@@ -5,7 +5,7 @@ import Control.Monad ((>=>))
 import Control.Monad.Effect
 import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
-import Data.Foldable (traverse_)
+import Data.List (intersperse)
 import Data.Semilattice.Lower
 import Data.Version (showVersion)
 import Manifold.Module
@@ -34,7 +34,7 @@ runFile :: [FilePath] -> IO ()
 runFile paths = do
   ms <- traverse (parseFile (whole module') >=> maybe exitFailure pure) paths
   either (prettyPrint @(Error (Annotated ())) >=> const exitFailure)
-         (traverse_ prettyPrint)
+         (putDoc . vsep . intersperse mempty . map pretty)
          (run (runError
               (runReader (fromModules ms)
               (fmap fst
