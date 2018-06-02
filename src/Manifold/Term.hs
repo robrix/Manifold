@@ -37,7 +37,7 @@ elim = Term . Elim
 
 
 unit :: Term var
-unit = intro Unit
+unit = data' (N "Unit") []
 
 true :: Term var
 true = intro (Bool True)

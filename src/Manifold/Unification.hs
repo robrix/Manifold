@@ -32,7 +32,6 @@ unify t1 t2
     (Var n1, _)          -> n1 >-> t2 $> t2
     (_, Var n2)          -> n2 >-> t1 $> t1
     (Intro i1, Intro i2)
-      | Unit    <- i1, Unit    <- i2 -> pure (tintro Unit)
       | Bool b1 <- i1, Bool b2 <- i2
       , b1 == b2                     -> pure (tintro (Bool b2))
       | Abs (v1 ::: t1) b1 <- i1

@@ -154,7 +154,6 @@ infer :: ( Eq usage
       -> Proof usage effects (Type (Annotated usage))
 infer term = case unTerm term of
   Var name -> lookupType name
-  Value Unit       -> pure unitT
   Value (Bool _)   -> pure boolT
   Value (Pair a b) -> (.*) <$> infer a <*> infer b
   Elim (ExL a) -> do

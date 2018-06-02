@@ -10,8 +10,7 @@ import Manifold.Name
 import Manifold.Pretty
 
 data Intro var scope recur
-  = Unit
-  | Bool Bool
+  = Bool Bool
   | Abs var scope
   | Pair recur recur
   | Data Name [recur]
@@ -19,7 +18,6 @@ data Intro var scope recur
 
 instance Trifoldable Intro where
   trifoldMap f g h = \case
-    Unit      -> mempty
     Bool _    -> mempty
     Abs v b   -> f v <> g b
     Pair a b  -> h a <> h b
@@ -27,7 +25,6 @@ instance Trifoldable Intro where
 
 instance Trifunctor Intro where
   trimap f g h = \case
-    Unit      -> Unit
     Bool b    -> Bool b
     Abs v b   -> f v `Abs` g b
     Pair a b  -> h a `Pair` h b
@@ -41,7 +38,6 @@ instance Bifunctor (Intro var) where
 
 instance (Pretty var, Pretty scope, Pretty recur) => Pretty (Intro var scope recur) where
   prettyPrec d = \case
-    Unit -> parens mempty
     Bool b -> prettyString (show b)
     Abs v b -> prettyParen (d > 0) $ backslash <+> prettyPrec 0 v <+> dot <+> prettyPrec 0 b
     Pair a b -> prettyParen (d > (-1)) $ prettyPrec (-1) a <> comma <+> prettyPrec 0 b
