@@ -41,4 +41,5 @@ instance (Pretty var, Pretty scope, Pretty recur) => Pretty (Intro var scope rec
     Bool b -> prettyString (show b)
     Abs v b -> prettyParen (d > 0) $ backslash <+> prettyPrec 0 v <+> dot <+> prettyPrec 0 b
     Pair a b -> prettyParen (d > (-1)) $ prettyPrec (-1) a <> comma <+> prettyPrec 0 b
+    Data (N "Unit") [] -> parens mempty
     Data c as -> prettyParen (d > 10) $ prettyPrec 10 c <> fold (map ((space <>) . prettyPrec 11) as)
