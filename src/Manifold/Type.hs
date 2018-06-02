@@ -3,7 +3,7 @@ module Manifold.Type where
 
 import Data.Bifoldable
 import Data.Bifunctor
-import Data.Foldable (fold)
+import Data.Foldable (fold, toList)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
@@ -89,6 +89,10 @@ freeTypeVariables = cata $ \case
   IntroT (var ::: ty :-> rest) -> Set.delete (name var) (freeTypeVariables ty <> rest)
   IntroT i -> bifold i
   Elim e -> fold e
+
+generalize :: Type Name -> Type Name
+generalize ty = foldr ((.->) . (::: typeT)) ty fvs
+  where fvs = toList (freeTypeVariables ty)
 
 
 instance Foldable Type where
