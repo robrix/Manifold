@@ -207,7 +207,7 @@ boolT = Type.boolT <$ keyword "Bool"
 -- Right (Type {unType = IntroT TypeT})
 typeT = Type.typeT <$ keyword "Type"
 
-typeC = Type.typeC <$> constructorName <*> many type' <?> "type constructor"
+typeC = Type.tvar <$> constructorName <?> "type constructor"
 
 tvar = Type.tvar <$> name <?> "type variable"
 
