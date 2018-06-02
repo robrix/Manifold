@@ -125,13 +125,13 @@ datatype = fmap Done $
         constructor = (:::) <$> constructorName <* colon <*> type' <?> "constructor"
 
 
-term, application, true, false, var, let', lambda, tuple, case' :: MonadParsing m => m (Term.Term Name)
+term, application, true, false, var, data', let', lambda, tuple, case' :: MonadParsing m => m (Term.Term Name)
 
 -- | Parse a term.
 term = application
 
 application = atom `chainl1` pure (Term.#) <?> "function application"
-  where atom = choice [ true, false, var, let', lambda, tuple, case' ]
+  where atom = choice [ true, false, var, data', let', lambda, tuple, case' ]
 
 -- $
 -- >>> parseString true "True"
@@ -144,6 +144,8 @@ true = Term.true <$ keyword "True"
 false = Term.false <$ keyword "False"
 
 var = Term.var <$> name <?> "variable"
+
+data' = Term.var <$> constructorName <?> "data constructor"
 
 let' = Term.makeLet <$  keyword "let"
                     <*> name <* op "="
