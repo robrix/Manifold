@@ -22,7 +22,6 @@ checkIsType ty = case unType ty of
   Var name -> do
     context <- askContext
     maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
-  IntroT BoolT -> pure boolT
   IntroT TypeT -> pure typeT
   IntroT (TypeC con ts) -> typeC con <$> traverse checkIsType ts
   IntroT (var ::: _S :-> _T) -> do

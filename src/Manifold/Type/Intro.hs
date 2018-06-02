@@ -9,8 +9,7 @@ import Manifold.Name
 import Manifold.Pretty
 
 data IntroT var scope recur
-  = BoolT
-  | TypeT
+  = TypeT
   | TypeC Name [recur]
   | var :-> scope
   | recur :* recur
@@ -22,7 +21,6 @@ infixl 7 :*
 
 instance Trifoldable IntroT where
   trifoldMap f g h = \case
-    BoolT      -> mempty
     TypeT      -> mempty
     TypeC _ as -> foldMap h as
     v :-> b    -> f v <> g b
@@ -30,7 +28,6 @@ instance Trifoldable IntroT where
 
 instance Trifunctor IntroT where
   trimap f g h = \case
-    BoolT      -> BoolT
     TypeT      -> TypeT
     TypeC c as -> TypeC c (map h as)
     v :-> b    -> f v :-> g b
@@ -44,7 +41,6 @@ instance Bifunctor (IntroT var) where
 
 instance (Pretty var, Pretty scope, Pretty recur) => Pretty (IntroT var scope recur) where
   prettyPrec d = \case
-    BoolT -> showString "Bool"
     TypeT -> showString "Type"
     TypeC c as -> showParen (d > 10) $ prettyPrec 10 c . foldr (.) id (map (fmap (showChar ' ') . prettyPrec 11) as)
     v :-> b -> showParen (d > 0) $ prettyPrec 1 v . showChar ' ' . showString "->" . showChar ' ' . prettyPrec 0 b

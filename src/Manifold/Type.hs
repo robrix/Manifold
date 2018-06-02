@@ -56,7 +56,7 @@ unitT :: Type var
 unitT = typeC (N "Unit") []
 
 boolT :: Type var
-boolT = tintroT BoolT
+boolT = typeC (N "Bool") []
 
 typeC :: Name -> [Type var] -> Type var
 typeC c ts = tintroT (TypeC c ts)
