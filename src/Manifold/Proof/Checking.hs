@@ -155,6 +155,15 @@ infer :: ( Eq usage
 infer term = case unTerm term of
   Var name -> lookupType name
   Value (Pair a b) -> (.*) <$> infer a <*> infer b
+  Value (Data name vs) -> do
+    _C <- lookupType name
+    checkFields _C vs
+    where checkFields ty                                 []       = pure ty
+          checkFields (Type (IntroT (_ ::: ty :-> ret))) (v : vs) = check v ty >> checkFields ret vs
+          checkFields ty                                 _        = do
+            t1 <- freshName
+            t2 <- freshName
+            cannotUnify ty (Annotated t1 zero ::: ty .-> tvar t2)
   Elim (ExL a) -> do
     t1 <- freshName
     t2 <- freshName
