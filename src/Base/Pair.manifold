@@ -1,1 +1,4 @@
 module Base.Pair where
+
+data Pair : Type -> Type -> Type where
+  Pair : (a : Type) -> (b : Type) -> a -> b -> Pair a b
