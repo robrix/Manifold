@@ -7,6 +7,7 @@ module Manifold.Pretty
 , prettyString
 , prettyParen
 , module Doc
+, putDoc
 ) where
 
 import Data.Text.Prettyprint.Doc as Doc hiding (Pretty(..))
