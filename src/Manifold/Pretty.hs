@@ -8,11 +8,13 @@ module Manifold.Pretty
 , prettyParen
 , module Doc
 , putDoc
+, putDocW
 ) where
 
 import Data.Text.Prettyprint.Doc as Doc hiding (Pretty(..))
 import qualified Data.Text.Prettyprint.Doc as Doc
 import Data.Text.Prettyprint.Doc.Render.Terminal
+import Data.Text.Prettyprint.Doc.Util
 
 class Pretty a where
   prettyPrec :: Int -> a -> Doc ann
