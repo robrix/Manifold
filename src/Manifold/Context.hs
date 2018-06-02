@@ -2,6 +2,7 @@
 module Manifold.Context
 ( Context
 , contextLookup
+, contextFind
 , contextFilter
 , emptyContext
 , (|>)
@@ -22,6 +23,9 @@ newtype Context var ty = Context { unContext :: [Constraint var ty] }
 
 contextLookup :: Named var => Name -> Context var ty -> Maybe (Constraint var ty)
 contextLookup name = find ((== name) . constraintName) . unContext
+
+contextFind :: (Constraint var ty -> Bool) -> Context var ty -> Maybe (Constraint var ty)
+contextFind predicate = find predicate . unContext
 
 
 contextFilter :: (Constraint var ty -> Bool) -> Context var ty -> Context var ty
