@@ -1,0 +1,5 @@
+module Base.Natural where
+
+data Natural : Type where
+  Z : Natural
+  S : Natural -> Natural
