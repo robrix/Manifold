@@ -13,6 +13,9 @@ data Pattern
 pair :: Pattern -> Pattern -> Pattern
 pair a b = Constructor (N "Pair") [a, b]
 
+unit :: Pattern
+unit = Constructor (N "Unit") []
+
 instance Pretty Pattern where
   prettyPrec d = \case
     Wildcard -> prettyString "_"
