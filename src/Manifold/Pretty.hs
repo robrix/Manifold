@@ -33,7 +33,7 @@ prettyPrint = putDoc . pretty
 putDoc :: Doc Doc.AnsiStyle -> IO ()
 putDoc doc = do
   options <- layoutOptions
-  Doc.renderIO stdout (layoutPretty options doc)
+  Doc.renderIO stdout (layoutPretty options (doc <> line))
 
 layoutOptions :: IO LayoutOptions
 layoutOptions = do
