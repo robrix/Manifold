@@ -26,7 +26,7 @@ showBrace True  s = showChar '{' . s . showChar '}'
 showBrace False s = s
 
 
-instance Pretty ()
+instance Pretty () where prettyPrec _ _ = id
 
 instance Pretty a => Pretty [a] where
   prettyPrec _ = showListWith (prettyPrec 0)
