@@ -5,6 +5,7 @@ import Control.Monad ((>=>))
 import Control.Monad.Effect
 import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
+import Data.Foldable (traverse_)
 import Data.Semilattice.Lower
 import Data.Version (showVersion)
 import Manifold.Module
@@ -33,7 +34,7 @@ runFile :: [FilePath] -> IO ()
 runFile paths = do
   ms <- traverse (parseFile (whole module') >=> maybe exitFailure pure) paths
   either (prettyPrint @(Error (Annotated ())) >=> const exitFailure)
-         prettyPrint
+         (traverse_ prettyPrint)
          (run (runError
               (runReader (fromModules ms)
               (fmap fst

@@ -50,6 +50,8 @@ library
                      , indentation-trifecta
                      , optparse-applicative
                      , parsers
+                     , prettyprinter
+                     , prettyprinter-ansi-terminal
                      , recursion-schemes
                      , semilattices
                      , semirings-modules

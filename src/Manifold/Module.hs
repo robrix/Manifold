@@ -2,7 +2,6 @@
 module Manifold.Module where
 
 import Control.Monad ((<=<))
-import Data.List
 import qualified Data.Map as Map
 import Data.Semilattice.Lower
 import Manifold.Constraint
@@ -23,9 +22,15 @@ moduleExports = declarationSignatures <=< moduleDeclarations
 
 instance (Pretty var, Pretty def) => Pretty (Module var def) where
   prettyPrec _ (Module name imports decls)
-    = showString "module" . showChar ' ' . prettys name . showChar ' ' . showString "where" . showChar '\n' . showChar '\n'
-    . foldr (.) id (intersperse (showChar '\n') (map (fmap (showString "import" . showChar ' ') . prettys) imports)) . (if null imports then id else showChar '\n' . showChar '\n')
-    . foldr (.) id (intersperse (showChar '\n' . showChar '\n') (map prettys decls)) . showChar '\n'
+    = align $ vvsep
+      [ [ prettyString "module" <+> pretty name <+> prettyString "where" ]
+      , map ((prettyString "import" <+>) . pretty) imports
+      , [ vvsep (map (pure . pretty) decls) ]
+      ]
+    where vvsep :: [[Doc ann]] -> Doc ann
+          vvsep = vsep . (>>= each)
+            where each x | null x    = []
+                         | otherwise = [ vsep x <> line ]
 
 
 newtype ModuleTable var def = ModuleTable { unModuleTable :: Map.Map Name (Module var def) }

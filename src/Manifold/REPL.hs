@@ -10,7 +10,7 @@ import Manifold.Name.Annotated
 import Manifold.Context
 import Manifold.Eval
 import Manifold.Name
-import Manifold.Pretty
+import Manifold.Pretty (Pretty, prettyShow)
 import Manifold.Prompt
 import Manifold.Proof
 import Manifold.Proof.Checking
@@ -37,8 +37,8 @@ command = whole (meta <|> eval <$> term) <?> "command"
           <|> (long "quit" <|> short 'q' <?> "quit") $> pure ()
           <|> (typeOf <$> ((long "type" <|> short 't') *> term) <?> "type of")
           <?> "command; use :? for help")
-        eval term = sendREPL (Eval term) >>= output . either pretty pretty >> repl
-        typeOf term = sendREPL (TypeOf term) >>= output . either pretty pretty >> repl
+        eval term = sendREPL (Eval term) >>= output . either prettyShow prettyShow >> repl
+        typeOf term = sendREPL (TypeOf term) >>= output . either prettyShow prettyShow >> repl
 
         short = symbol . (:[])
         long = symbol

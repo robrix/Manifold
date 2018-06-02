@@ -23,7 +23,7 @@ import Manifold.Declaration
 import Manifold.Module (Module(Module))
 import Manifold.Name (Name(..))
 import Manifold.Pattern as Pattern
-import Manifold.Pretty
+import Manifold.Pretty (prettyShow)
 import qualified Manifold.Term as Term
 import qualified Manifold.Type as Type
 import Prelude hiding (product)
@@ -92,9 +92,9 @@ module' =
           _ -> (name, Bind name tm) : rest
         checkDecls names ((name, Done d) : ds)
           | name `notElem` names = (d :) <$> checkDecls (name:names) ds
-          | otherwise = fail ("redundant definition of " <> pretty name)
-        checkDecls _ ((name, Sig _ _) : _) = fail ("no definition for " <> pretty name)
-        checkDecls _ ((name, Bind _ _) : _) = fail ("no signature for " <> pretty name)
+          | otherwise = fail ("redundant definition of " <> prettyShow name)
+        checkDecls _ ((name, Sig _ _) : _) = fail ("no definition for " <> prettyShow name)
+        checkDecls _ ((name, Bind _ _) : _) = fail ("no signature for " <> prettyShow name)
         checkDecls _ [] = pure []
 
 data Decl

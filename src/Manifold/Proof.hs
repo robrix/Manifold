@@ -44,12 +44,12 @@ data Error var
   deriving (Eq, Ord, Show)
 
 instance Pretty var => Pretty (Error var) where
-  prettyPrec d err = showParen (d > 0) $ showString "error: " . case err of
-    FreeVariable name context -> showString "free variable: " . prettys name . showString " in " . prettys context
-    CannotUnify t1 t2 context -> showString "cannot unify\n" . prettys t1 . showString "\nwith\n" . prettys t2 . showString "\nin\n" . prettys context
-    NoRuleToCheckIsType t context -> showString "cannot prove " . prettys t . showString " is a valid type in context " <> prettys context
-    NoRuleToInferType t -> showString "cannot infer type of term " . prettys t
-    UnknownModule name -> showString "unknown module: " . prettys name
+  prettyPrec d err = prettyParen (d > 0) $ prettyString "error:" <+> case err of
+    FreeVariable name context -> prettyString "free variable:" <+> pretty name <+> prettyString "in" <+> pretty context
+    CannotUnify t1 t2 context -> sep $ [ prettyString "cannot unify", pretty t1, prettyString "with", pretty t2, prettyString "in", pretty context ]
+    NoRuleToCheckIsType t context -> prettyString "cannot prove" <+> pretty t <+> prettyString "is a valid type in context" <+> pretty context
+    NoRuleToInferType t -> prettyString "cannot infer type of term" <+> pretty t
+    UnknownModule name -> prettyString "unknown module:" <+> pretty name
 
 runError :: Proof usage (Exc (Error var) ': effects) a -> Proof usage effects (Either (Error var) a)
 runError = Exception.runError

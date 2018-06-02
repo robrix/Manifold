@@ -1,32 +1,42 @@
 {-# LANGUAGE DefaultSignatures #-}
-module Manifold.Pretty where
+module Manifold.Pretty
+( Pretty(..)
+, pretty
+, prettyShow
+, prettyPrint
+, prettyString
+, prettyParen
+, module Doc
+) where
 
-import Text.Show
+import Data.Text.Prettyprint.Doc as Doc hiding (Pretty(..))
+import qualified Data.Text.Prettyprint.Doc as Doc
+import Data.Text.Prettyprint.Doc.Render.Terminal
 
 class Pretty a where
-  prettyPrec :: Int -> a -> ShowS
-  default prettyPrec :: Show a => Int -> a -> ShowS
-  prettyPrec = showsPrec
+  prettyPrec :: Int -> a -> Doc ann
+  default prettyPrec :: Show a => Int -> a -> Doc ann
+  prettyPrec d a = Doc.pretty (showsPrec d a "")
 
-prettys :: Pretty a => a -> ShowS
-prettys = prettyPrec 0
+pretty :: Pretty a => a -> Doc ann
+pretty = prettyPrec 0
 
-pretty :: Pretty a => a -> String
-pretty = ($ "") . prettys
+prettyShow :: Pretty a => a -> String
+prettyShow = show . pretty
 
 prettyPrint :: Pretty a => a -> IO ()
-prettyPrint = putStrLn . pretty
+prettyPrint = putDoc . (<> line) . pretty
 
 
-showSpace :: ShowS -> ShowS
-showSpace s = showChar ' ' . s . showChar ' '
+prettyString :: String -> Doc ann
+prettyString = Doc.pretty
 
-showBrace :: Bool -> ShowS -> ShowS
-showBrace True  s = showChar '{' . s . showChar '}'
-showBrace False s = s
+prettyParen :: Bool -> Doc ann -> Doc ann
+prettyParen True = parens
+prettyParen False = id
 
 
-instance Pretty () where prettyPrec _ _ = id
+instance Pretty () where prettyPrec _ _ = mempty
 
 instance Pretty a => Pretty [a] where
-  prettyPrec _ = showListWith (prettyPrec 0)
+  prettyPrec _ = list . map (prettyPrec 0)

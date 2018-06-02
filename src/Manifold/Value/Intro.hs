@@ -3,6 +3,7 @@ module Manifold.Value.Intro where
 
 import Data.Bifoldable
 import Data.Bifunctor
+import Data.Foldable (fold)
 import Data.Trifoldable
 import Data.Trifunctor
 import Manifold.Name
@@ -40,8 +41,8 @@ instance Bifunctor (Intro var) where
 
 instance (Pretty var, Pretty scope, Pretty recur) => Pretty (Intro var scope recur) where
   prettyPrec d = \case
-    Unit -> showParen True id
-    Bool b -> showsPrec d b
-    Abs v b -> showParen (d > 0) $ showChar '\\' . showChar ' ' . prettyPrec 0 v . showChar ' '  . showChar '.' . showChar ' ' . prettyPrec 0 b
-    Pair a b -> showParen (d > (-1)) $ prettyPrec (-1) a . showChar ',' . showChar ' ' . prettyPrec 0 b
-    Data c as -> showParen (d > 10) $ prettyPrec 10 c . foldr (.) id (map (fmap (showChar ' ') . prettyPrec 11) as)
+    Unit -> parens mempty
+    Bool b -> prettyString (show b)
+    Abs v b -> prettyParen (d > 0) $ backslash <+> prettyPrec 0 v <+> dot <+> prettyPrec 0 b
+    Pair a b -> prettyParen (d > (-1)) $ prettyPrec (-1) a <> comma <+> prettyPrec 0 b
+    Data c as -> prettyParen (d > 10) $ prettyPrec 10 c <> fold (map ((space <>) . prettyPrec 11) as)

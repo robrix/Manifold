@@ -13,13 +13,14 @@ data Declaration var def
 
 instance (Pretty var, Pretty def) => Pretty (Declaration var def) where
   prettyPrec _ (Binding sig def)
-    = prettys sig . showChar '\n'
-    . prettys (constraintVar sig) . showChar ' ' . showChar '=' . showChar ' ' . prettys def
+    = vsep [ pretty sig, pretty (constraintVar sig) <+> equals <+> pretty def ]
   prettyPrec _ (Datatype sig [])
-    = showString "data" . showChar ' ' . prettys sig . showChar '\n'
+    = prettyString "data" <+> pretty sig <> line
   prettyPrec _ (Datatype sig constructors)
-    = showString "data" . showChar ' ' . prettys sig . showChar ' ' . showString "where" . showChar '\n'
-    . foldr (.) id (map (\ c -> showChar ' ' . showChar ' ' . prettys c . showChar '\n') constructors)
+    = nest 2 . vsep
+      $ prettyString "data" <+> pretty sig <+> prettyString "where"
+      : map pretty constructors
+
 
 declarationSignature :: Declaration var def -> Constraint var (Type var)
 declarationSignature (Binding sig _) = sig
