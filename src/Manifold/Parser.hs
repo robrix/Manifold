@@ -178,9 +178,8 @@ case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <*>
 pattern :: (Monad m, TokenParsing m) => m Pattern
 pattern = (Variable <$> name <?> "binding pattern")
       <|> (Wildcard <$ token (string "_") <?> "wildcard pattern")
-      <|> (Pattern.Constructor <$> constructorName <*> pure [] <?> "nullary data constructor pattern")
-      <|> (parens (pattern' `chainl1` (Pattern.pair <$ comma) <|> pure Pattern.unit) <?> "tuple pattern")
-  where pattern' = pattern <|> (Pattern.Constructor <$> constructorName <*> many pattern <?> "n-ary data constructor pattern")
+      <|> (Pattern.Constructor <$> constructorName <*> many pattern <?> "n-ary data constructor pattern")
+      <|> (parens (pattern `chainl1` (Pattern.pair <$ comma) <|> pure Pattern.unit) <?> "tuple pattern")
 
 
 type', piType, product, typeApplication, typeT, typeC, tvar :: (Monad m, TokenParsing m) => m (Type.Type Name)
