@@ -46,7 +46,7 @@ data Error var
 instance Pretty var => Pretty (Error var) where
   prettyPrec d err = prettyParen (d > 0) $ prettyString "error:" <+> case err of
     FreeVariable name context -> prettyString "free variable:" <+> pretty name <+> prettyString "in" <+> pretty context
-    CannotUnify t1 t2 context -> sep $ [ prettyString "cannot unify", pretty t1, prettyString "with", pretty t2, prettyString "in", pretty context ]
+    CannotUnify t1 t2 context -> sep [ prettyString "cannot unify", pretty t1, prettyString "with", pretty t2, prettyString "in", pretty context ]
     NoRuleToCheckIsType t context -> prettyString "cannot prove" <+> pretty t <+> prettyString "is a valid type in context" <+> pretty context
     NoRuleToInferType t -> prettyString "cannot infer type of term" <+> pretty t
     UnknownModule name -> prettyString "unknown module:" <+> pretty name
