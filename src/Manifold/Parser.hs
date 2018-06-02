@@ -135,12 +135,12 @@ application = atom `chainl1` pure (Term.#) <?> "function application"
 
 -- $
 -- >>> parseString true "True"
--- Right (Term {unTerm = Value (Bool True)})
+-- Right (Term {unTerm = Value (Data (N "True") [])})
 true = Term.true <$ keyword "True"
 
 -- $
 -- >>> parseString false "False"
--- Right (Term {unTerm = Value (Bool False)})
+-- Right (Term {unTerm = Value (Data (N "False") [])})
 false = Term.false <$ keyword "False"
 
 var = Term.var <$> name <?> "variable"
@@ -161,13 +161,13 @@ lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
 
 -- $
 -- >>> parseString tuple "()"
--- Right (Term {unTerm = Value Unit})
+-- Right (Term {unTerm = Value (Data (N "Unit") [])})
 -- >>> parseString tuple "(True)"
--- Right (Term {unTerm = Value (Bool True)})
+-- Right (Term {unTerm = Value (Data (N "True") [])})
 -- >>> parseString tuple "(True, False)"
--- Right (Term {unTerm = Value (Pair (Term {unTerm = Value (Bool True)}) (Term {unTerm = Value (Bool False)}))})
+-- Right (Term {unTerm = Value (Pair (Term {unTerm = Value (Data (N "True") [])}) (Term {unTerm = Value (Data (N "False") [])}))})
 -- >>> parseString tuple "((), True, False)"
--- Right (Term {unTerm = Value (Pair (Term {unTerm = Value (Pair (Term {unTerm = Value Unit}) (Term {unTerm = Value (Bool True)}))}) (Term {unTerm = Value (Bool False)}))})
+-- Right (Term {unTerm = Value (Pair (Term {unTerm = Value (Pair (Term {unTerm = Value (Data (N "Unit") [])}) (Term {unTerm = Value (Data (N "True") [])}))}) (Term {unTerm = Value (Data (N "False") [])}))})
 tuple = parens (term `chainl1` (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
 
 case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <*>
