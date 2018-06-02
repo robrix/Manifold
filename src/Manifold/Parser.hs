@@ -111,7 +111,7 @@ signature, binding :: MonadParsing m => m (Name -> Decl)
 
 declaration = choice [ name <**> (signature <|> binding), datatype ]
 
-signature = flip Sig <$ colon <*> type' <?> "type signature"
+signature = flip Sig . Type.generalize <$ colon <*> type' <?> "type signature"
 
 binding = flip Bind <$ op "=" <*> term <?> "binding"
 
