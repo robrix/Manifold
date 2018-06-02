@@ -2,6 +2,7 @@ module Prelude where
 
 import Base.Bool
 import Base.Function
+import Base.Pair
 
 data Void : Type
 
