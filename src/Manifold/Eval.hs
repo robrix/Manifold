@@ -20,7 +20,6 @@ eval :: Member (Reader Environment) effects
 eval (Term term) = case term of
   Var name -> fmap constraintValue . contextLookup name <$> askEnv >>= maybe (error "free variable, should have been caught by typechecker") pure
   Term.Value i -> case i of
-    Bool b -> pure (value (Bool b))
     Abs var body -> do
       env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . constraintName) <$> ask
       pure (value (Abs (name var ::: env) body))
@@ -41,11 +40,8 @@ eval (Term term) = case term of
     If c t e -> do
       v <- eval c
       case unValue v of
-        Bool b ->
-          if b then
-            eval t
-          else
-            eval e
+        Data (N "True")  [] -> eval t
+        Data (N "False") [] -> eval e
         _ -> error "branch on non-boolean, should have been caught by typechecker"
     Case s bs -> do
       s' <- eval s

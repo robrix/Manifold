@@ -40,10 +40,10 @@ unit :: Term var
 unit = data' (N "Unit") []
 
 true :: Term var
-true = intro (Bool True)
+true = data' (N "True") []
 
 false :: Term var
-false = intro (Bool False)
+false = data' (N "False") []
 
 iff :: Term var -> Term var -> Term var -> Term var
 iff c t e = elim (If c t e)
