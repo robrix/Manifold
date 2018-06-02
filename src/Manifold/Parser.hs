@@ -193,7 +193,7 @@ piType = ((Type..->) <$> parens constraint <* op "->" <*> piType <?> "dependent 
         makePi ty1 (Just ty2) = I (-1) ::: ty1 Type..-> ty2
         constraint = (:::) <$> name <* colon <*> type'
 
-product = typeApplication `chainl1` ((Type..*) <$ symbolic '*') <?> "product type"
+product = typeApplication `chainl1` ((Type..*) <$ op "*") <?> "product type"
 
 typeApplication = atom `chainl1` pure (Type.#) <?> "type application"
   where atom = choice [ boolT, typeT, typeC, tvar ]
