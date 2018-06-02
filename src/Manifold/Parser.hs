@@ -135,12 +135,12 @@ application = atom `chainl1` pure (Term.#) <?> "function application"
 
 -- $
 -- >>> parseString true "True"
--- Right (Term {unTerm = Intro (Bool True)})
+-- Right (Term {unTerm = Value (Bool True)})
 true = Term.true <$ keyword "True"
 
 -- $
 -- >>> parseString false "False"
--- Right (Term {unTerm = Intro (Bool False)})
+-- Right (Term {unTerm = Value (Bool False)})
 false = Term.false <$ keyword "False"
 
 var = Term.var <$> name <?> "variable"
@@ -159,13 +159,13 @@ lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
 
 -- $
 -- >>> parseString tuple "()"
--- Right (Term {unTerm = Intro Unit})
+-- Right (Term {unTerm = Value Unit})
 -- >>> parseString tuple "(True)"
--- Right (Term {unTerm = Intro (Bool True)})
+-- Right (Term {unTerm = Value (Bool True)})
 -- >>> parseString tuple "(True, False)"
--- Right (Term {unTerm = Intro (Pair (Term {unTerm = Intro (Bool True)}) (Term {unTerm = Intro (Bool False)}))})
+-- Right (Term {unTerm = Value (Pair (Term {unTerm = Value (Bool True)}) (Term {unTerm = Value (Bool False)}))})
 -- >>> parseString tuple "((), True, False)"
--- Right (Term {unTerm = Intro (Pair (Term {unTerm = Intro (Pair (Term {unTerm = Intro Unit}) (Term {unTerm = Intro (Bool True)}))}) (Term {unTerm = Intro (Bool False)}))})
+-- Right (Term {unTerm = Value (Pair (Term {unTerm = Value (Pair (Term {unTerm = Value Unit}) (Term {unTerm = Value (Bool True)}))}) (Term {unTerm = Value (Bool False)}))})
 tuple = parens (term `chainl1` (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
 
 case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <*>
@@ -197,12 +197,12 @@ typeApplication = atom `chainl1` pure (Type.#) <?> "type application"
 
 -- $
 -- >>> parseString boolT "Bool"
--- Right (Type {unType = Intro BoolT})
+-- Right (Type {unType = IntroT BoolT})
 boolT = Type.boolT <$ keyword "Bool"
 
 -- $
 -- >>> parseString typeT "Type"
--- Right (Type {unType = Intro TypeT})
+-- Right (Type {unType = IntroT TypeT})
 typeT = Type.typeT <$ keyword "Type"
 
 typeC = Type.typeC <$> constructorName <*> many type' <?> "type constructor"
