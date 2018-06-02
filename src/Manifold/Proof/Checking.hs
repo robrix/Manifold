@@ -55,7 +55,7 @@ cacheModule (Module name imports decls) = do
   m <$ cacheEvaluated m
   where combine decl rest = do
           decl' <- checkDeclaration decl
-          declarationSignature decl' >- (decl' :) <$> rest
+          foldr (>-) ((decl' :) <$> rest) (declarationSignatures decl')
 
 lookupUnevaluated :: Member (Reader (ModuleTable Name (Term Name))) effects => Name -> Proof usage effects (Maybe (Module Name (Term Name)))
 lookupUnevaluated name = asks (Module.lookup name)
