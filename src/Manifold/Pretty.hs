@@ -8,13 +8,13 @@ module Manifold.Pretty
 , prettyParen
 , module Doc
 , putDoc
-, putDocW
 ) where
 
 import Data.Text.Prettyprint.Doc as Doc hiding (Pretty(..))
 import qualified Data.Text.Prettyprint.Doc as Doc
-import Data.Text.Prettyprint.Doc.Render.Terminal
-import Data.Text.Prettyprint.Doc.Util
+import qualified Data.Text.Prettyprint.Doc.Render.Terminal as Doc
+import System.Console.Terminal.Size as Size
+import System.IO (stdout)
 
 class Pretty a where
   prettyPrec :: Int -> a -> Doc ann
@@ -29,6 +29,16 @@ prettyShow = show . pretty
 
 prettyPrint :: Pretty a => a -> IO ()
 prettyPrint = putDoc . pretty
+
+putDoc :: Doc Doc.AnsiStyle -> IO ()
+putDoc doc = do
+  options <- layoutOptions
+  Doc.renderIO stdout (layoutPretty options doc)
+
+layoutOptions :: IO LayoutOptions
+layoutOptions = do
+  s <- maybe 80 Size.width <$> size
+  pure LayoutOptions { layoutPageWidth = AvailablePerLine s 1 }
 
 
 prettyString :: String -> Doc ann

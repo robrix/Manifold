@@ -55,6 +55,7 @@ library
                      , recursion-schemes
                      , semilattices
                      , semirings-modules
+                     , terminal-size
                      , trifecta
                      , unordered-containers
   hs-source-dirs:      src
