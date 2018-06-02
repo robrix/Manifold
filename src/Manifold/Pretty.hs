@@ -25,7 +25,7 @@ prettyShow :: Pretty a => a -> String
 prettyShow = show . pretty
 
 prettyPrint :: Pretty a => a -> IO ()
-prettyPrint = putDoc . (<> line) . pretty
+prettyPrint = putDoc . pretty
 
 
 prettyString :: String -> Doc ann
