@@ -3,8 +3,10 @@ module Manifold.Type where
 
 import Data.Bifoldable
 import Data.Bifunctor
+import Data.Foldable (fold)
 import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Data.Maybe (fromMaybe)
+import qualified Data.Set as Set
 import Data.Trifoldable
 import Data.Trifunctor
 import Manifold.Constraint
@@ -77,6 +79,16 @@ infixl 7 .*
 f # a = telim (App f a)
 
 infixl 9 #
+
+
+freeTypeVariables :: Named var => Type var -> Set.Set Name
+freeTypeVariables = cata $ \case
+  Var name -> Set.singleton name
+  Intro (Abs (var ::: ty) rest) -> Set.delete (name var) (freeTypeVariables ty <> rest)
+  Intro i -> bifold i
+  IntroT (var ::: ty :-> rest) -> Set.delete (name var) (freeTypeVariables ty <> rest)
+  IntroT i -> bifold i
+  Elim e -> fold e
 
 
 instance Foldable Type where
