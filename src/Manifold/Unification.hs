@@ -6,6 +6,7 @@ import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.State
 import Data.Functor (($>))
 import Manifold.Constraint
+import Manifold.Context
 import Manifold.Name
 import Manifold.Proof
 import Manifold.Substitution
@@ -19,6 +20,7 @@ unify :: ( Eq var
                     , Fresh
                     , State (Substitution (Type var))
                     ] effects
+         , Member (Reader (Context var (Type var))) effects
          , Named var
          )
       => Type var

@@ -17,11 +17,11 @@ newtype Proof usage effects a = Proof { runProof :: Eff effects a }
   deriving (Applicative, Effectful, Functor, Monad)
 
 
-freeVariable :: Member (Exc (Error (Annotated usage))) effects => Name -> Proof usage effects a
-freeVariable = throwError . FreeVariable
+freeVariable :: (Member (Exc (Error (Annotated usage))) effects, Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects) => Name -> Proof usage effects a
+freeVariable name = ask >>= throwError . FreeVariable name
 
-cannotUnify :: Member (Exc (Error var)) effects => Type var -> Type var -> Proof usage effects a
-cannotUnify t1 t2 = Exception.throwError (CannotUnify t1 t2)
+cannotUnify :: (Member (Exc (Error var)) effects, Member (Reader (Context var (Type var))) effects) => Type var -> Type var -> Proof usage effects a
+cannotUnify t1 t2 = ask >>= Exception.throwError . CannotUnify t1 t2
 
 noRuleToCheckIsType :: Member (Exc (Error (Annotated usage))) effects => Type Name -> Proof usage effects a
 noRuleToCheckIsType = throwError . NoRuleToCheckIsType
@@ -36,8 +36,8 @@ throwError :: Member (Exc (Error (Annotated usage))) effects => Error (Annotated
 throwError = Exception.throwError
 
 data Error var
-  = FreeVariable Name
-  | CannotUnify (Type var) (Type var)
+  = FreeVariable Name (Context var (Type var))
+  | CannotUnify (Type var) (Type var) (Context var (Type var))
   | NoRuleToCheckIsType (Type Name)
   | NoRuleToInferType (Term Name)
   | UnknownModule Name
@@ -45,8 +45,8 @@ data Error var
 
 instance Pretty var => Pretty (Error var) where
   prettyPrec d err = showParen (d > 0) $ showString "error: " . case err of
-    FreeVariable name -> showString "free variable: " . prettys name
-    CannotUnify t1 t2 -> showString "cannot unify\n" . prettys t1 . showString "\nwith\n" . prettys t2
+    FreeVariable name context -> showString "free variable: " . prettys name . showString " in " . prettys context
+    CannotUnify t1 t2 context -> showString "cannot unify\n" . prettys t1 . showString "\nwith\n" . prettys t2 . showString "\nin\n" . prettys context
     NoRuleToCheckIsType t -> showString "cannot prove " . prettys t . showString " is a valid type"
     NoRuleToInferType t -> showString "cannot infer type of term " . prettys t
     UnknownModule name -> showString "unknown module: " . prettys name
