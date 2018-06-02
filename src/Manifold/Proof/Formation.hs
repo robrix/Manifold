@@ -19,7 +19,7 @@ checkIsType :: ( Members '[ Exc (Error (Annotated usage))
             => Type Name
             -> Proof usage effects (Type (Annotated usage))
 checkIsType ty = case unType ty of
-  Var name -> lookupType name
+  Var name -> tvar name <$ lookupType name
   IntroT TypeT -> pure typeT
   IntroT (TypeC con ts) -> typeC con <$> traverse checkIsType ts
   IntroT (var ::: _S :-> _T) -> do
