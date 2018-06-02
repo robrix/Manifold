@@ -1,8 +1,6 @@
-{-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase #-}
+{-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase, OverloadedStrings #-}
 module Manifold.Term.Elim where
 
-import Data.Foldable (fold)
-import Data.List (intersperse)
 import Manifold.Pattern
 import Manifold.Pretty
 
@@ -24,8 +22,10 @@ instance Pretty recur => Pretty (Elim recur) where
       , prettyString "then" <+> prettyPrec 0    t
       , prettyString "then" <+> prettyPrec (-1) e
       ]
-    Case subject branches -> prettyParen (d > 11) . nest 2 . vsep $
-      [ prettyString "case" <+> prettyPrec 0 subject <+> prettyString "of"
-      , braces (fold (intersperse semi (map (uncurry showBranch) branches)))
-      ]
+    Case subject branches -> prettyParen (d > 11) . nest 2 . group
+      $   prettyString "case" <+> prettyPrec 0 subject <+> prettyString "of"
+      <+> align (encloseSep open close sep (map (uncurry showBranch) branches))
       where showBranch pattern body = pretty pattern <+> prettyString "->" <+> pretty body
+            open = flatAlt "" "{ "
+            close = flatAlt "" " }"
+            sep = flatAlt "" " ; "
