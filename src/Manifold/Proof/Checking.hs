@@ -5,6 +5,7 @@ import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
+import Data.Foldable (foldl')
 import Data.Semiring (Semiring(..), Unital(..), zero)
 import Manifold.Constraint
 import Manifold.Context
@@ -12,6 +13,7 @@ import Manifold.Declaration
 import Manifold.Module as Module
 import Manifold.Name
 import Manifold.Name.Annotated
+import Manifold.Pattern
 import Manifold.Proof
 import Manifold.Proof.Formation
 import Manifold.Purpose
@@ -106,9 +108,38 @@ check term expected = case (unTerm term, unType expected) of
     sigma <- ask
     _T' <- Annotated var (sigma >< pi) ::: _S >- check body _T
     pure (Annotated name pi ::: _S .-> _T')
+  (Elim (Case subject matches), _) -> do
+    subject' <- infer subject
+    foldl' (checkMatch subject') (pure expected) matches
   _ -> do
     actual <- infer term
     unify actual expected
+  where checkMatch subject expected (pattern, body) = do
+          expected' <- expected
+          checkPattern pattern subject (check body expected')
+
+checkPattern :: ( Eq usage
+                , Members '[ Exc (Error (Annotated usage))
+                           , Fresh
+                           , Reader usage
+                           , Reader (Context (Annotated usage) (Type (Annotated usage)))
+                           , State (Substitution (Type (Annotated usage)))
+                           ] effects
+                , Monoid usage
+                )
+             => Pattern
+             -> Type (Annotated usage)
+             -> Proof usage effects (Type (Annotated usage))
+             -> Proof usage effects (Type (Annotated usage))
+checkPattern Wildcard                    _       = id
+checkPattern (Variable name)             subject = (Annotated name zero ::: subject >-)
+checkPattern (Constructor name patterns) subject = \ action -> do
+  context <- askContext
+  conTy <- maybe (freeVariable name) (pure . constraintValue) (contextLookup name context)
+  checkPatterns conTy patterns action
+  where checkPatterns ty                                 []       = (unify ty subject >>)
+        checkPatterns (Type (IntroT (_ ::: ty :-> ret))) (p : ps) = checkPattern p ty . checkPatterns ret ps
+        checkPatterns ty                                 _        = const (cannotUnify ty subject)
 
 infer :: ( Eq usage
          , Members '[ Exc (Error (Annotated usage))
