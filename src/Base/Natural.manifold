@@ -3,3 +3,9 @@ module Base.Natural where
 data Natural : Type where
   Z : Natural
   S : Natural -> Natural
+
+-- TODO: we really ought to support operators
+plus : Natural -> Natural -> Natural
+plus = \ a b . case a of
+  Z -> b
+  S a' -> S (plus a' b)
