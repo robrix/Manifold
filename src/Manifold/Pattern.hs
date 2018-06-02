@@ -10,6 +10,9 @@ data Pattern
   | Constructor Name [Pattern]
   deriving (Eq, Ord, Show)
 
+pair :: Pattern -> Pattern -> Pattern
+pair a b = Constructor (N "Pair") [a, b]
+
 instance Pretty Pattern where
   prettyPrec d = \case
     Wildcard -> prettyString "_"
