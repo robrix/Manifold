@@ -9,3 +9,8 @@ plus : Natural -> Natural -> Natural
 plus = \ a b . case a of
   Z -> b
   S a' -> S (plus a' b)
+
+times : Natural -> Natural -> Natural
+times = \ a b . case a of
+  Z -> Z
+  S a' -> plus b (times a' b)
