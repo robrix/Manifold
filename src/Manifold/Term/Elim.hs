@@ -1,13 +1,14 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase, OverloadedStrings #-}
 module Manifold.Term.Elim where
 
+import Manifold.Name
 import Manifold.Pattern
 import Manifold.Pretty
 
 data Elim recur
   = App recur recur
   | If recur recur recur
-  | Case recur [(Pattern, recur)]
+  | Case recur [(Pattern Name, recur)]
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 instance Pretty recur => Pretty (Elim recur) where

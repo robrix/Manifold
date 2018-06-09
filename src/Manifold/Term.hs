@@ -83,7 +83,7 @@ f # a = elim (App f a)
 infixl 9 #
 
 
-case' :: Term var -> [(Pattern, Term var)] -> Term var
+case' :: Term var -> [(Pattern Name, Term var)] -> Term var
 case' s bs = elim (Case s bs)
 
 

@@ -127,7 +127,7 @@ checkPattern :: ( Eq usage
                            ] effects
                 , Monoid usage
                 )
-             => Pattern
+             => Pattern Name
              -> Type (Annotated usage)
              -> Proof usage effects (Type (Annotated usage))
              -> Proof usage effects (Type (Annotated usage))

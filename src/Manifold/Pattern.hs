@@ -4,19 +4,19 @@ module Manifold.Pattern where
 import Manifold.Name
 import Manifold.Pretty
 
-data Pattern
+data Pattern var
   = Wildcard
-  | Variable Name
-  | Constructor Name [Pattern]
+  | Variable var
+  | Constructor var [Pattern var]
   deriving (Eq, Ord, Show)
 
-pair :: Pattern -> Pattern -> Pattern
+pair :: Pattern Name -> Pattern Name -> Pattern Name
 pair a b = Constructor (N "Pair") [a, b]
 
-unit :: Pattern
+unit :: Pattern Name
 unit = Constructor (N "Unit") []
 
-instance Pretty Pattern where
+instance Pretty var => Pretty (Pattern var) where
   prettyPrec d = \case
     Wildcard -> prettyString "_"
     Variable name -> prettyPrec d name

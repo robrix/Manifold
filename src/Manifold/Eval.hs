@@ -63,7 +63,7 @@ name .= value = local (|> (name ::: value))
 infixl 1 .=
 
 
-match :: Member (Reader Environment) effects => Value -> Pattern -> Maybe (Proof usage effects a -> Proof usage effects a)
+match :: Member (Reader Environment) effects => Value -> Pattern Name -> Maybe (Proof usage effects a -> Proof usage effects a)
 match _ Wildcard = Just id
 match s (Variable name) = Just (name .= s)
 match (Value.Value (Data c vs)) (Constructor c' ps)
