@@ -59,8 +59,6 @@ unify t1 t2
         pure (setName n' v1 ::: t' .-> b')
       | a1 :* b1 <- i1, a2 :* b2 <- i2 -> (.*) <$> unify a1 a2 <*> unify b1 b2
     (Elim e1, Elim e2)
-      | ExL a1      <- e1, ExL a2      <- e2 -> telim . ExL <$> unify a1 a2
-      | ExR a1      <- e1, ExR a2      <- e2 -> telim . ExR <$> unify a1 a2
       | App f1 a1   <- e1, App f2 a2   <- e2 -> fmap telim . App <$> unify f1 f2 <*> unify a1 a2
       | If c1 t1 e1 <- e1, If c2 t2 e2 <- e2 -> fmap (fmap telim) . If <$> unify c1 c2 <*> unify t1 t2 <*> unify e1 e2
     _                                        -> cannotUnify t1 t2

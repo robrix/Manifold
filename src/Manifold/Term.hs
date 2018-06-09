@@ -53,10 +53,10 @@ pair :: Term var -> Term var -> Term var
 pair a b = intro (Pair a b)
 
 exl :: Term var -> Term var
-exl = elim . ExL
+exl = (var (N "exl") #)
 
 exr :: Term var -> Term var
-exr = elim . ExR
+exr = (var (N "exr") #)
 
 
 data' :: Name -> [Term var] -> Term var

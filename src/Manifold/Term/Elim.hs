@@ -5,17 +5,13 @@ import Manifold.Pattern
 import Manifold.Pretty
 
 data Elim recur
-  = ExL recur
-  | ExR recur
-  | App recur recur
+  = App recur recur
   | If recur recur recur
   | Case recur [(Pattern, recur)]
   deriving (Eq, Foldable, Functor, Ord, Show, Traversable)
 
 instance Pretty recur => Pretty (Elim recur) where
   prettyPrec d = \case
-    ExL a -> prettyParen (d > 10) $ prettyString "exl" <+> prettyPrec 11 a
-    ExR a -> prettyParen (d > 10) $ prettyString "exr" <+> prettyPrec 11 a
     App f a -> prettyParen (d > 10) $ prettyPrec 10 f <+> prettyPrec 11 a
     If c t e -> prettyParen (d > (-1)) . align . sep $
       [ prettyString "if"   <+> prettyPrec 0    c

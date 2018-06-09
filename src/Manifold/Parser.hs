@@ -223,7 +223,7 @@ identifier     = ident (IdentifierStyle "identifier" lower (alphaNum <|> char '\
 typeIdentifier = ident (IdentifierStyle "type identifier" upper (alphaNum <|> char '\'') reservedWords Identifier ReservedIdentifier) <?> "type identifier"
 
 reservedWords :: HashSet.HashSet String
-reservedWords =  HashSet.fromList [ "exl", "exr", "let", "in", "module", "where", "import", "data", "case", "of" ]
+reservedWords =  HashSet.fromList [ "let", "in", "module", "where", "import", "data", "case", "of" ]
 
 keyword, op :: TokenParsing m => String -> m String
 

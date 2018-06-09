@@ -164,16 +164,6 @@ infer term = case unTerm term of
             t1 <- freshName
             t2 <- freshName
             cannotUnify ty (Annotated t1 zero ::: ty .-> tvar t2)
-  Elim (ExL a) -> do
-    t1 <- freshName
-    t2 <- freshName
-    _ <- check a (tvar t1 .* tvar t2)
-    pure (tvar t1)
-  Elim (ExR a) -> do
-    t1 <- freshName
-    t2 <- freshName
-    _ <- check a (tvar t1 .* tvar t2)
-    pure (tvar t2)
   Elim (App f a) -> do
     n <- I <$> fresh
     t1 <- freshName
