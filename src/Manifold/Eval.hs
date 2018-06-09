@@ -64,8 +64,8 @@ infixl 1 .=
 
 
 match :: Member (Reader Environment) effects => Value -> Pattern Name -> Maybe (Proof usage effects a -> Proof usage effects a)
-match _ Wildcard = Just id
-match s (Variable name) = Just (name .= s)
-match (Value.Value (Data c vs)) (Constructor c' ps)
+match _ (Pattern Wildcard) = Just id
+match s (Pattern (Variable name)) = Just (name .= s)
+match (Value.Value (Data c vs)) (Pattern (Constructor c' ps))
   | c == c', length vs == length ps = foldr (.) id <$> sequenceA (zipWith match vs ps)
 match _ _ = Nothing

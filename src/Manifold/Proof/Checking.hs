@@ -131,9 +131,9 @@ checkPattern :: ( Eq usage
              -> Type (Annotated usage)
              -> Proof usage effects (Type (Annotated usage))
              -> Proof usage effects (Type (Annotated usage))
-checkPattern Wildcard                    _       = id
-checkPattern (Variable name)             subject = (Annotated name zero ::: subject >-)
-checkPattern (Constructor name patterns) subject = \ action -> do
+checkPattern (Pattern Wildcard)                    _       = id
+checkPattern (Pattern (Variable name))             subject = (Annotated name zero ::: subject >-)
+checkPattern (Pattern (Constructor name patterns)) subject = \ action -> do
   conTy <- lookupType name
   checkPatterns conTy patterns action
   where checkPatterns ty                                 []       = (unify ty subject >>)
