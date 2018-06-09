@@ -39,7 +39,6 @@ unify t1 t2
         b' <- unify (apply (singletonSubst (name v1) (tvar n')) b1)
                     (apply (singletonSubst (name v2) (tvar n')) b2)
         pure (tintro (Abs (setName n' v1 ::: t') b'))
-      | Pair a1 b1 <- i1, Pair a2 b2 <- i2 -> fmap tintro . Pair <$> unify a1 a2 <*> unify b1 b2
       | Data n1 ts1 <- i1
       , Data n2 ts2 <- i2
       , n1 == n2

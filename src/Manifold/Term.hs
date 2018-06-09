@@ -50,7 +50,7 @@ iff c t e = elim (If c t e)
 
 
 pair :: Term var -> Term var -> Term var
-pair a b = intro (Pair a b)
+pair a b = data' (N "Pair") [a, b]
 
 exl :: Term var -> Term var
 exl = (var (N "exl") #)

@@ -154,7 +154,6 @@ infer :: ( Eq usage
       -> Proof usage effects (Type (Annotated usage))
 infer term = case unTerm term of
   Var name -> lookupType name
-  Value (Pair a b) -> (.*) <$> infer a <*> infer b
   Value (Data name vs) -> do
     _C <- lookupType name
     checkFields _C vs

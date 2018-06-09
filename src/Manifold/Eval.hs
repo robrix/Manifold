@@ -23,7 +23,6 @@ eval (Term term) = case term of
     Abs var body -> do
       env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . constraintName) <$> ask
       pure (value (Abs (name var ::: env) body))
-    Pair a b -> fmap value . Pair <$> eval a <*> eval b
     Data c as -> value . Data c <$> traverse eval as
   Elim e -> case e of
     App f a -> do
