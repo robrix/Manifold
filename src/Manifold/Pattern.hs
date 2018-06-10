@@ -7,10 +7,10 @@ import Data.Functor.Foldable (Base, Corecursive(..), Recursive(..))
 import Manifold.Name
 import Manifold.Pretty
 
-newtype Pattern var = Pattern { unPattern :: PExpr var (Pattern var) }
+newtype Pattern var = Pattern { unPattern :: PatternF var (Pattern var) }
   deriving (Eq, Ord, Show)
 
-type instance Base (Pattern var) = PExpr var
+type instance Base (Pattern var) = PatternF var
 
 instance Recursive   (Pattern var) where project = unPattern
 instance Corecursive (Pattern var) where embed   =   Pattern
@@ -36,31 +36,31 @@ unit :: Pattern var
 unit = Pattern $ Constructor (N "Unit") []
 
 
-data PExpr var recur
+data PatternF var recur
   = Wildcard
   | Variable var
   | Constructor Name [recur]
   deriving (Eq, Ord, Show)
 
-instance Bifoldable PExpr where
+instance Bifoldable PatternF where
   bifoldMap f g = \case
     Wildcard         -> mempty
     Variable v       -> f v
     Constructor _ ps -> foldMap g ps
 
-instance Foldable (PExpr var) where
+instance Foldable (PatternF var) where
   foldMap = bifoldMap (const mempty)
 
-instance Bifunctor PExpr where
+instance Bifunctor PatternF where
   bimap f g = \case
     Wildcard         -> Wildcard
     Variable v       -> Variable (f v)
     Constructor n ps -> Constructor n (fmap g ps)
 
-instance Functor (PExpr var) where
+instance Functor (PatternF var) where
   fmap = bimap id
 
-instance (Pretty var, Pretty recur) => Pretty (PExpr var recur) where
+instance (Pretty var, Pretty recur) => Pretty (PatternF var recur) where
   prettyPrec d = \case
     Wildcard                  -> prettyString "_"
     Variable var              -> prettyPrec d var
