@@ -39,6 +39,10 @@ instance (Eq ty, Eq usage, Semigroup usage) => Semigroup (Context (Annotated usa
             | name1 == name2, t1 == t2 = Annotated name1 (u1 <> u2) ::: t1
             | otherwise                = error "adding inequal contexts"
 
+instance (Eq ty, Eq usage, Semigroup usage) => Monoid (Context (Annotated usage) ty) where
+  mappend = (<>)
+  mempty = lowerBound
+
 
 instance (Eq ty, Eq usage, Semiring usage) => Module usage (Context (Annotated usage) ty) where
   u ><< Context as = Context (map (first (fmap (u ><))) as)
