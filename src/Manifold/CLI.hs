@@ -7,6 +7,7 @@ import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
 import Data.List (intersperse)
 import Data.Semilattice.Lower
+import Data.Semiring.Class
 import Data.Version (showVersion)
 import Manifold.Module
 import Manifold.Name
@@ -28,18 +29,21 @@ argumentsParser prelude = info
   <> progDesc "Manifold is a small experiment in quantitative type theory."
   <> header   "Manifold - a quantitative, dependently-typed language")
   where options prelude = flag' (runIO prelude repl) (short 'i' <> long "interactive" <> help "run in interactive mode (REPL)")
-              <|> runFile prelude <$> some (strArgument (metavar "FILES" <> help "The files to check."))
+              <|> (runFile prelude >=> prettify) <$> some (strArgument (metavar "FILES" <> help "The files to check."))
 
-runFile :: Prelude () -> [FilePath] -> IO ()
+runFile :: (Eq usage, Monoid usage, Unital usage) => Prelude usage -> [FilePath] -> IO (Either (Error (Annotated usage)) ([Module (Annotated usage) (Term Name)], ModuleTable (Annotated usage) (Term Name)))
 runFile _ paths = do
   ms <- traverse (parseFile (whole module') >=> maybe exitFailure pure) paths
-  either (prettyPrint @(Error (Annotated ())) >=> const exitFailure)
-         (putDoc . vsep . intersperse mempty . map pretty)
-         (run (runError
-              (runReader (fromModules ms)
-              (fmap fst
-              (runState (lowerBound @(ModuleTable (Annotated ()) (Term Name)))
-              (traverse (checkModule @()) ms))))))
+  pure (run
+       (runError
+       (runReader (fromModules ms)
+       (runState (lowerBound @(ModuleTable (Annotated _) (Term Name)))
+       (traverse checkModule ms)))))
+
+prettify :: Pretty usage => Either (Error (Annotated usage)) ([Module (Annotated usage) (Term Name)], ModuleTable (Annotated usage) (Term Name)) -> IO ()
+prettify = either
+  (prettyPrint >=> const exitFailure)
+  (putDoc . vsep . intersperse mempty . map pretty . fst)
 
 
 versionString :: String
