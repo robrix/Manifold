@@ -4,6 +4,7 @@ module Manifold.REPL where
 import Control.Applicative (Alternative(..))
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
+import Control.Monad.Effect.Reader
 import Data.Functor (($>))
 import Data.Semiring
 import Manifold.Name.Annotated
@@ -52,15 +53,17 @@ data REPL usage result where
   TypeOf :: Term Name -> REPL usage (Either (Error (Annotated usage)) (Type (Annotated usage)))
   Eval :: Term Name -> REPL usage (Either (Error (Annotated usage)) Value)
 
-runREPL :: (Eq usage, Member Prompt effects, Monoid usage, Unital usage) => Proof usage (REPL usage ': effects) a -> Proof usage effects a
-runREPL = interpret (\case
+type Prelude usage = Context (Annotated usage) (Type (Annotated usage))
+
+runREPL :: (Eq usage, Member Prompt effects, Monoid usage, Unital usage) => Prelude usage -> Proof usage (REPL usage ': effects) a -> Proof usage effects a
+runREPL prelude = interpret (\case
   Help -> output (unlines
     [ ":help, :h, :?     - print this help text"
     , ":quit, :q         - exit the REPL"
     , ":type, :t <expr>  - print the type of <expr>"
     ])
-  TypeOf term -> runCheck Intensional (infer term)
-  Eval term -> runCheck Intensional (infer term) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
+  TypeOf term -> runCheck Intensional (local (const prelude) (infer term))
+  Eval term -> runCheck Intensional (local (const prelude) (infer term)) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
 
 
 runCheck :: (Monoid usage, Unital usage) => Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': Reader usage ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
@@ -69,5 +72,5 @@ runCheck purpose = runError . runSubstitution . runFresh 0 . runSigma purpose . 
 runEval :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
 runEval = runEnv
 
-runIO :: (Eq usage, Monoid usage, Unital usage) => Proof usage '[REPL usage, Prompt] a -> IO a
-runIO = runPrompt "λ: " . runREPL
+runIO :: (Eq usage, Monoid usage, Unital usage) => Prelude usage -> Proof usage '[REPL usage, Prompt] a -> IO a
+runIO prelude = runPrompt "λ: " . runREPL prelude

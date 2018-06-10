@@ -21,17 +21,17 @@ import Options.Applicative as Options
 import qualified Paths_Manifold as Library (version)
 import System.Exit (exitFailure)
 
-argumentsParser :: ParserInfo (IO ())
-argumentsParser = info
-  (version <*> helper <*> options)
+argumentsParser :: Prelude () -> ParserInfo (IO ())
+argumentsParser prelude = info
+  (version <*> helper <*> options prelude)
     (fullDesc
   <> progDesc "Manifold is a small experiment in quantitative type theory."
   <> header   "Manifold - a quantitative, dependently-typed language")
-  where options = flag' (runIO @() repl) (short 'i' <> long "interactive" <> help "run in interactive mode (REPL)")
-              <|> runFile <$> some (strArgument (metavar "FILES" <> help "The files to check."))
+  where options prelude = flag' (runIO prelude repl) (short 'i' <> long "interactive" <> help "run in interactive mode (REPL)")
+              <|> runFile prelude <$> some (strArgument (metavar "FILES" <> help "The files to check."))
 
-runFile :: [FilePath] -> IO ()
-runFile paths = do
+runFile :: Prelude () -> [FilePath] -> IO ()
+runFile _ paths = do
   ms <- traverse (parseFile (whole module') >=> maybe exitFailure pure) paths
   either (prettyPrint @(Error (Annotated ())) >=> const exitFailure)
          (putDoc . vsep . intersperse mempty . map pretty)

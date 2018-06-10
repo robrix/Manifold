@@ -5,4 +5,4 @@ import Manifold.CLI
 import Options.Applicative
 
 main :: IO ()
-main = join (execParser argumentsParser)
+main = join (execParser (argumentsParser mempty))
