@@ -1,8 +1,9 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, TypeApplications, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, KindSignatures, TypeApplications, TypeOperators #-}
 module Manifold.Proof.Checking where
 
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
+import Control.Monad.Effect.Internal hiding (apply)
 import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
 import Data.Foldable (foldl')
@@ -81,7 +82,7 @@ checkDeclaration :: ( Effects effects
 checkDeclaration (Binding (name ::: ty) term) = do
   ty' <- checkIsType ty
   let annotated = Annotated name one
-  ty'' <- annotated ::: ty' >- runSigma Intensional (runSubstitution (check term ty'))
+  ty'' <- annotated ::: ty' >- runSigma Intensional (runSubstitution (runCheck (check term ty')))
   pure (Binding (annotated ::: ty'') term)
 checkDeclaration (Datatype (name ::: ty) constructors) = do
   ty' <- checkIsType ty
@@ -90,33 +91,59 @@ checkDeclaration (Datatype (name ::: ty) constructors) = do
   pure (Datatype (annotated ::: ty') constructors')
   where checkConstructor (name ::: ty) = (Annotated name zero :::) <$> checkIsType ty
 
-
-check :: ( Eq usage
-         , Member (Exc (Error (Annotated usage))) effects
-         , Member Fresh effects
-         , Member (Reader usage) effects
-         , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
-         , Member (State (Substitution (Type (Annotated usage)))) effects
-         , Monoid usage
-         , Unital usage
-         )
-      => Term Name
-      -> Type (Annotated usage)
-      -> Proof usage effects (Type (Annotated usage))
-check term expected = case (unTerm term, unType expected) of
-  (Value (Abs var body), IntroT (Annotated name pi ::: _S :-> _T)) -> do
-    sigma <- ask
-    _T' <- Annotated var (sigma >< pi) ::: _S >- check body _T
-    pure (Annotated name pi ::: _S .-> _T')
-  (Elim (Case subject matches), _) -> do
-    subject' <- infer subject
-    foldl' (checkMatch subject') (pure expected) matches
-  _ -> do
-    actual <- infer term
-    unify actual expected
-  where checkMatch subject expected (pattern, body) = do
-          expected' <- expected
-          checkPattern pattern subject (check body expected')
+runCheck :: ( Effects effects
+            , Eq usage
+            , Member (Exc (Error (Annotated usage))) effects
+            , Member Fresh effects
+            , Member (Reader usage) effects
+            , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
+            , Member (State (Substitution (Type (Annotated usage)))) effects
+            , Monoid usage
+            , Unital usage
+            )
+         => Proof usage (Check usage ': effects) a
+         -> Proof usage effects a
+runCheck = go . lowerEff
+  where go (Return a) = pure a
+        go (Effect (Check term expected) k) = runCheck $ case (unTerm term, unType expected) of
+          (Value (Abs var body), IntroT (Annotated name pi ::: _S :-> _T)) -> do
+            sigma <- ask
+            _T' <- Annotated var (sigma >< pi) ::: _S >- check body _T
+            Proof (k (Annotated name pi ::: _S .-> _T'))
+          (Elim (Case subject matches), _) -> do
+            subject' <- infer subject
+            foldl' (checkMatch subject') (pure expected) matches >>= Proof . k
+          _ -> do
+            actual <- infer term
+            unify actual expected >>= Proof . k
+          where checkMatch subject expected (pattern, body) = do
+                  expected' <- expected
+                  checkPattern pattern subject (check body expected')
+        go (Effect (Infer term) k) = runCheck $ case unTerm term of
+          Var name -> lookupType name >>= Proof . k
+          Value (Data name vs) -> do
+            _C <- lookupType name
+            checkFields _C vs >>= Proof . k
+            where checkFields ty                                 []       = pure ty
+                  checkFields (Type (IntroT (_ ::: ty :-> ret))) (v : vs) = check v ty >> checkFields ret vs
+                  checkFields ty                                 _        = do
+                    t1 <- freshName
+                    t2 <- freshName
+                    cannotUnify ty (Annotated t1 zero ::: ty .-> tvar t2)
+          Elim (App f a) -> do
+            n <- I <$> fresh
+            t1 <- freshName
+            t2 <- freshName
+            _ <- check f (Annotated n zero ::: tvar t1 .-> tvar t2)
+            _ <- check a (tvar t1)
+            Proof (k (tvar t2))
+          Elim (If c t e) -> do
+            _ <- check c boolT
+            t' <- infer t
+            e' <- infer e
+            unify t' e' >>= Proof . k
+          _ -> noRuleToInferType term >>= Proof . k
+        go (Other u k) = handle runCheck u (Proof . k)
 
 checkPattern :: ( Eq usage
                 , Member (Exc (Error (Annotated usage))) effects
@@ -139,42 +166,6 @@ checkPattern (Pattern (Constructor name patterns)) subject = \ action -> do
         checkPatterns (Type (IntroT (_ ::: ty :-> ret))) (p : ps) = checkPattern p ty . checkPatterns ret ps
         checkPatterns ty                                 _        = const (cannotUnify ty subject)
 
-infer :: ( Eq usage
-         , Member (Exc (Error (Annotated usage))) effects
-         , Member Fresh effects
-         , Member (Reader usage) effects
-         , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
-         , Member (State (Substitution (Type (Annotated usage)))) effects
-         , Monoid usage
-         , Unital usage
-         )
-      => Term Name
-      -> Proof usage effects (Type (Annotated usage))
-infer term = case unTerm term of
-  Var name -> lookupType name
-  Value (Data name vs) -> do
-    _C <- lookupType name
-    checkFields _C vs
-    where checkFields ty                                 []       = pure ty
-          checkFields (Type (IntroT (_ ::: ty :-> ret))) (v : vs) = check v ty >> checkFields ret vs
-          checkFields ty                                 _        = do
-            t1 <- freshName
-            t2 <- freshName
-            cannotUnify ty (Annotated t1 zero ::: ty .-> tvar t2)
-  Elim (App f a) -> do
-    n <- I <$> fresh
-    t1 <- freshName
-    t2 <- freshName
-    _ <- check f (Annotated n zero ::: tvar t1 .-> tvar t2)
-    _ <- check a (tvar t1)
-    pure (tvar t2)
-  Elim (If c t e) -> do
-    _ <- check c boolT
-    t' <- infer t
-    e' <- infer e
-    unify t' e'
-  _ -> noRuleToInferType term
-
 
 runSubstitution :: Effects effects => Named var => Proof usage (State (Substitution (Type var)) ': effects) (Type var) -> Proof usage effects (Type var)
 runSubstitution = fmap (uncurry apply) . runState lowerBound
@@ -182,3 +173,19 @@ runSubstitution = fmap (uncurry apply) . runState lowerBound
 runSigma :: (Effects effects, Monoid usage, Unital usage) => Purpose -> Proof usage (Reader usage ': effects) a -> Proof usage effects a
 runSigma Extensional = runReader zero
 runSigma Intensional = runReader one
+
+
+check :: Member (Check usage) effects => Term Name -> Type (Annotated usage) -> Proof usage effects (Type (Annotated usage))
+check term ty = send (Check term ty)
+
+infer :: Member (Check usage) effects => Term Name -> Proof usage effects (Type (Annotated usage))
+infer term = send (Infer term)
+
+data Check usage (m :: * -> *) result where
+  Check :: Term Name -> Type (Annotated usage) -> Check usage m (Type (Annotated usage))
+  Infer :: Term Name                           -> Check usage m (Type (Annotated usage))
+
+
+instance Effect (Check usage) where
+  handleState c dist (Request (Check term ty) k) = Request (Check term ty) (dist . (<$ c) . k)
+  handleState c dist (Request (Infer term)    k) = Request (Infer term)    (dist . (<$ c) . k)

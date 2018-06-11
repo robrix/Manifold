@@ -67,12 +67,12 @@ runREPL prelude = interpret (\case
     , ":quit, :q         - exit the REPL"
     , ":type, :t <expr>  - print the type of <expr>"
     ])
-  TypeOf term -> runCheck Intensional (local (const prelude) (infer term))
-  Eval term -> runCheck Intensional (local (const prelude) (infer term)) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
+  TypeOf term -> runCheck' Intensional (runCheck (local (const prelude) (infer term)))
+  Eval term -> runCheck' Intensional (runCheck (local (const prelude) (infer term))) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
 
 
-runCheck :: (Effects effects, Monoid usage, Unital usage) => Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': Reader usage ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
-runCheck purpose = runError . runSubstitution . runFresh 0 . runSigma purpose . runContext
+runCheck' :: (Effects effects, Monoid usage, Unital usage) => Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': Reader usage ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
+runCheck' purpose = runError . runSubstitution . runFresh 0 . runSigma purpose . runContext
 
 runEval :: Effects effects => Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
 runEval = runEnv
