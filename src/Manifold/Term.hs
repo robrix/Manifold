@@ -45,6 +45,10 @@ instance (Pretty var, Pretty ann, Pretty recur) => Pretty (ElabExpr var ann recu
   prettyPrec d (ElabExpr expr ann) = prettyParen (d > 0) $ prettyPrec 0 expr <+> prettyString ":" <+> prettyPrec 0 ann
 
 
+delaborate :: Elab var ann -> Term var
+delaborate = cata (Term . elabExpr)
+
+
 var :: Name -> Term var
 var = Term . Var
 
