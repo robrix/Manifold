@@ -52,7 +52,7 @@ cacheModule :: ( Effects effects
 cacheModule (Module name imports decls) = do
   cacheEvaluated (Module name imports [])
   imports' <- traverse (\ name -> lookupUnevaluated name >>= maybe (unknownModule name) checkModule) imports
-  decls' <- runFresh 0 (runContext (foldr (>-) (foldr combine (pure []) decls) (imports' >>= moduleExports)))
+  decls' <- runFresh 0 (runContext (runIsType (foldr (>-) (foldr combine (pure []) decls) (imports' >>= moduleExports))))
   let m = Module name imports decls'
   m <$ cacheEvaluated m
   where combine decl rest = do
@@ -73,6 +73,7 @@ checkDeclaration :: ( Effects effects
                     , Eq usage
                     , Member (Exc (Error (Annotated usage))) effects
                     , Member Fresh effects
+                    , Member (IsType usage) effects
                     , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
                     , Monoid usage
                     , Unital usage
@@ -80,16 +81,16 @@ checkDeclaration :: ( Effects effects
                  => Declaration Name (Term Name)
                  -> Proof usage effects (Declaration (Annotated usage) (Term Name))
 checkDeclaration (Binding (name ::: ty) term) = do
-  ty' <- checkIsType ty
+  ty' <- isType ty
   let annotated = Annotated name one
   ty'' <- annotated ::: ty' >- runSigma Intensional (runSubstitution (runCheck (check term ty')))
   pure (Binding (annotated ::: ty'') term)
 checkDeclaration (Datatype (name ::: ty) constructors) = do
-  ty' <- checkIsType ty
+  ty' <- isType ty
   let annotated = Annotated name zero
   constructors' <- annotated ::: ty' >- runSigma Extensional (traverse checkConstructor constructors)
   pure (Datatype (annotated ::: ty') constructors')
-  where checkConstructor (name ::: ty) = (Annotated name zero :::) <$> checkIsType ty
+  where checkConstructor (name ::: ty) = (Annotated name zero :::) <$> isType ty
 
 runCheck :: ( Effects effects
             , Eq usage
