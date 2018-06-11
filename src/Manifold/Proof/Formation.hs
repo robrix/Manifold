@@ -34,3 +34,7 @@ checkIsType ty = case unType ty of
 
 data IsType usage (m :: * -> *) result where
   IsType :: Type Name -> IsType usage m (Type (Annotated usage))
+
+
+instance Effect (IsType usage) where
+  handleState c dist (Request (IsType ty) k) = Request (IsType ty) (dist . (<$ c) . k)
