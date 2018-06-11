@@ -12,9 +12,8 @@ import Manifold.Name.Annotated
 import Manifold.Proof
 import Manifold.Type
 
-checkIsType :: ( Members '[ Exc (Error (Annotated usage))
-                          , Reader (Context (Annotated usage) (Type (Annotated usage)))
-                          ] effects
+checkIsType :: ( Member (Exc (Error (Annotated usage))) effects
+               , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
                , Monoid usage
                )
             => Type Name

@@ -26,10 +26,9 @@ import Manifold.Unification
 import Manifold.Value.Intro
 
 checkModule :: ( Eq usage
-               , Members '[ Exc (Error (Annotated usage))
-                          , Reader (ModuleTable Name (Term Name))
-                          , State (ModuleTable (Annotated usage) (Term Name))
-                          ] effects
+               , Member (Exc (Error (Annotated usage))) effects
+               , Member (Reader (ModuleTable Name (Term Name))) effects
+               , Member (State (ModuleTable (Annotated usage) (Term Name))) effects
                , Monoid usage
                , Unital usage
                )
@@ -38,10 +37,9 @@ checkModule :: ( Eq usage
 checkModule m = lookupEvaluated (moduleName m) >>= maybe (cacheModule m) pure
 
 cacheModule :: ( Eq usage
-               , Members '[ Exc (Error (Annotated usage))
-                          , Reader (ModuleTable Name (Term Name))
-                          , State (ModuleTable (Annotated usage) (Term Name))
-                          ] effects
+               , Member (Exc (Error (Annotated usage))) effects
+               , Member (Reader (ModuleTable Name (Term Name))) effects
+               , Member (State (ModuleTable (Annotated usage) (Term Name))) effects
                , Monoid usage
                , Unital usage
                )
@@ -68,10 +66,9 @@ cacheEvaluated = modify' . insert
 
 
 checkDeclaration :: ( Eq usage
-                    , Members '[ Exc (Error (Annotated usage))
-                               , Fresh
-                               , Reader (Context (Annotated usage) (Type (Annotated usage)))
-                               ] effects
+                    , Member (Exc (Error (Annotated usage))) effects
+                    , Member Fresh effects
+                    , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
                     , Monoid usage
                     , Unital usage
                     )
@@ -91,12 +88,11 @@ checkDeclaration (Datatype (name ::: ty) constructors) = do
 
 
 check :: ( Eq usage
-         , Members '[ Exc (Error (Annotated usage))
-                    , Fresh
-                    , Reader usage
-                    , Reader (Context (Annotated usage) (Type (Annotated usage)))
-                    , State (Substitution (Type (Annotated usage)))
-                    ] effects
+         , Member (Exc (Error (Annotated usage))) effects
+         , Member Fresh effects
+         , Member (Reader usage) effects
+         , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
+         , Member (State (Substitution (Type (Annotated usage)))) effects
          , Monoid usage
          , Unital usage
          )
@@ -119,12 +115,11 @@ check term expected = case (unTerm term, unType expected) of
           checkPattern pattern subject (check body expected')
 
 checkPattern :: ( Eq usage
-                , Members '[ Exc (Error (Annotated usage))
-                           , Fresh
-                           , Reader usage
-                           , Reader (Context (Annotated usage) (Type (Annotated usage)))
-                           , State (Substitution (Type (Annotated usage)))
-                           ] effects
+                , Member (Exc (Error (Annotated usage))) effects
+                , Member Fresh effects
+                , Member (Reader usage) effects
+                , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
+                , Member (State (Substitution (Type (Annotated usage)))) effects
                 , Monoid usage
                 )
              => Pattern Name
@@ -141,12 +136,11 @@ checkPattern (Pattern (Constructor name patterns)) subject = \ action -> do
         checkPatterns ty                                 _        = const (cannotUnify ty subject)
 
 infer :: ( Eq usage
-         , Members '[ Exc (Error (Annotated usage))
-                    , Fresh
-                    , Reader usage
-                    , Reader (Context (Annotated usage) (Type (Annotated usage)))
-                    , State (Substitution (Type (Annotated usage)))
-                    ] effects
+         , Member (Exc (Error (Annotated usage))) effects
+         , Member Fresh effects
+         , Member (Reader usage) effects
+         , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
+         , Member (State (Substitution (Type (Annotated usage)))) effects
          , Monoid usage
          , Unital usage
          )

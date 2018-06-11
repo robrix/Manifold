@@ -16,11 +16,10 @@ import Manifold.Type.Intro
 import Manifold.Value.Intro
 
 unify :: ( Eq var
-         , Members '[ Exc (Error var)
-                    , Fresh
-                    , State (Substitution (Type var))
-                    ] effects
+         , Member (Exc (Error var)) effects
+         , Member Fresh effects
          , Member (Reader (Context var (Type var))) effects
+         , Member (State (Substitution (Type var))) effects
          , Named var
          )
       => Type var
