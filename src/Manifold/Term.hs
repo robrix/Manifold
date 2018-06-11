@@ -1,4 +1,4 @@
-{-# LANGUAGE LambdaCase, TypeFamilies #-}
+{-# LANGUAGE DeriveFunctor, LambdaCase, TypeFamilies #-}
 module Manifold.Term where
 
 import Data.Bifoldable
@@ -24,6 +24,25 @@ instance Corecursive (Term var) where embed   =   Term
 
 instance Pretty var => Pretty (Term var) where
   prettyPrec d = prettyPrec d . unTerm
+
+
+newtype Elab var ann = Elab { unElab :: ElabExpr var ann (Elab var ann) }
+  deriving (Eq, Ord, Show)
+
+type instance Base (Elab var ann) = ElabExpr var ann
+
+instance Recursive   (Elab var ann) where project = unElab
+instance Corecursive (Elab var ann) where embed   =   Elab
+
+instance (Pretty var, Pretty ann) => Pretty (Elab var ann) where
+  prettyPrec d = prettyPrec d . unElab
+
+
+data ElabExpr var ann recur = ElabExpr { elabExpr :: Expr var recur, elabAnn :: ann }
+  deriving (Eq, Functor, Ord, Show)
+
+instance (Pretty var, Pretty ann, Pretty recur) => Pretty (ElabExpr var ann recur) where
+  prettyPrec d (ElabExpr expr ann) = prettyParen (d > 0) $ prettyPrec 0 expr <+> prettyString ":" <+> prettyPrec 0 ann
 
 
 var :: Name -> Term var
