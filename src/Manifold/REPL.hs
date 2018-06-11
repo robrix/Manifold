@@ -20,6 +20,7 @@ import Manifold.Parser as Parser
 import Manifold.Substitution
 import Manifold.Term
 import Manifold.Type
+import Manifold.Unification
 import Manifold.Value
 import Text.Trifecta as Trifecta
 
@@ -67,8 +68,8 @@ runREPL prelude = interpret (\case
     , ":quit, :q         - exit the REPL"
     , ":type, :t <expr>  - print the type of <expr>"
     ])
-  TypeOf term -> runCheck' Intensional (runCheck (local (const prelude) (infer term)))
-  Eval term -> runCheck' Intensional (runCheck (local (const prelude) (infer term))) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
+  TypeOf term -> runCheck' Intensional (runUnify (runCheck (local (const prelude) (infer term))))
+  Eval term -> runCheck' Intensional (runUnify (runCheck (local (const prelude) (infer term)))) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
 
 
 runCheck' :: (Effects effects, Monoid usage, Unital usage) => Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': Reader usage ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))

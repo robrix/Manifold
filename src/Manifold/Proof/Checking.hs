@@ -83,7 +83,7 @@ checkDeclaration :: ( Effects effects
 checkDeclaration (Binding (name ::: ty) term) = do
   ty' <- isType ty
   let annotated = Annotated name one
-  ty'' <- annotated ::: ty' >- runSigma Intensional (runSubstitution (runCheck (check term ty')))
+  ty'' <- annotated ::: ty' >- runSigma Intensional (runSubstitution (runUnify (runCheck (check term ty'))))
   pure (Binding (annotated ::: ty'') term)
 checkDeclaration (Datatype (name ::: ty) constructors) = do
   ty' <- isType ty
@@ -99,6 +99,7 @@ runCheck :: ( Effects effects
             , Member (Reader usage) effects
             , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
             , Member (State (Substitution (Type (Annotated usage)))) effects
+            , Member (Unify usage) effects
             , Monoid usage
             , Unital usage
             )
@@ -152,6 +153,7 @@ checkPattern :: ( Eq usage
                 , Member (Reader usage) effects
                 , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
                 , Member (State (Substitution (Type (Annotated usage)))) effects
+                , Member (Unify usage) effects
                 , Monoid usage
                 )
              => Pattern Name
