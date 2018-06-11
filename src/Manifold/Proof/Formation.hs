@@ -32,6 +32,9 @@ checkIsType ty = case unType ty of
   _ -> noRuleToCheckIsType ty
 
 
+isType :: Member (IsType usage) effects => Type Name -> Proof usage effects (Type (Annotated usage))
+isType = send . IsType
+
 data IsType usage (m :: * -> *) result where
   IsType :: Type Name -> IsType usage m (Type (Annotated usage))
 
