@@ -2,10 +2,11 @@
 module Manifold.Substitution where
 
 import qualified Data.Map as Map
+import Data.Semilattice.Lower
 import Manifold.Name
 
 newtype Substitution term = Substitution { getSubstitution :: Map.Map Name term }
-  deriving (Eq, Foldable, Ord, Show)
+  deriving (Eq, Foldable, Lower, Ord, Show)
 
 
 singletonSubst :: Name -> term -> Substitution term
