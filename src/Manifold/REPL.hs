@@ -23,15 +23,15 @@ import Manifold.Type
 import Manifold.Value
 import Text.Trifecta as Trifecta
 
-repl :: (Members '[Prompt, REPL usage] effects, Monoid usage, Pretty usage) => Proof usage effects ()
+repl :: (Member Prompt effects, Member (REPL usage) effects, Monoid usage, Pretty usage) => Proof usage effects ()
 repl = prompt >>= maybe repl handleInput
 
-handleInput :: (Members '[Prompt, REPL usage] effects, Monoid usage, Pretty usage) => String -> Proof usage effects ()
+handleInput :: (Member Prompt effects, Member (REPL usage) effects, Monoid usage, Pretty usage) => String -> Proof usage effects ()
 handleInput str = case Parser.parseString command str of
   Left err -> output err *> repl
   Right action -> action
 
-command :: (Members '[Prompt, REPL usage] effects, Monoid usage, Pretty usage) => Parser.Parser (Proof usage effects ())
+command :: (Member Prompt effects, Member (REPL usage) effects, Monoid usage, Pretty usage) => Parser.Parser (Proof usage effects ())
 command = whole (meta <|> eval <$> term) <?> "command"
   where meta = colon
           *> ((long "help" <|> short 'h' <|> short '?' <?> "help") $> (sendREPL Help *> repl)
