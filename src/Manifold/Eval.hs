@@ -50,7 +50,7 @@ askEnv :: Member (Reader Environment) effects => Proof usage effects Environment
 askEnv = ask
 
 
-runEnv :: Proof usage (Reader Environment ': effects) a -> Proof usage effects a
+runEnv :: Effects effects => Proof usage (Reader Environment ': effects) a -> Proof usage effects a
 runEnv = runReader emptyContext
 
 

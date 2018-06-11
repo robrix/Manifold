@@ -7,6 +7,7 @@ import Control.Monad.Effect.Reader
 import Control.Monad.Effect.State
 import Data.Foldable (foldl')
 import Data.Semiring (Semiring(..), Unital(..), zero)
+import Data.Semilattice.Lower
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Declaration
@@ -25,7 +26,8 @@ import Manifold.Type.Intro
 import Manifold.Unification
 import Manifold.Value.Intro
 
-checkModule :: ( Eq usage
+checkModule :: ( Effects effects
+               , Eq usage
                , Member (Exc (Error (Annotated usage))) effects
                , Member (Reader (ModuleTable Name (Term Name))) effects
                , Member (State (ModuleTable (Annotated usage) (Term Name))) effects
@@ -36,7 +38,8 @@ checkModule :: ( Eq usage
             -> Proof usage effects (Module (Annotated usage) (Term Name))
 checkModule m = lookupEvaluated (moduleName m) >>= maybe (cacheModule m) pure
 
-cacheModule :: ( Eq usage
+cacheModule :: ( Effects effects
+               , Eq usage
                , Member (Exc (Error (Annotated usage))) effects
                , Member (Reader (ModuleTable Name (Term Name))) effects
                , Member (State (ModuleTable (Annotated usage) (Term Name))) effects
@@ -65,7 +68,8 @@ cacheEvaluated :: Member (State (ModuleTable (Annotated usage) (Term Name))) eff
 cacheEvaluated = modify' . insert
 
 
-checkDeclaration :: ( Eq usage
+checkDeclaration :: ( Effects effects
+                    , Eq usage
                     , Member (Exc (Error (Annotated usage))) effects
                     , Member Fresh effects
                     , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
@@ -172,9 +176,9 @@ infer term = case unTerm term of
   _ -> noRuleToInferType term
 
 
-runSubstitution :: Named var => Proof usage (State (Substitution (Type var)) ': effects) (Type var) -> Proof usage effects (Type var)
-runSubstitution = fmap (uncurry (flip apply)) . runState mempty
+runSubstitution :: Effects effects => Named var => Proof usage (State (Substitution (Type var)) ': effects) (Type var) -> Proof usage effects (Type var)
+runSubstitution = fmap (uncurry apply) . runState lowerBound
 
-runSigma :: (Monoid usage, Unital usage) => Purpose -> Proof usage (Reader usage ': effects) a -> Proof usage effects a
+runSigma :: (Effects effects, Monoid usage, Unital usage) => Purpose -> Proof usage (Reader usage ': effects) a -> Proof usage effects a
 runSigma Extensional = runReader zero
 runSigma Intensional = runReader one

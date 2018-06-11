@@ -14,7 +14,7 @@ import Manifold.Term
 import Manifold.Type
 
 newtype Proof usage effects a = Proof { runProof :: Eff effects a }
-  deriving (Applicative, Effectful, Functor, Monad)
+  deriving (Applicative, Functor, Monad)
 
 
 freeVariable :: (Member (Exc (Error (Annotated usage))) effects, Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects) => Name -> Proof usage effects a
@@ -51,11 +51,11 @@ instance Pretty var => Pretty (Error var) where
     NoRuleToInferType t -> prettyString "cannot infer type of term" <+> pretty t
     UnknownModule name -> prettyString "unknown module:" <+> pretty name
 
-runError :: Proof usage (Exc (Error var) ': effects) a -> Proof usage effects (Either (Error var) a)
+runError :: Effects effects => Proof usage (Exc (Error (Annotated usage)) ': effects) a -> Proof usage effects (Either (Error (Annotated usage)) a)
 runError = Exception.runError
 
 
-runContext :: Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': effects) a -> Proof usage effects a
+runContext :: Effects effects => Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': effects) a -> Proof usage effects a
 runContext = runReader emptyContext
 
 askContext :: Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects => Proof usage effects (Context (Annotated usage) (Type (Annotated usage)))

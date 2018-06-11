@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, LambdaCase, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, KindSignatures, LambdaCase, TypeOperators #-}
 module Manifold.REPL where
 
 import Control.Applicative (Alternative(..))
@@ -45,17 +45,22 @@ command = whole (meta <|> eval <$> term) <?> "command"
         long = symbol
 
 
-sendREPL :: Member (REPL usage) effects => REPL usage result -> Proof usage effects result
+sendREPL :: Member (REPL usage) effects => REPL usage (Eff effects) result -> Proof usage effects result
 sendREPL = send
 
-data REPL usage result where
-  Help :: REPL usage ()
-  TypeOf :: Term Name -> REPL usage (Either (Error (Annotated usage)) (Type (Annotated usage)))
-  Eval :: Term Name -> REPL usage (Either (Error (Annotated usage)) Value)
+data REPL usage (m :: * -> *) result where
+  Help :: REPL usage m ()
+  TypeOf :: Term Name -> REPL usage m (Either (Error (Annotated usage)) (Type (Annotated usage)))
+  Eval :: Term Name -> REPL usage m (Either (Error (Annotated usage)) Value)
 
-type Prelude usage = Context (Annotated usage) (Type (Annotated usage))
+instance Effect (REPL usage) where
+  handleState c dist (Request Help k) = Request Help (dist . (<$ c) . k)
+  handleState c dist (Request (TypeOf t) k) = Request (TypeOf t) (dist . (<$ c) . k)
+  handleState c dist (Request (Eval t) k) = Request (Eval t) (dist . (<$ c) . k)
 
-runREPL :: (Eq usage, Member Prompt effects, Monoid usage, Unital usage) => Prelude usage -> Proof usage (REPL usage ': effects) a -> Proof usage effects a
+type Prelude var = Context var (Type var)
+
+runREPL :: (Effects effects, Eq usage, Member Prompt effects, Monoid usage, Unital usage) => Prelude (Annotated usage) -> Proof usage (REPL usage ': effects) a -> Proof usage effects a
 runREPL prelude = interpret (\case
   Help -> output (unlines
     [ ":help, :h, :?     - print this help text"
@@ -66,11 +71,11 @@ runREPL prelude = interpret (\case
   Eval term -> runCheck Intensional (local (const prelude) (infer term)) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
 
 
-runCheck :: (Monoid usage, Unital usage) => Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': Reader usage ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
+runCheck :: (Effects effects, Monoid usage, Unital usage) => Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': Reader usage ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
 runCheck purpose = runError . runSubstitution . runFresh 0 . runSigma purpose . runContext
 
-runEval :: Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
+runEval :: Effects effects => Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
 runEval = runEnv
 
-runIO :: (Eq usage, Monoid usage, Unital usage) => Prelude usage -> Proof usage '[REPL usage, Prompt] a -> IO a
+runIO :: (Eq usage, Monoid usage, Unital usage) => Prelude (Annotated usage) -> Proof usage '[REPL usage, Prompt] a -> IO a
 runIO prelude = runPrompt "λ: " . runREPL prelude
