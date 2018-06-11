@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, KindSignatures #-}
 module Manifold.Unification where
 
 import Control.Monad.Effect
@@ -64,3 +64,10 @@ unify t1 t2
 
 (>->) :: (Member (State (Substitution (Type var))) effects, Named var) => Name -> Type var -> Proof usage effects ()
 name >-> sub = modify' (<> singletonSubst name sub)
+
+
+data Unify var (m :: * -> *) result where
+  Unify :: Type var -> Type var -> Unify var m (Type var)
+
+instance Effect (Unify var) where
+  handleState c dist (Request (Unify t1 t2) k) = Request (Unify t1 t2) (dist . (<$ c) . k)
