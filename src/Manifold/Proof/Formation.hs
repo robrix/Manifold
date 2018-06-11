@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, KindSignatures #-}
 module Manifold.Proof.Formation where
 
 import Control.Monad.Effect
@@ -30,3 +30,7 @@ checkIsType ty = case unType ty of
   IntroT (_S :* _T) -> (.*) <$> checkIsType _S <*> checkIsType _T
   Elim (App f a) -> (#) <$> checkIsType f <*> checkIsType a
   _ -> noRuleToCheckIsType ty
+
+
+data IsType usage (m :: * -> *) result where
+  IsType :: Type Name -> IsType usage m (Type (Annotated usage))
