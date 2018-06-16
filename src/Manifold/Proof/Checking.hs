@@ -108,10 +108,13 @@ runCheck :: ( Effects effects
 runCheck = go . lowerEff
   where go (Return a) = pure a
         go (Effect (Check term expected) k) = runCheck $ case (unTerm term, unType expected) of
-          (Value (Abs var body), IntroT (Annotated name pi ::: _S :-> _T)) -> do
-            sigma <- ask
-            _T' <- Annotated var (sigma >< pi) ::: _S >- check body _T
-            Proof (k (Annotated name pi ::: _S .-> _T'))
+          (Value (Abs var body), IntroT (Annotated name pi ::: _S :-> _T))
+            | _S == typeT -> do
+              check term _T >>= Proof . k
+            | otherwise -> do
+              sigma <- ask
+              _T' <- Annotated var (sigma >< pi) ::: _S >- check body _T
+              Proof (k (Annotated name pi ::: _S .-> _T'))
           (Elim (Case subject matches), _) -> do
             subject' <- infer subject
             foldl' (checkMatch subject') (pure expected) matches >>= Proof . k

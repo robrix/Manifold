@@ -1,7 +1,7 @@
 module Base.Function where
 
 id : (a : Type) -> a -> a
-id = \ _ x . x
+id = \ x . x
 
 const : (a : Type) -> (b : Type) -> a -> b -> a
-const = \ _ _ x y . x
+const = \ x y . x
