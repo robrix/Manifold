@@ -71,8 +71,8 @@ directed = Directed BS.empty 0 0 0 0
 indentst = mkIndentationState 0 infIndentation True Gt
 
 
-whole p = whiteSpace *> p <* eof
 whole :: TokenParsing m => m a -> m a
+whole p = whiteSpace *> p <* eof
 
 
 module' :: MonadParsing m => m (Module Name (Term.Term Name))
