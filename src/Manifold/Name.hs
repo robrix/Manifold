@@ -16,6 +16,7 @@ data Operator
   | Postfix (NonEmpty String)
   | Infix Associativity (NonEmpty String)
   | Closed (NonEmpty String)
+  deriving (Eq, Ord, Show)
 
 
 class Named n where
