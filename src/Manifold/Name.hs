@@ -1,5 +1,7 @@
 module Manifold.Name where
 
+import Data.List.NonEmpty (NonEmpty(..))
+import GHC.Generics (Associativity(..))
 import Manifold.Pretty
 
 data Name
@@ -7,6 +9,13 @@ data Name
   | Q String Name
   | I Int
   deriving (Eq, Ord, Show)
+
+
+data Operator
+  = Prefix (NonEmpty String)
+  | Postfix (NonEmpty String)
+  | Infix Associativity (NonEmpty String)
+  | Closed (NonEmpty String)
 
 
 class Named n where
