@@ -10,6 +10,7 @@ data Name
   = N String
   | Q String Name
   | I Int
+  | O Operator
   deriving (Eq, Ord, Show)
 
 
@@ -36,6 +37,7 @@ instance Pretty Name where
   prettyPrec _ (I n) = (if n < 0 then prettyString "_" else mempty) <> prettyString (replicate (succ i) (alphabet !! r))
     where alphabet = ['a'..'z']
           (i, r) = (if n < 0 then abs (succ n) else n) `divMod` length alphabet
+  prettyPrec d (O op) = prettyPrec d op
 
 instance Pretty Operator where
   prettyPrec d (Prefix ps) = prettyParen (d > 0) $ hsep (map ((<+> prettyString "_") . prettyString) (toList ps))

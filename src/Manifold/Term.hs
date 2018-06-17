@@ -147,6 +147,7 @@ bindVariable f = (n, body)
         prime (I i) = I (succ i)
         prime (N s) = N (s <> "ʹ")
         prime (Q s n) = Q s (prime n)
+        prime (O op) = O op
 
 maxBV :: Named var => Term var -> Maybe Name
 maxBV = cata $ \case
