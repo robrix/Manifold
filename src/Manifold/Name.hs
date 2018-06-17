@@ -3,7 +3,6 @@ module Manifold.Name where
 import Data.Foldable (toList)
 import Data.List (intersperse)
 import Data.List.NonEmpty (NonEmpty(..))
-import GHC.Generics (Associativity(..))
 import Manifold.Pretty
 
 data Name
@@ -17,7 +16,7 @@ data Name
 data Operator
   = Prefix (NonEmpty String)
   | Postfix (NonEmpty String)
-  | Infix Associativity (NonEmpty String)
+  | Infix (NonEmpty String)
   | Closed (NonEmpty String)
   deriving (Eq, Ord, Show)
 
@@ -42,5 +41,5 @@ instance Pretty Name where
 instance Pretty Operator where
   prettyPrec d (Prefix ps) = prettyParen (d > 0) $ hsep (map ((<+> prettyString "_") . prettyString) (toList ps))
   prettyPrec d (Postfix ps) = prettyParen (d > 0) $ hsep (map ((prettyString "_" <+>) . prettyString) (toList ps))
-  prettyPrec d (Infix _ ps) = prettyParen (d > 0) $ hsep (prettyString "_" : map ((<+> prettyString "_") . prettyString) (toList ps))
+  prettyPrec d (Infix ps) = prettyParen (d > 0) $ hsep (prettyString "_" : map ((<+> prettyString "_") . prettyString) (toList ps))
   prettyPrec d (Closed ps) = prettyParen (d > 0) $ hsep (intersperse (prettyString "_") (map prettyString (toList ps)))
