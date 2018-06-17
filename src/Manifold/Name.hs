@@ -1,5 +1,7 @@
 module Manifold.Name where
 
+import Data.Foldable (toList)
+import Data.List (intersperse)
 import Data.List.NonEmpty (NonEmpty(..))
 import GHC.Generics (Associativity(..))
 import Manifold.Pretty
@@ -34,3 +36,9 @@ instance Pretty Name where
   prettyPrec _ (I n) = (if n < 0 then prettyString "_" else mempty) <> prettyString (replicate (succ i) (alphabet !! r))
     where alphabet = ['a'..'z']
           (i, r) = (if n < 0 then abs (succ n) else n) `divMod` length alphabet
+
+instance Pretty Operator where
+  prettyPrec d (Prefix ps) = prettyParen (d > 0) $ hsep (map ((<+> prettyString "_") . prettyString) (toList ps))
+  prettyPrec d (Postfix ps) = prettyParen (d > 0) $ hsep (map ((prettyString "_" <+>) . prettyString) (toList ps))
+  prettyPrec d (Infix _ ps) = prettyParen (d > 0) $ hsep (prettyString "_" : map ((<+> prettyString "_") . prettyString) (toList ps))
+  prettyPrec d (Closed ps) = prettyParen (d > 0) $ hsep (intersperse (prettyString "_") (map prettyString (toList ps)))
