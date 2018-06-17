@@ -15,13 +15,15 @@ import Control.Monad (MonadPlus)
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.ByteString.Char8 as BS
 import Data.Char
+import Data.Foldable (foldl')
 import Data.Function (on)
 import qualified Data.HashSet as HashSet
 import Data.List (deleteBy)
+import Data.List.NonEmpty (NonEmpty(..))
 import Manifold.Constraint
 import Manifold.Declaration
 import Manifold.Module (Module(Module))
-import Manifold.Name (Name(..))
+import Manifold.Name (Name(..), Operator(..))
 import Manifold.Pattern as Pattern
 import Manifold.Pretty (prettyShow)
 import qualified Manifold.Term as Term
@@ -227,3 +229,11 @@ keyword, op :: TokenParsing m => String -> m String
 keyword s = token (highlight ReservedIdentifier (try (string s <* notFollowedBy alphaNum))) <?> s
 
 op s = token (highlight Operator (string s)) <?> s
+
+-- | Parse a mixfix operator, with terms in each hole position.
+operator :: TokenParsing m => m (Term.Term Name) -> Operator -> m (Term.Term Name)
+operator a o = case o of
+  Prefix ps -> foldl' (\ accum o -> (Term.#) <$> accum <* op o <*> a) (pure (Term.var (O o))) ps
+  Postfix ps -> foldl' (\ accum o -> (Term.#) <$> accum <*> a <* op o) (pure (Term.var (O o))) ps
+  Infix ps -> foldl' (\ accum o -> (Term.#) <$> accum <* op o <*> a) ((Term.var (O o) Term.#) <$> a) ps
+  Closed (p:|ps) -> foldl' (\ accum o -> (Term.#) <$> accum <*> a <* op o) ((Term.var (O o)) <$ op p) ps
