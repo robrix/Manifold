@@ -64,9 +64,6 @@ toResult r = case r of
 evalCharIndentationParserT :: Monad m => IndentationParserT Char m a -> IndentationState -> m a
 evalCharIndentationParserT = evalIndentationParserT
 
--- evalTokenIndentationParserT :: Monad m => IndentationParserT Token m a -> IndentationState -> m a
--- evalTokenIndentationParserT = evalIndentationParserT
-
 directed = Directed BS.empty 0 0 0 0
 indentst = mkIndentationState 0 infIndentation True Gt
 
