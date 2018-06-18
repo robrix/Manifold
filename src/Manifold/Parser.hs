@@ -15,7 +15,8 @@ import Control.Monad (MonadPlus)
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.ByteString.Char8 as BS
 import Data.Char
-import Data.CharSet.Common (punctuation)
+import Data.CharSet (union)
+import qualified Data.CharSet.Unicode as Unicode
 import Data.Foldable (foldl')
 import Data.Function (on)
 import qualified Data.HashSet as HashSet
@@ -222,7 +223,7 @@ identifier, typeIdentifier, operatorWord :: (Monad m, TokenParsing m) => m Strin
 identifier     = ident (IdentifierStyle "identifier" lower (alphaNum <|> char '\'') reservedWords Identifier ReservedIdentifier) <?> "identifier"
 typeIdentifier = ident (IdentifierStyle "type identifier" upper (alphaNum <|> char '\'') reservedWords Identifier ReservedIdentifier) <?> "type identifier"
 
-operatorWord = identifier <|> (singleton <$> token (oneOfSet punctuation) <?> "operator")
+operatorWord = identifier <|> (singleton <$> token (oneOfSet (Unicode.punctuation `union` Unicode.symbol)) <?> "operator")
   where singleton c = [c]
 
 
