@@ -240,6 +240,9 @@ operator a o = case o of
 
 prefixOp, postfixOp, infixOp, closedOp :: (Monad m, TokenParsing m) => m Operator
 
+-- $
+-- >>> parseString prefixOp "if _ then _ else _"
+-- Right (Prefix ("if" :| ["then","else"]))
 prefixOp  = Prefix  <$> some1 (identifier <* underscore)
 postfixOp = Postfix <$> some1 (underscore *> identifier)
 infixOp   = Infix   <$  underscore <*> some1 (identifier <* underscore)
