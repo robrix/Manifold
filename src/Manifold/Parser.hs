@@ -19,7 +19,7 @@ import Data.Foldable (foldl')
 import Data.Function (on)
 import qualified Data.HashSet as HashSet
 import Data.List (deleteBy)
-import Data.List.NonEmpty (NonEmpty(..))
+import Data.List.NonEmpty (NonEmpty(..), some1)
 import Manifold.Constraint
 import Manifold.Declaration
 import Manifold.Module (Module(Module))
@@ -237,6 +237,13 @@ operator a o = case o of
   Postfix ps -> foldl' (\ accum o -> (Term.#) <$> accum <*> a <* op o) (pure (Term.var (O o))) ps
   Infix ps -> foldl' (\ accum o -> (Term.#) <$> accum <* op o <*> a) ((Term.var (O o) Term.#) <$> a) ps
   Closed (p:|ps) -> foldl' (\ accum o -> (Term.#) <$> accum <*> a <* op o) ((Term.var (O o)) <$ op p) ps
+
+prefixOp, postfixOp, infixOp, closedOp :: (Monad m, TokenParsing m) => m Operator
+
+prefixOp  = Prefix  <$> some1 (identifier <* underscore)
+postfixOp = Postfix <$> some1 (underscore *> identifier)
+infixOp   = Infix   <$  underscore <*> some1 (identifier <* underscore)
+closedOp  = Closed  <$> ((:|) <$> identifier <*> some (underscore *> identifier))
 
 underscore :: TokenParsing m => m String
 underscore = token (string "_")
