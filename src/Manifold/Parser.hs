@@ -1,4 +1,4 @@
-{-# LANGUAGE ConstraintKinds, GeneralizedNewtypeDeriving, TypeFamilies #-}
+{-# LANGUAGE ConstraintKinds, FlexibleContexts, GeneralizedNewtypeDeriving, TypeFamilies #-}
 module Manifold.Parser
 ( Parser
 -- * Parsing
@@ -13,6 +13,7 @@ module Manifold.Parser
 import Control.Applicative (Alternative(..), (<**>))
 import Control.Monad (MonadPlus)
 import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.State.Strict
 import qualified Data.ByteString.Char8 as BS
 import Data.Char
 import Data.CharSet (union)
@@ -22,6 +23,7 @@ import Data.Function (on)
 import qualified Data.HashSet as HashSet
 import Data.List (deleteBy)
 import Data.List.NonEmpty (NonEmpty(..), some1)
+import qualified Data.Set as Set
 import Manifold.Constraint
 import Manifold.Declaration
 import Manifold.Module (Module(Module))
@@ -42,8 +44,8 @@ import qualified Text.Trifecta as Trifecta
 import Text.Trifecta.Delta
 import Text.Trifecta.Indentation
 
-type Parser = IndentationParserT Char Inner
-type MonadParsing m = (IndentationParsing m, Monad m, TokenParsing m)
+type Parser = StateT (Set.Set Operator) (IndentationParserT Char Inner)
+type MonadParsing m = (IndentationParsing m, MonadState (Set.Set Operator) m, TokenParsing m)
 
 newtype Inner a = Inner { runInner :: Trifecta.Parser a }
   deriving (Alternative, Applicative, CharParsing, DeltaParsing, Functor, LookAheadParsing, MarkParsing Delta, Monad, MonadPlus, Parsing)
@@ -54,10 +56,10 @@ instance TokenParsing Inner where
   highlight h = Inner . highlight h . runInner
 
 parseFile :: MonadIO m => Parser a -> FilePath -> m (Maybe a)
-parseFile p = parseFromFile (runInner (whiteSpace *> evalCharIndentationParserT p indentst))
+parseFile p = parseFromFile (runInner (whiteSpace *> evalCharIndentationParserT (fst <$> runStateT p Set.empty) indentst))
 
 parseString :: Parser a -> String -> Either String a
-parseString p = toResult . Trifecta.parseString (runInner (evalCharIndentationParserT p indentst)) directed
+parseString p = toResult . Trifecta.parseString (runInner (evalCharIndentationParserT (fst <$> runStateT p Set.empty) indentst)) directed
 
 toResult :: Trifecta.Result a -> Either String a
 toResult r = case r of

@@ -50,6 +50,7 @@ library
                      , haskeline
                      , indentation-trifecta
                      , optparse-applicative
+                     , mtl
                      , parsers
                      , prettyprinter
                      , prettyprinter-ansi-terminal
