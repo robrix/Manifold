@@ -156,7 +156,7 @@ lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
                                        <*> some pattern <* dot
                                        <*> term
                                        <?> "lambda"
-  where pattern = name <|> I (-1) <$ token (string "_") <?> "pattern"
+  where pattern = name <|> I (-1) <$ underscore <?> "pattern"
 
 -- $
 -- >>> parseString tuple "()"
@@ -176,7 +176,7 @@ case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <*>
 
 pattern :: (Monad m, TokenParsing m) => m (Pattern Name)
 pattern = (pvar <$> name <?> "binding pattern")
-      <|> (wildcard <$ token (string "_") <?> "wildcard pattern")
+      <|> (wildcard <$ underscore <?> "wildcard pattern")
       <|> (constructor <$> constructorName <*> many pattern <?> "n-ary data constructor pattern")
       <|> (parens (pattern `chainl1` (Pattern.pair <$ comma) <|> pure Pattern.unit) <?> "tuple pattern")
 
@@ -237,3 +237,6 @@ operator a o = case o of
   Postfix ps -> foldl' (\ accum o -> (Term.#) <$> accum <*> a <* op o) (pure (Term.var (O o))) ps
   Infix ps -> foldl' (\ accum o -> (Term.#) <$> accum <* op o <*> a) ((Term.var (O o) Term.#) <$> a) ps
   Closed (p:|ps) -> foldl' (\ accum o -> (Term.#) <$> accum <*> a <* op o) ((Term.var (O o)) <$ op p) ps
+
+underscore :: TokenParsing m => m String
+underscore = token (string "_")
