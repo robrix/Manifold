@@ -15,6 +15,7 @@ import Control.Monad (MonadPlus)
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.ByteString.Char8 as BS
 import Data.Char
+import Data.CharSet.Common (punctuation)
 import Data.Foldable (foldl')
 import Data.Function (on)
 import qualified Data.HashSet as HashSet
@@ -216,10 +217,14 @@ moduleName = token (runUnspaced name') <?> "module name"
         makeN s Nothing  = N s
         makeN s (Just n) = Q s n
 
-identifier, typeIdentifier :: (Monad m, TokenParsing m) => m String
+identifier, typeIdentifier, operatorWord :: (Monad m, TokenParsing m) => m String
 
 identifier     = ident (IdentifierStyle "identifier" lower (alphaNum <|> char '\'') reservedWords Identifier ReservedIdentifier) <?> "identifier"
 typeIdentifier = ident (IdentifierStyle "type identifier" upper (alphaNum <|> char '\'') reservedWords Identifier ReservedIdentifier) <?> "type identifier"
+
+operatorWord = identifier <|> (singleton <$> token (oneOfSet punctuation) <?> "operator")
+  where singleton c = [c]
+
 
 reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "let", "in", "module", "where", "import", "data", "case", "of" ]
