@@ -243,10 +243,10 @@ prefixOp, postfixOp, infixOp, closedOp :: (Monad m, TokenParsing m) => m Operato
 -- $
 -- >>> parseString prefixOp "if _ then _ else _"
 -- Right (Prefix ("if" :| ["then","else"]))
-prefixOp  = Prefix  <$> some1 (identifier <* underscore)
-postfixOp = Postfix <$> some1 (underscore *> identifier)
-infixOp   = Infix   <$  underscore <*> some1 (identifier <* underscore)
-closedOp  = Closed  <$> ((:|) <$> identifier <*> some (underscore *> identifier))
+prefixOp  = Prefix  <$> some1 (identifier <* underscore) <?> "prefix operator"
+postfixOp = Postfix <$> some1 (underscore *> identifier) <?> "postfix operator"
+infixOp   = Infix   <$  underscore <*> some1 (identifier <* underscore) <?> "infix operator"
+closedOp  = Closed  <$> ((:|) <$> identifier <*> some (underscore *> identifier)) <?> "closed operator"
 
 underscore :: TokenParsing m => m String
 underscore = token (string "_")
