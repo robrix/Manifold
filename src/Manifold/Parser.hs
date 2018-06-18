@@ -260,6 +260,10 @@ postfixOp = Postfix <$> some1 (underscore *> operatorWord) <?> "postfix operator
 -- >>> parseString infixOp "_ ⊢ _ : _"
 -- Right (Infix ("\8866" :| [":"]))
 infixOp   = Infix   <$  underscore <*> some1 (operatorWord <* underscore) <?> "infix operator"
+
+-- $
+-- >>> parseString closedOp "(_)"
+-- Right (Closed ("(" :| [")"]))
 closedOp  = Closed  <$> ((:|) <$> operatorWord <*> some (underscore *> operatorWord)) <?> "closed operator"
 
 underscore :: TokenParsing m => m String
