@@ -164,9 +164,9 @@ lambda = foldr ((.) . Term.makeAbs) id <$  op "\\"
 -- >>> parseString tuple "(True)"
 -- Right (Term {unTerm = Value (Data (N "True") [])})
 -- >>> parseString tuple "(True, False)"
--- Right (Term {unTerm = Value (Pair (Term {unTerm = Value (Data (N "True") [])}) (Term {unTerm = Value (Data (N "False") [])}))})
+-- Right (Term {unTerm = Value (Data (N "Pair") [Term {unTerm = Value (Data (N "True") [])},Term {unTerm = Value (Data (N "False") [])}])})
 -- >>> parseString tuple "((), True, False)"
--- Right (Term {unTerm = Value (Pair (Term {unTerm = Value (Pair (Term {unTerm = Value (Data (N "Unit") [])}) (Term {unTerm = Value (Data (N "True") [])}))}) (Term {unTerm = Value (Data (N "False") [])}))})
+-- Right (Term {unTerm = Value (Data (N "Pair") [Term {unTerm = Value (Data (N "Pair") [Term {unTerm = Value (Data (N "Unit") [])},Term {unTerm = Value (Data (N "True") [])}])},Term {unTerm = Value (Data (N "False") [])}])})
 tuple = parens (term `chainl1` (Term.pair <$ comma) <|> pure Term.unit) <?> "tuple"
 
 case' = Term.case' <$ keyword "case" <*> term <* keyword "of" <*>
