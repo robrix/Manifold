@@ -225,8 +225,7 @@ identifier, typeIdentifier, operatorWord :: (Monad m, TokenParsing m) => m Strin
 identifier     = ident (IdentifierStyle "identifier" lower (alphaNum <|> char '\'') reservedWords Identifier ReservedIdentifier) <?> "identifier"
 typeIdentifier = ident (IdentifierStyle "type identifier" upper (alphaNum <|> char '\'') reservedWords Identifier ReservedIdentifier) <?> "type identifier"
 
-operatorWord = identifier <|> (singleton <$> token (oneOfSet (Unicode.punctuation `union` Unicode.symbol)) <?> "operator")
-  where singleton c = [c]
+operatorWord = identifier <|> (some (token (oneOfSet (Unicode.punctuation `union` Unicode.symbol))) <?> "operator")
 
 
 reservedWords :: HashSet.HashSet String
