@@ -249,8 +249,8 @@ operator a o = case o of
   Infix ps -> foldl' (\ accum o -> (Term.#) <$> accum <* op o <*> a) ((Term.var (O o) Term.#) <$> a) ps
   Closed (p:|ps) -> foldl' (\ accum o -> (Term.#) <$> accum <*> a <* op o) ((Term.var (O o)) <$ op p) ps
 
-parseOperator :: (MonadState (Set.Set Operator) m, TokenParsing m) => m Operator
-parseOperator = do
+memorizeOperator :: (MonadState (Set.Set Operator) m, TokenParsing m) => m Operator
+memorizeOperator = do
   op <- prefixOp <|> postfixOp <|> infixOp <|> closedOp
   op <$ modify' (Set.insert op)
 
