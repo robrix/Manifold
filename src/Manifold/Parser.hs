@@ -225,11 +225,15 @@ identifier, typeIdentifier, operatorWord :: (Monad m, TokenParsing m) => m Strin
 identifier     = ident (IdentifierStyle "identifier" lower (alphaNum <|> char '\'') reservedWords Identifier ReservedIdentifier) <?> "identifier"
 typeIdentifier = ident (IdentifierStyle "type identifier" upper (alphaNum <|> char '\'') reservedWords Identifier ReservedIdentifier) <?> "type identifier"
 
-operatorWord = identifier <|> (some (token (oneOfSet (Unicode.punctuation `union` Unicode.symbol))) <?> "operator")
+operatorWord = identifier <|> ident (IdentifierStyle "operator" punctuation punctuation reservedOperators Operator ReservedOperator)
+  where punctuation = oneOfSet (Unicode.punctuation `union` Unicode.symbol)
 
 
 reservedWords :: HashSet.HashSet String
 reservedWords =  HashSet.fromList [ "let", "in", "module", "where", "import", "data", "case", "of" ]
+
+reservedOperators :: HashSet.HashSet String
+reservedOperators =  HashSet.fromList [ ":" ]
 
 keyword, op :: TokenParsing m => String -> m String
 
