@@ -23,6 +23,7 @@ import Data.Function (on)
 import qualified Data.HashSet as HashSet
 import Data.List (deleteBy)
 import Data.List.NonEmpty (NonEmpty(..), some1)
+import Data.Monoid (Alt(..))
 import qualified Data.Set as Set
 import Manifold.Constraint
 import Manifold.Declaration
@@ -128,10 +129,17 @@ datatype = fmap Done $
         constructor = (:::) <$> constructorName <* colon <*> type' <?> "constructor"
 
 
-term, application, true, false, var, data', let', lambda, tuple, case' :: MonadParsing m => m (Term.Term Name)
+term, anyOperator, application, true, false, var, data', let', lambda, tuple, case' :: MonadParsing m => m (Term.Term Name)
 
 -- | Parse a term.
-term = application
+term = anyOperator
+
+anyOperator = get >>= foldMapA (operator application)
+
+-- | Fold a collection by mapping each element onto an 'Alternative' action.
+foldMapA :: (Alternative m, Foldable t) => (b -> m a) -> t b -> m a
+foldMapA f = getAlt . foldMap (Alt . f)
+
 
 application = atom `chainl1` pure (Term.#) <?> "function application"
   where atom = choice [ true, false, var, data', let', lambda, tuple, case' ]
