@@ -251,7 +251,7 @@ op s = token (highlight Operator (string s)) <?> s
 
 -- | Parse a mixfix operator, with terms in each hole position.
 operator :: TokenParsing m => m (Term.Term Name) -> Operator -> m (Term.Term Name)
-operator a o = case o of
+operator a o = a <|> case o of
   Prefix  ps -> opPrefix  a ps
   Postfix ps -> opPostfix a ps
   Infix   ps -> opInfix   a ps
