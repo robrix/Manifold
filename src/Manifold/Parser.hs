@@ -252,10 +252,17 @@ op s = token (highlight Operator (string s)) <?> s
 -- | Parse a mixfix operator, with terms in each hole position.
 operator :: TokenParsing m => m (Term.Term Name) -> Operator -> m (Term.Term Name)
 operator a o = case o of
-  Prefix ps -> foldl' (\ accum o -> (Term.#) <$> accum <* op o <*> a) (pure (Term.var (O o))) ps
-  Postfix ps -> foldl' (\ accum o -> (Term.#) <$> accum <*> a <* op o) (pure (Term.var (O o))) ps
-  Infix ps -> foldl' (\ accum o -> (Term.#) <$> accum <* op o <*> a) ((Term.var (O o) Term.#) <$> a) ps
-  Closed (p:|ps) -> foldl' (\ accum o -> (Term.#) <$> accum <*> a <* op o) ((Term.var (O o)) <$ op p) ps
+  Prefix  ps -> opPrefix  a ps
+  Postfix ps -> opPostfix a ps
+  Infix   ps -> opInfix   a ps
+  Closed  ps -> opClosed  a ps
+
+opPrefix, opPostfix, opInfix, opClosed :: TokenParsing m => m (Term.Term Name) -> NonEmpty String -> m (Term.Term Name)
+
+opPrefix  a ps = foldl' (\ accum o -> (Term.#) <$> accum <* op o <*> a) (pure (Term.var (O (Prefix ps)))) ps
+opPostfix a ps = foldl' (\ accum o -> (Term.#) <$> accum <*> a <* op o) (pure (Term.var (O (Postfix ps)))) ps
+opInfix   a ps = foldl' (\ accum o -> (Term.#) <$> accum <* op o <*> a) ((Term.var (O (Infix ps)) Term.#) <$> a) ps
+opClosed  a (p:|ps) = foldl' (\ accum o -> (Term.#) <$> accum <*> a <* op o) ((Term.var (O (Closed (p:|ps)))) <$ op p) ps
 
 memorizeOperator :: (MonadState (Set.Set Operator) m, TokenParsing m) => m Operator
 memorizeOperator = do
