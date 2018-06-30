@@ -62,3 +62,6 @@ data Type
 infixl 7 :*:
 infixl 6 :+:
 infixr 0 :->:
+
+tbool :: Type
+tbool = TUnit :+: TUnit
