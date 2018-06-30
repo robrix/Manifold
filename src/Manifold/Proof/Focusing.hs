@@ -48,6 +48,7 @@ data Pattern
   | PPair Pattern Pattern
   | PInL Pattern
   | PInR Pattern
+  deriving (Eq, Ord, Show)
 
 pfalse, ptrue :: Pattern
 pfalse = PInL PUnit
