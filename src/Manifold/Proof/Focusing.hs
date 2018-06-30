@@ -48,6 +48,11 @@ data Pattern
   | PInL Pattern
   | PInR Pattern
 
+pfalse, ptrue :: Pattern
+pfalse = PInL PUnit
+ptrue = PInR PUnit
+
+
 data Type
   = Type :*: Type
   | Type :+: Type
