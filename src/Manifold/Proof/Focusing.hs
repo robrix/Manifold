@@ -20,6 +20,10 @@ infix 9 //
 data Value
   = Value (Substitution Function) Pattern
 
+vf :: Function -> Value
+vf f = Value [f // name] (PVar name)
+  where name = I 0
+
 vunit :: Value
 vunit = Value lowerBound PUnit
 
