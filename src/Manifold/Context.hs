@@ -1,10 +1,10 @@
 {-# LANGUAGE FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses #-}
 module Manifold.Context
 ( Context
+, (|>)
 , contextLookup
 , contextFind
 , contextFilter
-, (|>)
 ) where
 
 import Data.Bifunctor
