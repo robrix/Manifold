@@ -1,10 +1,15 @@
+{-# LANGUAGE DeriveFoldable, GeneralizedNewtypeDeriving #-}
 module Manifold.Proof.Focusing where
 
+import Data.Semilattice.Lower
 import Manifold.Name
 
 newtype Substitution def = Substitution { unSubstitution :: [Replacement def] }
+  deriving (Eq, Foldable, Lower, Ord, Show)
 
 data Replacement def = def ://: Name
+  deriving (Eq, Foldable, Ord, Show)
+
 infix 9 ://:
 
 data Value
