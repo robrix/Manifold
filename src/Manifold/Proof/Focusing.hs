@@ -28,3 +28,13 @@ data Pattern
   | PPair Pattern Pattern
   | PInL Pattern
   | PInR Pattern
+
+data Type
+  = Type :*: Type
+  | Type :+: Type
+  | Type :->: Type
+  | TUnit
+
+infixl 7 :*:
+infixl 6 :+:
+infixr 0 :->:
