@@ -35,9 +35,6 @@ declarationSignatures :: Declaration var def -> [Constraint var (Type var)]
 declarationSignatures (Binding sig _) = [sig]
 declarationSignatures (Datatype sig constructors) = sig : constructors
 
-declarationName :: Named var => Declaration var def -> Name
-declarationName = name . declarationSignature
-
 declarationType :: Declaration var def -> Type var
 declarationType = constraintValue . declarationSignature
 
