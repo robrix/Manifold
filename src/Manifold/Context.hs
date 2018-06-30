@@ -23,6 +23,12 @@ data Context var ty
 
 infixl 4 :|>
 
+(|>) :: Context var ty -> Constraint var ty -> Context var ty
+(|>) = (:|>)
+
+infixl 4 |>
+
+
 contextLookup :: Named var => Name -> Context var ty -> Maybe (Constraint var ty)
 contextLookup name = contextFind ((== name) . constraintName)
 
@@ -69,9 +75,3 @@ instance (Eq ty, Eq usage, Semiring usage) => Module usage (Context (Annotated u
 instance (Pretty var, Pretty ty) => Pretty (Context var ty) where
   prettyPrec _ Empty = prettyString "◊"
   prettyPrec d (g :|> c) = prettyParen (d > 4) $ prettyPrec 4 g <> comma <+> prettyPrec 5 c
-
-
-(|>) :: Context var ty -> Constraint var ty -> Context var ty
-(|>) = (:|>)
-
-infixl 4 |>
