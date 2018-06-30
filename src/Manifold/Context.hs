@@ -2,6 +2,8 @@
 module Manifold.Context
 ( Context
 , (|>)
+, Linear
+, (<|)
 , contextLookup
 , contextFind
 , contextFilter
@@ -27,6 +29,17 @@ infixl 4 :|>
 (|>) = (:|>)
 
 infixl 4 |>
+
+data Linear prop
+  = LEmpty
+  | prop :<| Linear prop
+
+infixr 5 :<|
+
+(<|) :: prop -> Linear prop -> Linear prop
+(<|) = (:<|)
+
+infixr 5 <|
 
 
 contextLookup :: Named prop => Name -> Context prop -> Maybe prop
@@ -75,3 +88,7 @@ instance (Eq ty, Eq usage, Semiring usage) => Module usage (Context (Constraint 
 instance Pretty prop => Pretty (Context prop) where
   prettyPrec _ CEmpty = prettyString "◊"
   prettyPrec d (g :|> c) = prettyParen (d > 4) $ prettyPrec 4 g <> comma <+> prettyPrec 5 c
+
+
+instance Lower (Linear prop) where
+  lowerBound = LEmpty
