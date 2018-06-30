@@ -21,6 +21,8 @@ data Value
   | VFn Function
   | VUnit
   | VPair Value Value
+  | VInL Value
+  | VInR Value
 
 
 data Function
