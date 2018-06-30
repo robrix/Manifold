@@ -30,13 +30,9 @@ vtrue = VInR VUnit
 
 
 data Function
-  = FLam (Map Pattern Expr)
+  = FLam (Pattern -> Expr)
   | FId
   | FIdF Name
-
-data Map pattern expr
-  = M (pattern -> expr)
-  | Map pattern expr :|: Map pattern expr
 
 
 data Expr
