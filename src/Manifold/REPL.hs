@@ -7,10 +7,11 @@ import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
 import Data.Functor (($>))
 import Data.Semiring
-import Manifold.Name.Annotated
+import Manifold.Constraint
 import Manifold.Context
 import Manifold.Eval
 import Manifold.Name
+import Manifold.Name.Annotated
 import Manifold.Pretty (Pretty, prettyShow)
 import Manifold.Prompt
 import Manifold.Proof
@@ -59,7 +60,7 @@ instance Effect (REPL usage) where
   handleState c dist (Request (TypeOf t) k) = Request (TypeOf t) (dist . (<$ c) . k)
   handleState c dist (Request (Eval t) k) = Request (Eval t) (dist . (<$ c) . k)
 
-type Prelude var = Context var (Type var)
+type Prelude var = Context (Constraint var (Type var))
 
 runREPL :: (Effects effects, Eq usage, Member Prompt effects, Monoid usage, Unital usage) => Prelude (Annotated usage) -> Proof usage (REPL usage ': effects) a -> Proof usage effects a
 runREPL prelude = interpret (\case
@@ -72,10 +73,10 @@ runREPL prelude = interpret (\case
   Eval term -> runCheck' Intensional (runUnify (runCheck (local (const prelude) (infer term)))) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
 
 
-runCheck' :: (Effects effects, Monoid usage, Unital usage) => Purpose -> Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': Reader usage ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
+runCheck' :: (Effects effects, Monoid usage, Unital usage) => Purpose -> Proof usage (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage)))) ': Reader usage ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
 runCheck' purpose = runError . runSubstitution . runFresh 0 . runSigma purpose . runContext
 
-runEval :: Effects effects => Proof usage (Reader (Context Name Value) ': effects) a -> Proof usage effects a
+runEval :: Effects effects => Proof usage (Reader Environment ': effects) a -> Proof usage effects a
 runEval = runEnv
 
 runIO :: (Eq usage, Monoid usage, Unital usage) => Prelude (Annotated usage) -> Proof usage '[REPL usage, Prompt] a -> IO a

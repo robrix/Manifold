@@ -55,7 +55,7 @@ runEnv :: Effects effects => Proof usage (Reader Environment ': effects) a -> Pr
 runEnv = runReader lowerBound
 
 
-type Environment = Context Name Value
+type Environment = Context (Constraint Name Value)
 
 
 (.=) :: Member (Reader Environment) effects => Name -> Value -> Proof usage effects a -> Proof usage effects a

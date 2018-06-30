@@ -18,13 +18,13 @@ newtype Proof usage effects a = Proof { runProof :: Eff effects a }
   deriving (Applicative, Functor, Monad)
 
 
-freeVariable :: (Member (Exc (Error (Annotated usage))) effects, Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects) => Name -> Proof usage effects a
+freeVariable :: (Member (Exc (Error (Annotated usage))) effects, Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects) => Name -> Proof usage effects a
 freeVariable name = ask >>= throwError . FreeVariable name
 
-cannotUnify :: (Member (Exc (Error var)) effects, Member (Reader (Context var (Type var))) effects) => Type var -> Type var -> Proof usage effects a
+cannotUnify :: (Member (Exc (Error var)) effects, Member (Reader (Context (Constraint var (Type var)))) effects) => Type var -> Type var -> Proof usage effects a
 cannotUnify t1 t2 = ask >>= Exception.throwError . CannotUnify t1 t2
 
-noRuleToCheckIsType :: (Member (Exc (Error (Annotated usage))) effects, Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects) => Type Name -> Proof usage effects a
+noRuleToCheckIsType :: (Member (Exc (Error (Annotated usage))) effects, Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects) => Type Name -> Proof usage effects a
 noRuleToCheckIsType ty  = ask >>= throwError . NoRuleToCheckIsType ty
 
 noRuleToInferType :: Member (Exc (Error (Annotated usage))) effects => Term Name -> Proof usage effects a
@@ -37,9 +37,9 @@ throwError :: Member (Exc (Error (Annotated usage))) effects => Error (Annotated
 throwError = Exception.throwError
 
 data Error var
-  = FreeVariable Name (Context var (Type var))
-  | CannotUnify (Type var) (Type var) (Context var (Type var))
-  | NoRuleToCheckIsType (Type Name) (Context var (Type var))
+  = FreeVariable Name (Context (Constraint var (Type var)))
+  | CannotUnify (Type var) (Type var) (Context (Constraint var (Type var)))
+  | NoRuleToCheckIsType (Type Name) (Context (Constraint var (Type var)))
   | NoRuleToInferType (Term Name)
   | UnknownModule Name
   deriving (Eq, Ord, Show)
@@ -56,22 +56,22 @@ runError :: Effects effects => Proof usage (Exc (Error (Annotated usage)) ': eff
 runError = Exception.runError
 
 
-runContext :: Effects effects => Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': effects) a -> Proof usage effects a
+runContext :: Effects effects => Proof usage (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage)))) ': effects) a -> Proof usage effects a
 runContext = runReader lowerBound
 
-askContext :: Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects => Proof usage effects (Context (Annotated usage) (Type (Annotated usage)))
+askContext :: Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects => Proof usage effects (Context (Constraint (Annotated usage) (Type (Annotated usage))))
 askContext = ask
 
 
 -- | Extend the context with a local assumption.
-(>-) :: Member (Reader (Context (Annotated usage) recur)) effects => Constraint (Annotated usage) recur -> Proof usage effects a -> Proof usage effects a
+(>-) :: Member (Reader (Context (Constraint (Annotated usage) recur))) effects => Constraint (Annotated usage) recur -> Proof usage effects a -> Proof usage effects a
 constraint >- proof = local (|> constraint) proof
 
 infixl 1 >-
 
 
 lookupType :: ( Member (Exc (Error (Annotated usage))) effects
-              , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
+              , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects
               )
            => Name
            -> Proof usage effects (Type (Annotated usage))

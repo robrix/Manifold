@@ -15,7 +15,7 @@ import Manifold.Type
 
 runIsType :: ( Effects effects
              , Member (Exc (Error (Annotated usage))) effects
-             , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
+             , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects
              , Monoid usage
              )
           => Proof usage (IsType usage ': effects) a

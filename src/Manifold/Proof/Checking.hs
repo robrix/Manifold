@@ -74,7 +74,7 @@ checkDeclaration :: ( Effects effects
                     , Member (Exc (Error (Annotated usage))) effects
                     , Member Fresh effects
                     , Member (IsType usage) effects
-                    , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
+                    , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects
                     , Monoid usage
                     , Unital usage
                     )
@@ -97,7 +97,7 @@ runCheck :: ( Effects effects
             , Member (Exc (Error (Annotated usage))) effects
             , Member Fresh effects
             , Member (Reader usage) effects
-            , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
+            , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects
             , Member (State (Substitution (Type (Annotated usage)))) effects
             , Member (Unify usage) effects
             , Monoid usage
@@ -154,7 +154,7 @@ checkPattern :: ( Eq usage
                 , Member (Exc (Error (Annotated usage))) effects
                 , Member Fresh effects
                 , Member (Reader usage) effects
-                , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
+                , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects
                 , Member (State (Substitution (Type (Annotated usage)))) effects
                 , Member (Unify usage) effects
                 , Monoid usage

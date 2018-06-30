@@ -20,7 +20,7 @@ runUnify :: ( Effects effects
             , Eq usage
             , Member (Exc (Error (Annotated usage))) effects
             , Member Fresh effects
-            , Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects
+            , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects
             , Member (State (Substitution (Type (Annotated usage)))) effects
             )
          => Proof usage (Unify usage ': effects) a
