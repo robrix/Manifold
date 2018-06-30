@@ -11,6 +11,11 @@ data Declaration var def
   | Datatype (Constraint var (Type var)) [Constraint var (Type var)]
   deriving (Eq, Ord, Show)
 
+instance Named var => Named (Declaration var def) where
+  name = name . declarationSignature
+  setName name (Binding sig def) = Binding (setName name sig) def
+  setName name (Datatype sig cons) = Datatype (setName name sig) cons
+
 instance (Pretty var, Pretty def) => Pretty (Declaration var def) where
   prettyPrec _ (Binding sig def)
     = vsep [ pretty sig, pretty (constraintVar sig) <+> equals <+> pretty def ]
