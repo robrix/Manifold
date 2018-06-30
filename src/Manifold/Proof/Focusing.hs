@@ -24,6 +24,11 @@ data Value
   | VInL Value
   | VInR Value
 
+vfalse, vtrue :: Value
+vfalse = VInL VUnit
+vtrue = VInR VUnit
+
+
 data Function
   = FLam [Pattern -> Expr]
   | FId
