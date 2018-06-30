@@ -1,5 +1,8 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Manifold.Name where
 
+import Control.Monad.Effect
+import Control.Monad.Effect.Fresh
 import Manifold.Pretty
 
 data Name
@@ -7,6 +10,9 @@ data Name
   | Q String Name
   | I Int
   deriving (Eq, Ord, Show)
+
+gensym :: (Effectful m, Member Fresh effects) => m effects Name
+gensym = raiseEff (I <$> fresh)
 
 
 class Named n where
