@@ -27,6 +27,7 @@ vf f = Value [f // name] (PVar name)
 vunit :: Value
 vunit = Value lowerBound PUnit
 
+
 data Function
   = FLam [Pattern -> Expr]
   | FId
