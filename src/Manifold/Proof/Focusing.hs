@@ -24,7 +24,6 @@ data Value
   | VInL Value
   | VInR Value
 
-
 data Function
   = FLam [Pattern -> Expr]
   | FId
