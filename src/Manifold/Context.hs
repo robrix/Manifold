@@ -30,7 +30,7 @@ infixl 4 |>
 
 
 contextLookup :: Named var => Name -> Context var ty -> Maybe (Constraint var ty)
-contextLookup name = contextFind ((== name) . constraintName)
+contextLookup needle = contextFind ((== needle) . name)
 
 contextFind :: (Constraint var ty -> Bool) -> Context var ty -> Maybe (Constraint var ty)
 contextFind _         Empty     = Nothing

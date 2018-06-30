@@ -25,9 +25,6 @@ instance (Pretty var, Pretty ty) => Pretty (Constraint var ty) where
   prettyPrec d (var ::: ty) = prettyParen (d > 0) $ prettyPrec 0 var <> space <> colon <> space <> prettyPrec 0 ty
 
 
-constraintName :: Named var => Constraint var ty -> Name
-constraintName (var ::: _) = name var
-
 constraintVar :: Constraint var ty -> var
 constraintVar (var ::: _) = var
 
