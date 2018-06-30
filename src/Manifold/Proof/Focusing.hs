@@ -20,6 +20,7 @@ data Value
   = Value (Substitution Function) Pattern
   | VFn Function
   | VUnit
+  | VPair Value Value
 
 
 data Function
