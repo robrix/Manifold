@@ -39,8 +39,5 @@ declarationType :: Declaration var def -> Type var
 declarationType = constraintValue . declarationSignature
 
 
-data Definition var = Definition
-  { definitionPatterns :: [var]
-  , definitionBody     :: Term var
-  }
+data Definition var = [var] := Term var
   deriving (Eq, Ord, Show)
