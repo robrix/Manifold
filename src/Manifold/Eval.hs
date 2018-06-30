@@ -4,6 +4,7 @@ module Manifold.Eval where
 import Control.Applicative
 import Control.Monad.Effect
 import Control.Monad.Effect.Reader
+import Data.Semilattice.Lower
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Name
@@ -51,7 +52,7 @@ askEnv = ask
 
 
 runEnv :: Effects effects => Proof usage (Reader Environment ': effects) a -> Proof usage effects a
-runEnv = runReader emptyContext
+runEnv = runReader lowerBound
 
 
 type Environment = Context Name Value

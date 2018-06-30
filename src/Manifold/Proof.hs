@@ -5,6 +5,7 @@ import Control.Monad.Effect
 import qualified Control.Monad.Effect.Exception as Exception
 import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
+import Data.Semilattice.Lower
 import Manifold.Name.Annotated
 import Manifold.Constraint
 import Manifold.Context
@@ -56,7 +57,7 @@ runError = Exception.runError
 
 
 runContext :: Effects effects => Proof usage (Reader (Context (Annotated usage) (Type (Annotated usage))) ': effects) a -> Proof usage effects a
-runContext = runReader emptyContext
+runContext = runReader lowerBound
 
 askContext :: Member (Reader (Context (Annotated usage) (Type (Annotated usage)))) effects => Proof usage effects (Context (Annotated usage) (Type (Annotated usage)))
 askContext = ask

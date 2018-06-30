@@ -4,13 +4,10 @@ module Manifold.Context
 , contextLookup
 , contextFind
 , contextFilter
-, emptyContext
 , (|>)
 ) where
 
 import Data.Bifunctor
-import Data.Foldable (fold)
-import Data.List
 import Data.Module.Class
 import Data.Semilattice.Lower
 import Data.Semiring (Semiring(..))
@@ -19,25 +16,45 @@ import Manifold.Name
 import Manifold.Name.Annotated
 import Manifold.Pretty
 
-newtype Context var ty = Context { unContext :: [Constraint var ty] }
-  deriving (Eq, Lower, Ord, Show)
+data Context var ty
+  = Empty
+  | Context var ty :|> Constraint var ty
+  deriving (Eq, Ord, Show)
+
+infixl 4 :|>
 
 contextLookup :: Named var => Name -> Context var ty -> Maybe (Constraint var ty)
 contextLookup name = contextFind ((== name) . constraintName)
 
 contextFind :: (Constraint var ty -> Bool) -> Context var ty -> Maybe (Constraint var ty)
-contextFind predicate = find predicate . unContext
+contextFind _         Empty     = Nothing
+contextFind predicate (g :|> c)
+  | predicate c = Just c
+  | otherwise   = contextFind predicate g
 
 
 contextFilter :: (Constraint var ty -> Bool) -> Context var ty -> Context var ty
-contextFilter keep = Context . filter keep . unContext
+contextFilter _    Empty     = Empty
+contextFilter keep (g :|> c)
+  | keep c    = g' :|> c
+  | otherwise = g'
+  where g' = contextFilter keep g
 
+
+instance Lower (Context var ty) where
+  lowerBound = Empty
 
 instance (Eq ty, Eq usage, Semigroup usage) => Semigroup (Context (Annotated usage) ty) where
-  Context as <> Context bs = Context (zipWith go as bs)
-    where go (Annotated name1 u1 ::: t1) (Annotated name2 u2 ::: t2)
-            | name1 == name2, t1 == t2 = Annotated name1 (u1 <> u2) ::: t1
-            | otherwise                = error "adding inequal contexts"
+  a1 <> a2
+    | Empty <- a1
+    , Empty <- a2
+    = Empty
+    | g1 :|> Annotated n1 u1 ::: t1 <- a1
+    , g2 :|> Annotated n2 u2 ::: t2 <- a2
+    , n1 == n2, t1 == t2
+    = g1 <> g2 :|> Annotated n1 (u1 <> u2) ::: t1
+    | otherwise
+    = error "adding inequal contexts"
 
 instance (Eq ty, Eq usage, Semigroup usage) => Monoid (Context (Annotated usage) ty) where
   mappend = (<>)
@@ -45,18 +62,16 @@ instance (Eq ty, Eq usage, Semigroup usage) => Monoid (Context (Annotated usage)
 
 
 instance (Eq ty, Eq usage, Semiring usage) => Module usage (Context (Annotated usage) ty) where
-  u ><< Context as = Context (map (first (fmap (u ><))) as)
+  _ ><< Empty     = Empty
+  u ><< (g :|> c) = (u ><< g) :|> first (fmap (u ><)) c
 
 
 instance (Pretty var, Pretty ty) => Pretty (Context var ty) where
-  prettyPrec _ (Context []) = prettyString "◊"
-  prettyPrec d (Context cs) = prettyParen (d > 0) $ fold (intersperse (comma <> space) (map (prettyPrec 0) (reverse cs)))
+  prettyPrec _ Empty = prettyString "◊"
+  prettyPrec d (g :|> c) = prettyParen (d > 4) $ prettyPrec 4 g <> comma <+> prettyPrec 5 c
 
 
 (|>) :: Context var ty -> Constraint var ty -> Context var ty
-(|>) = fmap Context . flip (:) . unContext
+(|>) = (:|>)
 
-infixl 5 |>
-
-emptyContext :: Context var ty
-emptyContext = Context []
+infixl 4 |>
