@@ -67,3 +67,10 @@ infixr 0 :->:
 
 tbool :: Type
 tbool = TUnit :+: TUnit
+
+
+data Typing ty = Name ::: ty
+infix 9 :::
+
+data Definition def = Name := def
+infix 9 :=
