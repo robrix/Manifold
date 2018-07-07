@@ -23,8 +23,8 @@ eval (Term term) = case term of
   Intro i -> case i of
     Abs var body -> do
       env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . name) <$> ask
-      pure (value (Abs (name var ::: env) body))
-    Data c as -> value . Data c <$> traverse eval as
+      pure (Value (Abs (name var ::: env) body))
+    Data c as -> Value . Data c <$> traverse eval as
   Elim e -> case e of
     App f a -> do
       v <- eval f

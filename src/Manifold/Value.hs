@@ -14,9 +14,6 @@ type Environment = Context (Constraint Name Value)
 newtype Value = Value { unValue :: Intro (Constraint Name Environment) (Term Name) Value }
   deriving (Eq, Ord, Show)
 
-value :: Intro (Constraint Name Environment) (Term Name) Value -> Value
-value = Value
-
 
 type instance Base Value = Intro (Constraint Name Environment) (Term Name)
 
