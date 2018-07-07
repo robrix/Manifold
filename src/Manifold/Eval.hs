@@ -12,7 +12,7 @@ import Manifold.Pattern
 import Manifold.Proof
 import Manifold.Term as Term
 import Manifold.Term.Elim
-import Manifold.Term.Intro
+import Manifold.Term.Intro as Intro
 import Manifold.Value as Value
 
 eval :: Member (Reader Environment) effects
@@ -23,13 +23,13 @@ eval (Term term) = case term of
   Intro i -> case i of
     Abs var body -> do
       env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . name) <$> ask
-      pure (Value (Abs (name var ::: env) body))
-    Data c as -> Value . Data c <$> traverse eval as
+      pure (Closure (name var) body env)
+    Intro.Data c as -> Value.Data c <$> traverse eval as
   Elim e -> case e of
     App f a -> do
       v <- eval f
-      case unValue v of
-        Abs (name ::: env) body -> do
+      case v of
+        Closure name body env -> do
           -- FIXME: use the env
           -- FIXME: pi types
           a' <- eval a
@@ -37,9 +37,9 @@ eval (Term term) = case term of
         _ -> error "application of non-abstraction, should have been caught by typechecker"
     If c t e -> do
       v <- eval c
-      case unValue v of
-        Data (N "True")  [] -> eval t
-        Data (N "False") [] -> eval e
+      case v of
+        Value.Data (N "True")  [] -> eval t
+        Value.Data (N "False") [] -> eval e
         _ -> error "branch on non-boolean, should have been caught by typechecker"
     Case s bs -> do
       s' <- eval s
@@ -64,6 +64,6 @@ infixl 1 .=
 match :: Member (Reader Environment) effects => Value -> Pattern Name -> Maybe (Proof usage effects a -> Proof usage effects a)
 match _ (Pattern Wildcard) = Just id
 match s (Pattern (Variable name)) = Just (name .= s)
-match (Value.Value (Data c vs)) (Pattern (Constructor c' ps))
+match (Value.Data c vs) (Pattern (Constructor c' ps))
   | c == c', length vs == length ps = foldr (.) id <$> sequenceA (zipWith match vs ps)
 match _ _ = Nothing
