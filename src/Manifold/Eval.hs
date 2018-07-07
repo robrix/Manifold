@@ -35,12 +35,6 @@ eval (Term term) = case term of
           a' <- eval a
           env `seq` name .= a' $ eval body
         _ -> error "application of non-abstraction, should have been caught by typechecker"
-    If c t e -> do
-      v <- eval c
-      case v of
-        Value.Data (N "True")  [] -> eval t
-        Value.Data (N "False") [] -> eval e
-        _ -> error "branch on non-boolean, should have been caught by typechecker"
     Case s bs -> do
       s' <- eval s
       case foldr (\ (pattern, branch) rest -> flip (,) branch <$> match s' pattern <|> rest) Nothing bs of

@@ -60,7 +60,6 @@ runUnify = go . lowerEff
               | a1 :* b1 <- i1, a2 :* b2 <- i2 -> (.*) <$> unify a1 a2 <*> unify b1 b2 >>= Proof . k
             (Elim e1, Elim e2)
               | App f1 a1   <- e1, App f2 a2   <- e2 -> fmap telim . App <$> unify f1 f2 <*> unify a1 a2 >>= Proof . k
-              | If c1 t1 e1 <- e1, If c2 t2 e2 <- e2 -> fmap (fmap telim) . If <$> unify c1 c2 <*> unify t1 t2 <*> unify e1 e2 >>= Proof . k
             _                                        -> cannotUnify t1 t2
         go (Other u k) = handle runUnify u (Proof . k)
 

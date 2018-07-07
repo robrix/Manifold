@@ -142,11 +142,6 @@ runCheck = go . lowerEff
             _ <- check f (Annotated n zero ::: tvar t1 .-> tvar t2)
             _ <- check a (tvar t1)
             Proof (k (tvar t2))
-          Elim (If c t e) -> do
-            _ <- check c boolT
-            t' <- infer t
-            e' <- infer e
-            unify t' e' >>= Proof . k
           _ -> noRuleToInferType term >>= Proof . k
         go (Other u k) = handle runCheck u (Proof . k)
 

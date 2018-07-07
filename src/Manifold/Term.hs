@@ -69,7 +69,9 @@ false :: Term var
 false = data' (N "False") []
 
 iff :: Term var -> Term var -> Term var -> Term var
-iff c t e = elim (If c t e)
+iff c t e = case' c
+    [ (constructor (N "True")  [], t)
+    , (constructor (N "False") [], e) ]
 
 
 pair :: Term var -> Term var -> Term var
