@@ -36,11 +36,11 @@ library
                      , Manifold.Substitution
                      , Manifold.Term
                      , Manifold.Term.Elim
+                     , Manifold.Term.Intro
                      , Manifold.Type
                      , Manifold.Type.Intro
                      , Manifold.Unification
                      , Manifold.Value
-                     , Manifold.Value.Intro
                      , Paths_Manifold
   build-depends:       base >=4.11 && <4.12
                      , bytestring

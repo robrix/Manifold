@@ -12,9 +12,9 @@ import Manifold.Name.Annotated
 import Manifold.Proof
 import Manifold.Substitution
 import Manifold.Term.Elim
+import Manifold.Term.Intro
 import Manifold.Type
 import Manifold.Type.Intro
-import Manifold.Value.Intro
 
 runUnify :: ( Effects effects
             , Eq usage

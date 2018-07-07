@@ -12,7 +12,7 @@ import Manifold.Name
 import Manifold.Pattern
 import Manifold.Pretty
 import Manifold.Term.Elim
-import Manifold.Value.Intro
+import Manifold.Term.Intro
 
 newtype Term var = Term { unTerm :: Expr var (Term var) }
   deriving (Eq, Ord, Show)

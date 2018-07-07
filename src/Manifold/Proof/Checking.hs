@@ -22,10 +22,10 @@ import Manifold.Purpose
 import Manifold.Substitution
 import Manifold.Term
 import Manifold.Term.Elim
+import Manifold.Term.Intro
 import Manifold.Type hiding (Var, Elim)
 import Manifold.Type.Intro
 import Manifold.Unification
-import Manifold.Value.Intro
 
 checkModule :: ( Effects effects
                , Eq usage

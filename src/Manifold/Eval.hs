@@ -12,8 +12,8 @@ import Manifold.Pattern
 import Manifold.Proof
 import Manifold.Term as Term
 import Manifold.Term.Elim
+import Manifold.Term.Intro
 import Manifold.Value as Value
-import Manifold.Value.Intro
 
 eval :: Member (Reader Environment) effects
      => Term Name

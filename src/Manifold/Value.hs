@@ -7,7 +7,7 @@ import Manifold.Context
 import Manifold.Name
 import Manifold.Pretty
 import Manifold.Term (Term)
-import Manifold.Value.Intro
+import Manifold.Term.Intro
 
 type Environment = Context (Constraint Name Value)
 

@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveFoldable, DeriveFunctor, DeriveTraversable, LambdaCase #-}
-module Manifold.Value.Intro where
+module Manifold.Term.Intro where
 
 import Data.Bifoldable
 import Data.Bifunctor
