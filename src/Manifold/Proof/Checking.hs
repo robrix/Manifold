@@ -23,7 +23,7 @@ import Manifold.Substitution
 import Manifold.Term
 import Manifold.Term.Elim
 import Manifold.Term.Intro
-import Manifold.Type hiding (Var, Elim)
+import Manifold.Type hiding (Var, Elim, Intro)
 import Manifold.Type.Intro
 import Manifold.Unification
 
@@ -108,7 +108,7 @@ runCheck :: ( Effects effects
 runCheck = go . lowerEff
   where go (Return a) = pure a
         go (Effect (Check term expected) k) = runCheck $ case (unTerm term, unType expected) of
-          (Value (Abs var body), IntroT (Annotated name pi ::: _S :-> _T))
+          (Intro (Abs var body), IntroT (Annotated name pi ::: _S :-> _T))
             | _S == typeT -> do
               check term _T >>= Proof . k
             | otherwise -> do
@@ -126,7 +126,7 @@ runCheck = go . lowerEff
                   checkPattern pattern subject (check body expected')
         go (Effect (Infer term) k) = runCheck $ case unTerm term of
           Var name -> lookupType name >>= Proof . k
-          Value (Data name vs) -> do
+          Intro (Data name vs) -> do
             _C <- lookupType name
             checkFields _C vs >>= Proof . k
             where checkFields ty                                 []       = pure ty

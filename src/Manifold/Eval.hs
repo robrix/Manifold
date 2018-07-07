@@ -20,7 +20,7 @@ eval :: Member (Reader Environment) effects
      -> Proof usage effects Value
 eval (Term term) = case term of
   Var name -> fmap constraintValue . contextLookup name <$> askEnv >>= maybe (error "free variable, should have been caught by typechecker") pure
-  Term.Value i -> case i of
+  Intro i -> case i of
     Abs var body -> do
       env <- contextFilter (((&&) <$> (/= name var) <*> (`elem` freeVariables body)) . name) <$> ask
       pure (value (Abs (name var ::: env) body))
