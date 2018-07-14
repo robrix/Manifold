@@ -53,3 +53,5 @@ instance Pretty () where prettyPrec _ _ = mempty
 
 instance Pretty a => Pretty [a] where
   prettyPrec _ = list . map (prettyPrec 0)
+
+instance Pretty Int
