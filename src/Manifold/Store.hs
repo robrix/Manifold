@@ -5,9 +5,9 @@ import qualified Data.Map.Monoidal as Monoidal
 import Manifold.Address
 import Manifold.Evaluator
 
-newtype Store address cell = Store { unStore :: Monoidal.Map address cell }
+newtype Store address value = Store { unStore :: Monoidal.Map address [value] }
 
-modifyStore :: (Address address cell effects, Member (State (Store address (cell value))) effects)
-            => (Store address (cell value) -> Store address (cell value))
+modifyStore :: Member (State (Store address value)) effects
+            => (Store address value -> Store address value)
             -> Evaluator address value effects ()
 modifyStore = modify'
