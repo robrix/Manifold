@@ -21,5 +21,5 @@ modifyStore = modify'
 
 
 data StoreError address value result where
-  Unallocated   :: address -> StoreError address value value
+  Unallocated   :: address -> StoreError address value [value]
   Uninitialized :: address -> StoreError address value value
