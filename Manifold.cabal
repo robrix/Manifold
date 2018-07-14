@@ -22,6 +22,7 @@ library
                      , Manifold.Env
                      , Manifold.Erasure
                      , Manifold.Eval
+                     , Manifold.Evaluator
                      , Manifold.Module
                      , Manifold.Name
                      , Manifold.Name.Annotated
