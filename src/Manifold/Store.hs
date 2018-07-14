@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, GADTs #-}
 module Manifold.Store where
 
 import qualified Data.Map.Monoidal as Monoidal
@@ -18,3 +18,8 @@ modifyStore :: Member (State (Store address value)) effects
             => (Store address value -> Store address value)
             -> Evaluator address value effects ()
 modifyStore = modify'
+
+
+data StoreError address value result where
+  Unallocated   :: address -> StoreError address value value
+  Uninitialized :: address -> StoreError address value value
