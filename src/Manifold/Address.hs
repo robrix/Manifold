@@ -10,3 +10,6 @@ class Address address cell | address -> cell where
 
 newtype Precise value = Precise { unPrecise :: Int }
   deriving (Eq, Ord, Show)
+
+newtype Monovariant value = Monovariant { unMonovariant :: Name }
+  deriving (Eq, Ord, Show)
