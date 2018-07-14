@@ -35,6 +35,7 @@ library
                      , Manifold.Proof.Formation
                      , Manifold.Purpose
                      , Manifold.REPL
+                     , Manifold.Store
                      , Manifold.Substitution
                      , Manifold.Term
                      , Manifold.Term.Elim
