@@ -19,7 +19,7 @@ deref :: ( Address address effects
          )
       => address
       -> Evaluator address value effects value
-deref address = Monoidal.lookup address . unStore <$> get >>= maybe (throwResumable (Unallocated address)) pure >>= derefCell address >>= maybe (throwResumable (Uninitialized address)) pure
+deref address = gets (Monoidal.lookup address . unStore) >>= maybe (throwResumable (Unallocated address)) pure >>= derefCell address >>= maybe (throwResumable (Uninitialized address)) pure
 
 
 modifyStore :: Member (State (Store address value)) effects
