@@ -2,16 +2,17 @@
 module Manifold.Store where
 
 import qualified Data.Map.Monoidal as Monoidal
+import qualified Data.Set as Set
 import Manifold.Address
 import Manifold.Evaluator
 
-newtype Store address value = Store { unStore :: Monoidal.Map address [value] }
+newtype Store address value = Store { unStore :: Monoidal.Map address (Set.Set value) }
 
-assign :: (Address address effects, Member (State (Store address value)) effects)
+assign :: (Address address effects, Member (State (Store address value)) effects, Ord value)
        => address
        -> value
        -> Evaluator address value effects ()
-assign address value = modifyStore (Store . Monoidal.insert address [value] . unStore)
+assign address value = modifyStore (Store . Monoidal.insert address (Set.singleton value) . unStore)
 
 deref :: ( Address address effects
          , Member (Resumable (StoreError address value)) effects
@@ -29,5 +30,5 @@ modifyStore = modify'
 
 
 data StoreError address value result where
-  Unallocated   :: address -> StoreError address value [value]
+  Unallocated   :: address -> StoreError address value (Set.Set value)
   Uninitialized :: address -> StoreError address value value

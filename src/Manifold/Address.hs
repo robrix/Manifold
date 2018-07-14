@@ -3,12 +3,13 @@ module Manifold.Address where
 
 import Data.List.NonEmpty (nonEmpty)
 import Data.Monoid (Alt(..), Last(..))
+import qualified Data.Set as Set
 import Manifold.Evaluator
 import Manifold.Name
 
 class (Ord address, Show address) => Address address effects where
   alloc :: Name -> Evaluator address value effects address
-  derefCell :: address -> [value] -> Evaluator address value effects (Maybe value)
+  derefCell :: address -> Set.Set value -> Evaluator address value effects (Maybe value)
 
 
 newtype Precise = Precise { unPrecise :: Int }
@@ -25,7 +26,7 @@ newtype Monovariant = Monovariant { unMonovariant :: Name }
 
 instance Member NonDet effects => Address Monovariant effects where
   alloc = pure . Monovariant
-  derefCell _ = traverse (foldMapA pure) . nonEmpty
+  derefCell _ = traverse (foldMapA pure) . nonEmpty . Set.toList
 
 
 foldMapA :: (Alternative m, Foldable t) => (b -> m a) -> t b -> m a
