@@ -1,9 +1,9 @@
 {-# LANGUAGE DataKinds, FlexibleContexts, TypeOperators #-}
-module Manifold.Env where
+module Manifold.Abstract.Env where
 
 import Manifold.Constraint
 import Manifold.Context
-import Manifold.Evaluator
+import Manifold.Abstract.Evaluator
 import Manifold.Name
 import Data.Semilattice.Lower
 

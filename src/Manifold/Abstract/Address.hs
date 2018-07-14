@@ -1,10 +1,10 @@
 {-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, UndecidableInstances #-}
-module Manifold.Address where
+module Manifold.Abstract.Address where
 
 import Data.List.NonEmpty (nonEmpty)
 import Data.Monoid (Alt(..), Last(..))
 import qualified Data.Set as Set
-import Manifold.Evaluator
+import Manifold.Abstract.Evaluator
 import Manifold.Name
 
 class (Ord address, Show address) => Address address effects where

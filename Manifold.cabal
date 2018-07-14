@@ -15,16 +15,17 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Data.Trifoldable
                      , Data.Trifunctor
+                     , Manifold.Abstract.Address
+                     , Manifold.Abstract.Env
+                     , Manifold.Abstract.Evaluator
+                     , Manifold.Abstract.Store
                      , Manifold.Abstract.Value
-                     , Manifold.Address
                      , Manifold.CLI
                      , Manifold.Constraint
                      , Manifold.Context
                      , Manifold.Declaration
-                     , Manifold.Env
                      , Manifold.Erasure
                      , Manifold.Eval
-                     , Manifold.Evaluator
                      , Manifold.Module
                      , Manifold.Name
                      , Manifold.Name.Annotated
@@ -37,7 +38,6 @@ library
                      , Manifold.Proof.Formation
                      , Manifold.Purpose
                      , Manifold.REPL
-                     , Manifold.Store
                      , Manifold.Substitution
                      , Manifold.Term
                      , Manifold.Term.Elim

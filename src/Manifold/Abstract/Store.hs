@@ -1,11 +1,11 @@
 {-# LANGUAGE FlexibleContexts, GADTs #-}
-module Manifold.Store where
+module Manifold.Abstract.Store where
 
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
-import Manifold.Address
-import Manifold.Evaluator
+import Manifold.Abstract.Address
+import Manifold.Abstract.Evaluator
 
 newtype Store address value = Store { unStore :: Map.Map address (Set.Set value) }
 

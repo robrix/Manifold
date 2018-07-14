@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts, GeneralizedNewtypeDeriving, StandaloneDeriving #-}
-module Manifold.Evaluator
+module Manifold.Abstract.Evaluator
 ( Evaluator(..)
 , Alternative(..)
 , module X
