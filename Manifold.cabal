@@ -13,8 +13,7 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Data.Map.Monoidal
-                     , Data.Trifoldable
+  exposed-modules:     Data.Trifoldable
                      , Data.Trifunctor
                      , Manifold.Abstract.Value
                      , Manifold.Address
