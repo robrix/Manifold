@@ -16,6 +16,7 @@ library
   exposed-modules:     Data.Map.Monoidal
                      , Data.Trifoldable
                      , Data.Trifunctor
+                     , Manifold.Address
                      , Manifold.CLI
                      , Manifold.Constraint
                      , Manifold.Context
