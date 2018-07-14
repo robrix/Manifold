@@ -12,7 +12,7 @@ import Control.Monad.Effect.NonDet as X
 import Control.Monad.Effect.Reader as X
 import Control.Monad.Effect.Resumable as X
 
-newtype Evaluator address effects a = Evaluator { runEvaluator :: Eff effects a }
+newtype Evaluator address value effects a = Evaluator { runEvaluator :: Eff effects a }
   deriving (Applicative, Functor, Monad)
 
-deriving instance Member NonDet effects => Alternative (Evaluator address effects)
+deriving instance Member NonDet effects => Alternative (Evaluator address value effects)
