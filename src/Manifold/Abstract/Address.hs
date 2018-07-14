@@ -6,6 +6,7 @@ import Data.Monoid (Alt(..), Last(..))
 import qualified Data.Set as Set
 import Manifold.Abstract.Evaluator
 import Manifold.Name
+import Manifold.Pretty
 
 class (Ord address, Show address) => Address address effects where
   alloc :: Name -> Evaluator address value effects address
@@ -20,6 +21,9 @@ instance Member Fresh effects => Address Precise effects where
   alloc _ = Precise <$> fresh
   derefCell _ cell = pure (getLast (foldMap (Last . Just) cell))
   assignCell _ value _ = pure (Set.singleton value)
+
+instance Pretty Precise where
+  prettyPrec d (Precise i) = prettyParen (d > 10) $ prettyString "Precise" <+> pretty i
 
 
 
