@@ -13,6 +13,14 @@ assign :: (Address address effects, Member (State (Store address value)) effects
        -> Evaluator address value effects ()
 assign address value = modifyStore (Store . Monoidal.insert address [value] . unStore)
 
+deref :: ( Address address effects
+         , Member (Resumable (StoreError address value)) effects
+         , Member (State (Store address value)) effects
+         )
+      => address
+      -> Evaluator address value effects value
+deref address = Monoidal.lookup address . unStore <$> get >>= maybe (throwResumable (Unallocated address)) pure >>= derefCell address >>= maybe (throwResumable (Uninitialized address)) pure
+
 
 modifyStore :: Member (State (Store address value)) effects
             => (Store address value -> Store address value)
