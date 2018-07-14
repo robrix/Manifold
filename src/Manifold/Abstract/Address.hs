@@ -35,6 +35,9 @@ instance Member NonDet effects => Address Monovariant effects where
   derefCell _ = traverse (foldMapA pure) . nonEmpty . Set.toList
   assignCell _ value cell = pure (Set.insert value cell)
 
+instance Pretty Monovariant where
+  prettyPrec d (Monovariant n) = prettyParen (d > 10) $ prettyString "Monovariant" <+> pretty n
+
 
 foldMapA :: (Alternative m, Foldable t) => (b -> m a) -> t b -> m a
 foldMapA f = getAlt . foldMap (Alt . f)
