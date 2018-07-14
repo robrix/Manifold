@@ -1,4 +1,4 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE FlexibleContexts, GeneralizedNewtypeDeriving, StandaloneDeriving #-}
 module Manifold.Evaluator
 ( Evaluator(..)
 , Alternative(..)
@@ -14,3 +14,5 @@ import Control.Monad.Effect.Resumable as X
 
 newtype Evaluator address effects a = Evaluator { runEvaluator :: Eff effects a }
   deriving (Applicative, Functor, Monad)
+
+deriving instance Member NonDet effects => Alternative (Evaluator address effects)
