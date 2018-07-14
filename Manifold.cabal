@@ -19,6 +19,7 @@ library
                      , Manifold.Constraint
                      , Manifold.Context
                      , Manifold.Declaration
+                     , Manifold.Env
                      , Manifold.Erasure
                      , Manifold.Eval
                      , Manifold.Module
