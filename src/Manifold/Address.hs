@@ -7,7 +7,7 @@ import Manifold.Evaluator
 import Manifold.Name
 
 class (Ord address, Show address) => Address address effects where
-  allocCell :: Name -> Evaluator address value effects address
+  alloc :: Name -> Evaluator address value effects address
   derefCell :: address -> [value] -> Evaluator address value effects (Maybe value)
 
 
@@ -15,7 +15,7 @@ newtype Precise = Precise { unPrecise :: Int }
   deriving (Eq, Ord, Show)
 
 instance Member Fresh effects => Address Precise effects where
-  allocCell _ = Precise <$> fresh
+  alloc _ = Precise <$> fresh
   derefCell _ cell = pure (getLast (foldMap (Last . Just) cell))
 
 
@@ -24,7 +24,7 @@ newtype Monovariant = Monovariant { unMonovariant :: Name }
   deriving (Eq, Ord, Show)
 
 instance Member NonDet effects => Address Monovariant effects where
-  allocCell = pure . Monovariant
+  alloc = pure . Monovariant
   derefCell _ = traverse (foldMapA pure) . nonEmpty
 
 
