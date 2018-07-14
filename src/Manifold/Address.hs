@@ -7,7 +7,7 @@ import Manifold.Evaluator
 import Manifold.Name
 import qualified Data.Set as Set
 
-class Address address cell effects | address -> cell where
+class (Ord address, Show address) => Address address cell effects | address -> cell where
   allocCell :: Name -> Evaluator address value effects address
   derefCell :: address -> cell value -> Evaluator address value effects (Maybe value)
 
