@@ -1,9 +1,11 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Manifold.Evaluator
 ( Evaluator(..)
+, Alternative(..)
 , module X
 ) where
 
+import Control.Applicative
 import Control.Monad.Effect as X
 import Control.Monad.Effect.Fresh as X
 import Control.Monad.Effect.NonDet as X
