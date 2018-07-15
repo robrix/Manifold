@@ -7,6 +7,7 @@ import Data.Semilattice.Lower
 import qualified Data.Set as Set
 import Manifold.Abstract.Address
 import Manifold.Abstract.Evaluator
+import Manifold.Pretty
 
 newtype Store address value = Store { unStore :: Map.Map address (Set.Set value) }
   deriving (Lower)
@@ -35,3 +36,7 @@ runStore = runState lowerBound
 data StoreError address value result where
   Unallocated   :: address -> StoreError address value (Set.Set value)
   Uninitialized :: address -> StoreError address value value
+
+instance Pretty address => Pretty1 (StoreError address value) where
+  liftPrettyPrec _ d (Unallocated address) = prettyParen (d > 10) $ prettyString "unallocated address:" <+> pretty address
+  liftPrettyPrec _ d (Uninitialized address) = prettyParen (d > 10) $ prettyString "Uninitialized address:" <+> pretty address
