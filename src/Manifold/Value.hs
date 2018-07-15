@@ -17,11 +17,11 @@ import Manifold.Pretty
 import Manifold.Term (Term, freeVariables)
 
 data Value address
-  = Closure Name ClosureBody (Env address)
+  = Closure Name (ClosureBody (Term Name)) (Env address)
   | Data Name [Value address]
   deriving (Eq, Ord, Show)
 
-data ClosureBody = ClosureBody { closureId :: Int, closureBody :: Term Name }
+data ClosureBody body = ClosureBody { closureId :: Int, closureBody :: body }
 
 
 instance ( Address address effects
@@ -52,16 +52,16 @@ instance Pretty address => Pretty (Value address) where
     Data (N "Unit") [] -> parens mempty
     Data c as -> prettyParen (d > 10) $ prettyPrec 10 c <> fold (map ((space <>) . prettyPrec 11) as)
 
-instance Eq ClosureBody where
+instance Eq (ClosureBody body) where
   (==) = (==) `on` closureId
 
-instance Ord ClosureBody where
+instance Ord (ClosureBody body) where
   compare = compare `on` closureId
 
-instance Show ClosureBody where
+instance Show (ClosureBody body) where
   showsPrec d (ClosureBody i _) = showParen (d > 10) $ showsBinaryWith showsPrec showsPrec "ClosureBody" d i '_'
 
-instance Pretty ClosureBody where
+instance Pretty (ClosureBody body) where
   prettyPrec d (ClosureBody i _) = prettyParen (d > 10) $ prettyString "ClosureBody" <+> pretty i
 
 
