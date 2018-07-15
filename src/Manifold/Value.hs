@@ -52,7 +52,7 @@ instance Pretty address => Pretty (Value address) where
     Data c as -> prettyParen (d > 10) $ prettyPrec 10 c <> fold (map ((space <>) . prettyPrec 11) as)
 
 instance Pretty (ClosureBody address) where
-  prettyPrec d (ClosureBody i b) = prettyParen (d > 10) $ prettyString "ClosureBody" <+> pretty i <+> pretty b
+  prettyPrec d (ClosureBody i _) = prettyParen (d > 10) $ prettyString "ClosureBody" <+> pretty i
 
 
 data ValueError address result where
