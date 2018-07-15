@@ -11,7 +11,7 @@ module Manifold.Pretty
 , putDoc
 ) where
 
-import Control.Monad.Effect.Resumable
+import Control.Monad.Effect
 import Data.Text.Prettyprint.Doc as Doc hiding (Pretty(..))
 import qualified Data.Text.Prettyprint.Doc as Doc
 import qualified Data.Text.Prettyprint.Doc.Render.Terminal as Doc
@@ -72,3 +72,6 @@ instance Pretty1 [] where
 instance (Pretty1 f, Pretty1 g) => Pretty1 (f :+: g) where
   liftPrettyPrec pp d (L1 l) = liftPrettyPrec pp d l
   liftPrettyPrec pp d (R1 r) = liftPrettyPrec pp d r
+
+instance Pretty1 f => Pretty1 (Lift f m) where
+  liftPrettyPrec pp d (Lift l) = liftPrettyPrec pp d l
