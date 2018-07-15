@@ -1,4 +1,4 @@
-{-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE DefaultSignatures, TypeOperators #-}
 module Manifold.Pretty
 ( Pretty(..)
 , Pretty1(..)
@@ -15,6 +15,7 @@ import Control.Monad.Effect.Resumable
 import Data.Text.Prettyprint.Doc as Doc hiding (Pretty(..))
 import qualified Data.Text.Prettyprint.Doc as Doc
 import qualified Data.Text.Prettyprint.Doc.Render.Terminal as Doc
+import GHC.Generics ((:+:)(..))
 import System.Console.Terminal.Size as Size
 import System.IO (stdout)
 
@@ -67,3 +68,7 @@ instance Pretty1 exc => Pretty (SomeExc exc) where
 
 instance Pretty1 [] where
   liftPrettyPrec pp _ = list . map (pp 0)
+
+instance (Pretty1 f, Pretty1 g) => Pretty1 (f :+: g) where
+  liftPrettyPrec pp d (L1 l) = liftPrettyPrec pp d l
+  liftPrettyPrec pp d (R1 r) = liftPrettyPrec pp d r
