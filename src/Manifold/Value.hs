@@ -19,7 +19,7 @@ data Value address
   | Data Name [Value address]
   deriving (Eq, Ord, Show)
 
-data ClosureBody address = ClosureBody Int (Term Name)
+data ClosureBody address = ClosureBody { closureId :: Int, closureBody :: Term Name}
   deriving (Eq, Ord, Show)
 
 
