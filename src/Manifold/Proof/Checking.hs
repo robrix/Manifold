@@ -143,7 +143,7 @@ runCheck = go . lowerEff
             _ <- check a (tvar t1)
             Proof (k (tvar t2))
           _ -> noRuleToInferType term >>= Proof . k
-        go (Other u k) = handle runCheck u (Proof . k)
+        go (Other u k) = liftHandler runCheck u (Proof . k)
 
 checkPattern :: ( Eq usage
                 , Member (Exc (Error (Annotated usage))) effects

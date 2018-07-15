@@ -15,7 +15,7 @@ import Manifold.Term
 import Manifold.Type
 
 newtype Proof usage effects a = Proof { runProof :: Eff effects a }
-  deriving (Applicative, Functor, Monad)
+  deriving (Applicative, Effectful, Functor, Monad)
 
 
 freeVariable :: (Member (Exc (Error (Annotated usage))) effects, Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects) => Name -> Proof usage effects a

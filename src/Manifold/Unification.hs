@@ -61,7 +61,7 @@ runUnify = go . lowerEff
             (Elim e1, Elim e2)
               | App f1 a1   <- e1, App f2 a2   <- e2 -> fmap telim . App <$> unify f1 f2 <*> unify a1 a2 >>= Proof . k
             _                                        -> cannotUnify t1 t2
-        go (Other u k) = handle runUnify u (Proof . k)
+        go (Other u k) = liftHandler runUnify u (Proof . k)
 
 
 (>->) :: (Member (State (Substitution (Type (Annotated usage)))) effects, Named (Annotated usage)) => Name -> Type (Annotated usage) -> Proof usage effects ()

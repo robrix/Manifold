@@ -34,7 +34,7 @@ runIsType = go . lowerEff
           IntroT (_S :* _T) -> (.*) <$> isType _S <*> isType _T >>= Proof . k
           Elim (App f a) -> (#) <$> isType f <*> isType a >>= Proof . k
           _ -> noRuleToCheckIsType ty
-        go (Other u k) = handle runIsType u (Proof . k)
+        go (Other u k) = liftHandler runIsType u (Proof . k)
 
 
 isType :: Member (IsType usage) effects => Type Name -> Proof usage effects (Type (Annotated usage))
