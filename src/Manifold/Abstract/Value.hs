@@ -14,5 +14,5 @@ class Value address value effects where
 
 
 data Function value (m :: * -> *) result where
-  Lambda :: Name -> Term Name -> Function value m value
+  Lambda :: Name -> m a -> Function value m a
   Apply  :: value -> value -> Function value m value
