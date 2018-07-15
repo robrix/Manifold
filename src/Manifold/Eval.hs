@@ -7,8 +7,6 @@ import Manifold.Abstract.Env
 import Manifold.Abstract.Evaluator
 import Manifold.Abstract.Store
 import Manifold.Abstract.Value as Value
-import Manifold.Constraint
-import Manifold.Context
 import Manifold.Name
 import Manifold.Pattern
 import Manifold.Term as Term
@@ -18,6 +16,7 @@ import Manifold.Term.Intro
 runEval :: ( Address address (Eval value ': effects)
            , Effects effects
            , Member (Reader (Env address)) effects
+           , Member (Resumable (EnvError address)) effects
            , Member (Resumable (StoreError address value)) effects
            , Member (State (Store address value)) effects
            , Ord value
@@ -28,9 +27,7 @@ runEval :: ( Address address (Eval value ': effects)
 runEval = go . lowerEff
   where go (Return a) = pure a
         go (Effect (Eval (Term term)) k) = runEval $ Evaluator . k =<< case term of
-          Var name -> do
-            address <- fmap constraintValue . contextLookup name <$> askEnv
-            maybe (error "free variable, should have been caught by typechecker") deref address
+          Var name -> lookupEnv name >>= deref
           Intro i -> case i of
             Abs var body -> lambda (name var) body
             Data c as -> traverse eval as >>= construct c

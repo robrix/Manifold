@@ -10,7 +10,7 @@ import Data.Functor (($>))
 import Data.Semiring
 import GHC.Generics ((:+:)(..))
 import Manifold.Abstract.Address (Precise)
-import Manifold.Abstract.Env (Env, runEnv)
+import Manifold.Abstract.Env (Env, EnvError, runEnv)
 import Manifold.Abstract.Evaluator (Evaluator(..))
 import Manifold.Abstract.Store (Store, StoreError, runStore)
 import Manifold.Constraint
@@ -62,7 +62,10 @@ data REPL usage (m :: * -> *) result where
   Eval :: Term Name -> REPL usage m (Either
     (Error (Annotated usage))
     (Either
-      (SomeExc (ValueError Precise :+: StoreError Precise (Value Precise)))
+      (SomeExc
+        (   EnvError Precise
+        :+: StoreError Precise (Value Precise)
+        :+: ValueError Precise))
       (Value Precise)))
 
 instance Effect (REPL usage) where
@@ -115,19 +118,22 @@ runEval' :: Effects effects
            ': Reader (Env Precise)
            ': State (Store Precise (Value Precise))
            ': Fresh
+           ': Resumable (EnvError Precise)
            ': Resumable (StoreError Precise (Value Precise))
            ': Resumable (ValueError Precise)
            ': effects) a
          -> Evaluator Precise (Value Precise) effects
            (Either
              (SomeExc
-               (   ValueError Precise
-               :+: StoreError Precise (Value Precise)))
+               (   EnvError Precise
+               :+: StoreError Precise (Value Precise)
+               :+: ValueError Precise))
              a)
-runEval' = fmap reassociate . runResumable . runResumable . runFresh 0 . fmap snd . runStore . runEnv . runEval
-  where reassociate (Left (SomeExc err)) = Left (SomeExc (L1 err))
-        reassociate (Right (Left (SomeExc err))) = Left (SomeExc (R1 err))
-        reassociate (Right (Right val)) = Right val
+runEval' = fmap (merge . merge) . runResumable . runResumable . runResumable . runFresh 0 . fmap snd . runStore . runEnv . runEval
+  where merge :: Either (SomeExc sum) (Either (SomeExc exc) a) -> Either (SomeExc (exc :+: sum)) a
+        merge (Left (SomeExc exc)) = Left (SomeExc (R1 exc))
+        merge (Right (Left (SomeExc exc))) = Left (SomeExc (L1 exc))
+        merge (Right (Right a)) = Right a
 
 runIO :: (Eq usage, Monoid usage, Unital usage) => Prelude (Annotated usage) -> Proof usage '[REPL usage, Prompt] a -> IO a
 runIO prelude = runPrompt "λ: " . runREPL prelude
