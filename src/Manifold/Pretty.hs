@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, DefaultSignatures, FlexibleInstances, TypeOperators #-}
+{-# LANGUAGE DataKinds, DefaultSignatures, FlexibleContexts, FlexibleInstances, TypeOperators #-}
 module Manifold.Pretty
 ( Pretty(..)
 , Pretty1(..)
@@ -79,3 +79,8 @@ instance Pretty1 f => Pretty1 (Lift f m) where
 
 instance Pretty1 (Union '[] m) where
   liftPrettyPrec _ _ _ = mempty
+
+instance (Pretty1 (f m), Pretty1 (Union fs m)) => Pretty1 (Union (f ': fs) m) where
+  liftPrettyPrec pp d u = case decompose u of
+    Left u' -> liftPrettyPrec pp d u'
+    Right f -> liftPrettyPrec pp d f
