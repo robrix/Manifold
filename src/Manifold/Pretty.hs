@@ -15,7 +15,6 @@ import Control.Monad.Effect
 import Data.Text.Prettyprint.Doc as Doc hiding (Pretty(..))
 import qualified Data.Text.Prettyprint.Doc as Doc
 import qualified Data.Text.Prettyprint.Doc.Render.Terminal as Doc
-import Data.Union
 import GHC.Generics ((:+:)(..))
 import System.Console.Terminal.Size as Size
 import System.IO (stdout)
@@ -73,14 +72,3 @@ instance Pretty1 [] where
 instance (Pretty1 f, Pretty1 g) => Pretty1 (f :+: g) where
   liftPrettyPrec pp d (L1 l) = liftPrettyPrec pp d l
   liftPrettyPrec pp d (R1 r) = liftPrettyPrec pp d r
-
-instance Pretty1 f => Pretty1 (Lift f m) where
-  liftPrettyPrec pp d (Lift l) = liftPrettyPrec pp d l
-
-instance Pretty1 (Union '[] m) where
-  liftPrettyPrec _ _ _ = mempty
-
-instance (Pretty1 (f m), Pretty1 (Union fs m)) => Pretty1 (Union (f ': fs) m) where
-  liftPrettyPrec pp d u = case decompose u of
-    Left u' -> liftPrettyPrec pp d u'
-    Right f -> liftPrettyPrec pp d f
