@@ -45,18 +45,18 @@ runEval = go . lowerEff
                 res <- match s' pattern (Just <$> eval branch)
                 maybe rest (pure . Just) res) (pure Nothing) bs
               maybe (error "non-exhaustive pattern match, should have been caught by typechecker") pure match
-          where match _ (Pattern Wildcard) next = next
-                match s (Pattern (Variable name)) next = do
-                  address <- alloc name
-                  assign address s
-                  name .= address $ next
-                match s (Pattern (Constructor c' ps)) next = do
-                  (c, vs) <- deconstruct s
-                  if c == c' && length vs == length ps then
-                    foldr (uncurry match) next (zip vs ps)
-                  else
-                    pure Nothing
         go (Other u k) = liftHandler runEval u (Evaluator . k)
+        match _ (Pattern Wildcard) next = next
+        match s (Pattern (Variable name)) next = do
+          address <- alloc name
+          assign address s
+          name .= address $ next
+        match s (Pattern (Constructor c' ps)) next = do
+          (c, vs) <- deconstruct s
+          if c == c' && length vs == length ps then
+            foldr (uncurry match) next (zip vs ps)
+          else
+            pure Nothing
 
 
 eval :: Member (Eval value) effects => Term Name -> Evaluator address value effects value
