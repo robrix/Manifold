@@ -19,19 +19,23 @@ data Value address
   | Data Name [Value address]
   deriving (Eq, Ord, Show)
 
-data ClosureBody address = ClosureBody (Term Name)
+data ClosureBody address = ClosureBody Int (Term Name)
   deriving (Eq, Ord, Show)
 
 
 instance ( Address address effects
          , Member (Eval (Value address)) effects
+         , Member Fresh effects
          , Member (Reader (Env address)) effects
          , Member (Resumable (ValueError address)) effects
          , Member (State (Store address (Value address))) effects
          )
       => Abstract.Value address (Value address) effects where
-  lambda n body = Closure n (ClosureBody body) . contextFilter (((&&) <$> (/= n) <*> (`elem` freeVariables body)) . name) <$> ask
-  apply (Closure n (ClosureBody b) env) a = do
+  lambda n body = do
+    i <- fresh
+    env <- contextFilter (((&&) <$> (/= n) <*> (`elem` freeVariables body)) . name) <$> ask
+    pure (Closure n (ClosureBody i body) env)
+  apply (Closure n (ClosureBody _ b) env) a = do
     addr <- alloc n
     assign addr a
     local (const (env |> (n ::: addr))) $ eval b
@@ -48,7 +52,7 @@ instance Pretty address => Pretty (Value address) where
     Data c as -> prettyParen (d > 10) $ prettyPrec 10 c <> fold (map ((space <>) . prettyPrec 11) as)
 
 instance Pretty (ClosureBody address) where
-  prettyPrec d (ClosureBody b) = prettyParen (d > 10) $ prettyString "ClosureBody" <+> pretty b
+  prettyPrec d (ClosureBody i b) = prettyParen (d > 10) $ prettyString "ClosureBody" <+> pretty i <+> pretty b
 
 
 data ValueError address result where
