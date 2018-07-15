@@ -5,6 +5,7 @@ import Manifold.Constraint
 import Manifold.Context
 import Manifold.Abstract.Evaluator
 import Manifold.Name
+import Manifold.Pretty
 import Data.Semilattice.Lower
 
 type Env address = Context (Constraint Name address)
@@ -29,3 +30,6 @@ infixl 1 .=
 
 data EnvError address result where
   FreeVariable :: Name -> EnvError address address
+
+instance Pretty1 (EnvError address) where
+  liftPrettyPrec _ d (FreeVariable name) = prettyParen (d > 0) $ prettyString "free variable:" <+> pretty name
