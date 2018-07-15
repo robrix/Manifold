@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, GADTs #-}
+{-# LANGUAGE FlexibleContexts, GADTs, GeneralizedNewtypeDeriving #-}
 module Manifold.Abstract.Store where
 
 import qualified Data.Map as Map
@@ -6,8 +6,10 @@ import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
 import Manifold.Abstract.Address
 import Manifold.Abstract.Evaluator
+import Data.Semilattice.Lower
 
 newtype Store address value = Store { unStore :: Map.Map address (Set.Set value) }
+  deriving (Lower)
 
 assign :: (Address address effects, Member (State (Store address value)) effects, Ord value)
        => address
