@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses #-}
+{-# LANGUAGE DeriveFoldable, FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses #-}
 module Manifold.Context
 ( Context
 , contextLookup
@@ -19,7 +19,7 @@ import Manifold.Pretty
 data Context prop
   = Empty
   | Context prop :|> prop
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Foldable, Ord, Show)
 
 infixl 4 :|>
 
