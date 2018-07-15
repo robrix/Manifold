@@ -3,10 +3,10 @@ module Manifold.Abstract.Store where
 
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
+import Data.Semilattice.Lower
 import qualified Data.Set as Set
 import Manifold.Abstract.Address
 import Manifold.Abstract.Evaluator
-import Data.Semilattice.Lower
 
 newtype Store address value = Store { unStore :: Map.Map address (Set.Set value) }
   deriving (Lower)
