@@ -2,6 +2,8 @@
 module Manifold.Value where
 
 import Data.Foldable (fold)
+import Data.Function (on)
+import Data.Functor.Classes (showsBinaryWith)
 import Manifold.Abstract.Address
 import Manifold.Abstract.Env
 import Manifold.Abstract.Evaluator
@@ -20,7 +22,6 @@ data Value address
   deriving (Eq, Ord, Show)
 
 data ClosureBody address = ClosureBody { closureId :: Int, closureBody :: Term Name}
-  deriving (Eq, Ord, Show)
 
 
 instance ( Address address effects
@@ -50,6 +51,15 @@ instance Pretty address => Pretty (Value address) where
     Closure name body env -> prettyParen (d > 0) $ backslash <+> prettyPrec 0 name <+> dot <+> brackets (prettyPrec 0 env) <> prettyPrec 0 body
     Data (N "Unit") [] -> parens mempty
     Data c as -> prettyParen (d > 10) $ prettyPrec 10 c <> fold (map ((space <>) . prettyPrec 11) as)
+
+instance Eq (ClosureBody address) where
+  (==) = (==) `on` closureId
+
+instance Ord (ClosureBody address) where
+  compare = compare `on` closureId
+
+instance Show (ClosureBody address) where
+  showsPrec d (ClosureBody i _) = showParen (d > 10) $ showsBinaryWith showsPrec showsPrec "ClosureBody" d i '_'
 
 instance Pretty (ClosureBody address) where
   prettyPrec d (ClosureBody i _) = prettyParen (d > 10) $ prettyString "ClosureBody" <+> pretty i
