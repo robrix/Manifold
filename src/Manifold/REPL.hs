@@ -5,11 +5,17 @@ import Control.Applicative (Alternative(..))
 import Control.Monad.Effect
 import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
+import Control.Monad.Effect.Resumable
 import Data.Functor (($>))
 import Data.Semiring
+import GHC.Generics ((:+:)(..))
+import Manifold.Abstract.Address (Precise)
+import Manifold.Abstract.Env (Env, runEnv)
+import Manifold.Abstract.Evaluator (Evaluator(..))
+import Manifold.Abstract.Store (Store, StoreError, runStore)
 import Manifold.Constraint
 import Manifold.Context
-import Manifold.Eval
+import Manifold.Eval (Eval, eval, runEval)
 import Manifold.Name
 import Manifold.Name.Annotated
 import Manifold.Pretty (Pretty, prettyShow)
@@ -40,7 +46,7 @@ command = whole (meta <|> eval <$> term) <?> "command"
           <|> (long "quit" <|> short 'q' <?> "quit") $> pure ()
           <|> (typeOf <$> ((long "type" <|> short 't') *> term) <?> "type of")
           <?> "command; use :? for help")
-        eval term = sendREPL (Eval term) >>= output . either prettyShow prettyShow >> repl
+        eval term = sendREPL (Eval term) >>= output . either prettyShow (either prettyShow prettyShow) >> repl
         typeOf term = sendREPL (TypeOf term) >>= output . either prettyShow prettyShow >> repl
 
         short = symbol . (:[])
@@ -53,7 +59,11 @@ sendREPL = send
 data REPL usage (m :: * -> *) result where
   Help :: REPL usage m ()
   TypeOf :: Term Name -> REPL usage m (Either (Error (Annotated usage)) (Type (Annotated usage)))
-  Eval :: Term Name -> REPL usage m (Either (Error (Annotated usage)) Value)
+  Eval :: Term Name -> REPL usage m (Either
+    (Error (Annotated usage))
+    (Either
+      (SomeExc (ValueError Precise :+: StoreError Precise (Value Precise)))
+      (Value Precise)))
 
 instance Effect (REPL usage) where
   handleState c dist (Request Help k) = Request Help (dist . (<$ c) . k)
@@ -69,15 +79,54 @@ runREPL prelude = interpret (\case
     , ":quit, :q         - exit the REPL"
     , ":type, :t <expr>  - print the type of <expr>"
     ])
-  TypeOf term -> runCheck' Intensional (runUnify (runCheck (local (const prelude) (infer term))))
-  Eval term -> runCheck' Intensional (runUnify (runCheck (local (const prelude) (infer term)))) >>= either (pure . Left) (const (Right <$> runEval (eval term))))
+  TypeOf term -> runCheck' Intensional (local (const prelude) (infer term))
+  Eval term -> do
+    res <- runCheck' Intensional (local (const prelude) (infer term))
+    case res of
+      Left err -> pure (Left err)
+      _        -> Right <$> Proof (runEvaluator (runEval' (eval term))))
 
 
-runCheck' :: (Effects effects, Monoid usage, Unital usage) => Purpose -> Proof usage (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage)))) ': Reader usage ': Fresh ': State (Substitution (Type (Annotated usage))) ': Exc (Error (Annotated usage)) ': effects) (Type (Annotated usage)) -> Proof usage effects (Either (Error (Annotated usage)) (Type (Annotated usage)))
-runCheck' purpose = runError . runSubstitution . runFresh 0 . runSigma purpose . runContext
+runCheck' :: ( Effects effects
+             , Eq usage
+             , Monoid usage
+             , Unital usage
+             )
+          => Purpose
+          -> Proof usage
+            (  Check usage
+            ': Unify usage
+            ': Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))
+            ': Reader usage
+            ': Fresh
+            ': State (Substitution (Type (Annotated usage)))
+            ': Exc (Error (Annotated usage))
+            ': effects) (Type (Annotated usage))
+          -> Proof usage effects
+            (Either
+              (Error (Annotated usage))
+              (Type (Annotated usage)))
+runCheck' purpose = runError . runSubstitution . runFresh 0 . runSigma purpose . runContext . runUnify . runCheck
 
-runEval :: Effects effects => Proof usage (Reader Environment ': effects) a -> Proof usage effects a
-runEval = runEnv
+runEval' :: Effects effects
+         => Evaluator Precise (Value Precise)
+           (  Eval (Value Precise)
+           ': Reader (Env Precise)
+           ': State (Store Precise (Value Precise))
+           ': Fresh
+           ': Resumable (StoreError Precise (Value Precise))
+           ': Resumable (ValueError Precise)
+           ': effects) a
+         -> Evaluator Precise (Value Precise) effects
+           (Either
+             (SomeExc
+               (   ValueError Precise
+               :+: StoreError Precise (Value Precise)))
+             a)
+runEval' = fmap reassociate . runResumable . runResumable . runFresh 0 . fmap snd . runStore . runEnv . runEval
+  where reassociate (Left (SomeExc err)) = Left (SomeExc (L1 err))
+        reassociate (Right (Left (SomeExc err))) = Left (SomeExc (R1 err))
+        reassociate (Right (Right val)) = Right val
 
 runIO :: (Eq usage, Monoid usage, Unital usage) => Prelude (Annotated usage) -> Proof usage '[REPL usage, Prompt] a -> IO a
 runIO prelude = runPrompt "λ: " . runREPL prelude
