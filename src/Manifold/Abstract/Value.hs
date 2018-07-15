@@ -16,3 +16,7 @@ class Value address value effects where
 data Function value m result where
   Lambda :: Name -> m a -> Function value m a
   Apply  :: value -> value -> Function value m value
+
+instance Effect (Function value) where
+  handleState c dist (Request (Lambda name m) k) = Request (Lambda name (dist (m <$ c))) (dist . fmap k)
+  handleState c dist (Request (Apply f a) k) = Request (Apply f a) (dist . (<$ c) . k)
