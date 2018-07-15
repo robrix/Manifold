@@ -11,6 +11,7 @@ module Manifold.Pretty
 , putDoc
 ) where
 
+import Control.Monad.Effect.Resumable
 import Data.Text.Prettyprint.Doc as Doc hiding (Pretty(..))
 import qualified Data.Text.Prettyprint.Doc as Doc
 import qualified Data.Text.Prettyprint.Doc.Render.Terminal as Doc
@@ -59,6 +60,9 @@ instance Pretty a => Pretty [a] where
   prettyPrec _ = list . map (prettyPrec 0)
 
 instance Pretty Int
+
+instance Pretty1 exc => Pretty (SomeExc exc) where
+  prettyPrec d (SomeExc exc) = liftPrettyPrec (const (const mempty)) d exc
 
 
 instance Pretty1 [] where
