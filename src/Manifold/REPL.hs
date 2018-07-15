@@ -78,6 +78,7 @@ runREPL prelude = interpret (\case
     [ ":help, :h, :?     - print this help text"
     , ":quit, :q         - exit the REPL"
     , ":type, :t <expr>  - print the type of <expr>"
+    , "<expr>            - typecheck & evaluate <expr>"
     ])
   TypeOf term -> runCheck' Intensional (local (const prelude) (infer term))
   Eval term -> do
