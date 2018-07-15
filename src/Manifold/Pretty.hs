@@ -59,3 +59,7 @@ instance Pretty a => Pretty [a] where
   prettyPrec _ = list . map (prettyPrec 0)
 
 instance Pretty Int
+
+
+instance Pretty1 [] where
+  liftPrettyPrec pp _ = list . map (pp 0)
