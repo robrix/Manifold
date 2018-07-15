@@ -1,6 +1,7 @@
 {-# LANGUAGE DefaultSignatures #-}
 module Manifold.Pretty
 ( Pretty(..)
+, Pretty1(..)
 , pretty
 , prettyShow
 , prettyPrint
@@ -20,6 +21,9 @@ class Pretty a where
   prettyPrec :: Int -> a -> Doc ann
   default prettyPrec :: Show a => Int -> a -> Doc ann
   prettyPrec d a = Doc.pretty (showsPrec d a "")
+
+class Pretty1 f where
+  liftPrettyPrec :: (Int -> a -> Doc ann) -> Int -> f a -> Doc ann
 
 pretty :: Pretty a => a -> Doc ann
 pretty = prettyPrec 0
