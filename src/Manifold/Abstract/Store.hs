@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, GADTs, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving, TypeOperators #-}
 module Manifold.Abstract.Store where
 
 import qualified Data.Map as Map
@@ -28,6 +28,9 @@ deref :: ( Address address effects
       -> Evaluator address value effects value
 deref address = gets (Map.lookup address . unStore) >>= maybe (throwResumable (Unallocated address)) pure >>= derefCell address >>= maybe (throwResumable (Uninitialized address)) pure
 
+
+runStore :: Effects effects => Evaluator address value (State (Store address value) ': effects) a -> Evaluator address value effects (Store address value, a)
+runStore = runState lowerBound
 
 data StoreError address value result where
   Unallocated   :: address -> StoreError address value (Set.Set value)
