@@ -1,4 +1,4 @@
-{-# LANGUAGE DefaultSignatures, TypeOperators #-}
+{-# LANGUAGE DataKinds, DefaultSignatures, FlexibleInstances, TypeOperators #-}
 module Manifold.Pretty
 ( Pretty(..)
 , Pretty1(..)
@@ -15,6 +15,7 @@ import Control.Monad.Effect
 import Data.Text.Prettyprint.Doc as Doc hiding (Pretty(..))
 import qualified Data.Text.Prettyprint.Doc as Doc
 import qualified Data.Text.Prettyprint.Doc.Render.Terminal as Doc
+import Data.Union
 import GHC.Generics ((:+:)(..))
 import System.Console.Terminal.Size as Size
 import System.IO (stdout)
@@ -75,3 +76,6 @@ instance (Pretty1 f, Pretty1 g) => Pretty1 (f :+: g) where
 
 instance Pretty1 f => Pretty1 (Lift f m) where
   liftPrettyPrec pp d (Lift l) = liftPrettyPrec pp d l
+
+instance Pretty1 (Union '[] m) where
+  liftPrettyPrec _ _ _ = mempty
