@@ -4,7 +4,7 @@ module Manifold.Abstract.Store where
 import Data.List.NonEmpty (nonEmpty)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
-import Data.Monoid (Last(..))
+import Data.Monoid (Alt(..), Last(..))
 import Data.Semilattice.Lower
 import qualified Data.Set as Set
 import Manifold.Abstract.Address
@@ -86,3 +86,7 @@ data StoreError address value result where
 instance Pretty address => Pretty1 (StoreError address value) where
   liftPrettyPrec _ d (Unallocated address) = prettyParen (d > 0) $ prettyString "unallocated address:" <+> pretty address
   liftPrettyPrec _ d (Uninitialized address) = prettyParen (d > 0) $ prettyString "Uninitialized address:" <+> pretty address
+
+
+foldMapA :: (Alternative m, Foldable t) => (b -> m a) -> t b -> m a
+foldMapA f = getAlt . foldMap (Alt . f)
