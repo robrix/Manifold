@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, UndecidableInstances #-}
-module Manifold.Abstract.Address where
+module Manifold.Abstract.Address.Monovariant where
 
 import Manifold.Name
 import Manifold.Pretty

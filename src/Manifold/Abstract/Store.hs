@@ -7,7 +7,7 @@ import Data.Maybe (fromMaybe)
 import Data.Monoid (Alt(..), Last(..))
 import Data.Semilattice.Lower
 import qualified Data.Set as Set
-import Manifold.Abstract.Address
+import Manifold.Abstract.Address.Monovariant
 import Manifold.Abstract.Address.Precise
 import Manifold.Abstract.Evaluator
 import Manifold.Name

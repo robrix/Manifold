@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Data.Trifoldable
                      , Data.Trifunctor
-                     , Manifold.Abstract.Address
+                     , Manifold.Abstract.Address.Monovariant
                      , Manifold.Abstract.Address.Precise
                      , Manifold.Abstract.Env
                      , Manifold.Abstract.Evaluator
