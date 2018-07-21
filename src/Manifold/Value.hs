@@ -29,11 +29,11 @@ instance Member (Resumable (ValueError address eval)) effects
 
 runFunction :: ( Address address effects
                , Coercible eval (Eff effects)
-               , PureEffects effects
                , Member Fresh effects
                , Member (Reader (Env address)) effects
                , Member (Resumable (ValueError address eval)) effects
                , Member (State (Store address (Value address eval))) effects
+               , PureEffects effects
                )
             => Evaluator address (Value address eval) (Abstract.Function (Value address eval) ': effects) a
             -> Evaluator address (Value address eval) effects a
