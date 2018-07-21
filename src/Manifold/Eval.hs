@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, KindSignatures, ScopedTypeVariables, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, KindSignatures, TypeOperators #-}
 module Manifold.Eval where
 
 import Control.Monad.Effect.Internal hiding (apply)
@@ -16,8 +16,7 @@ import Manifold.Term as Term
 import Manifold.Term.Elim
 import Manifold.Term.Intro
 
-runEval :: forall address value effects a
-        .  ( Address address (Eval value ': effects)
+runEval :: ( Address address (Eval value ': effects)
            , Member (Function value) effects
            , Member (Reader (Env address)) effects
            , Member (Resumable (EnvError address)) effects
@@ -30,8 +29,7 @@ runEval :: forall address value effects a
         => Evaluator address value (Eval value ': effects) a
         -> Evaluator address value effects a
 runEval = go . lowerEff
-  where go :: Eff (Eval value ': effects) x -> Evaluator address value effects x
-        go (Return a) = pure a
+  where go (Return a) = pure a
         go (Effect (Eval (Term term)) k) = runEval $ Evaluator . k =<< case term of
           Var name -> lookupEnv name >>= deref
           Intro i -> case i of
