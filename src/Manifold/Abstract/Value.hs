@@ -26,3 +26,8 @@ instance PureEffect (Function value) where
 data Data value (m :: * -> *) result where
   Construct   :: Name -> [value] -> Data value m value
   Deconstruct :: value -> Data value m (Name, [value])
+
+instance PureEffect (Data value)
+instance Effect (Data value) where
+  handleState state handler (Request (Construct name values) k) = Request (Construct name values) (handler . (<$ state) . k)
+  handleState state handler (Request (Deconstruct value) k) = Request (Deconstruct value) (handler . (<$ state) . k)
