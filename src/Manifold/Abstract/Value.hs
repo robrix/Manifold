@@ -20,6 +20,6 @@ data Function value m result where
   Lambda :: Name -> m value -> Function value m value
   Apply  :: value -> value -> Function value m value
 
-instance Effect (Function value) where
-  handleState c dist (Request (Lambda name m) k) = Request (Lambda name (dist (m <$ c))) (dist . fmap k)
-  handleState c dist (Request (Apply f a) k) = Request (Apply f a) (dist . (<$ c) . k)
+instance PureEffect (Function value) where
+  handle handler (Request (Lambda n m) k) = Request (Lambda n (handler m)) (handler . k)
+  handle handler (Request (Apply f a)  k) = Request (Apply f a)            (handler . k)
