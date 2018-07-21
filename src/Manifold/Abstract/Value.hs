@@ -22,3 +22,7 @@ data Function value m result where
 instance PureEffect (Function value) where
   handle handler (Request (Lambda n m) k) = Request (Lambda n (handler m)) (handler . k)
   handle handler (Request (Apply f a)  k) = Request (Apply f a)            (handler . k)
+
+data Data value m result where
+  Construct   :: Name -> [value] -> Data value m value
+  Deconstruct :: value -> Data value m (Name, [value])
