@@ -92,8 +92,7 @@ checkDeclaration (Datatype (name ::: ty) constructors) = do
   pure (Datatype (annotated ::: ty') constructors')
   where checkConstructor (name ::: ty) = (Annotated name zero :::) <$> isType ty
 
-runCheck :: ( Effects effects
-            , Eq usage
+runCheck :: ( Eq usage
             , Member (Exc (Error (Annotated usage))) effects
             , Member Fresh effects
             , Member (Reader usage) effects
@@ -101,6 +100,7 @@ runCheck :: ( Effects effects
             , Member (State (Substitution (Type (Annotated usage)))) effects
             , Member (Unify usage) effects
             , Monoid usage
+            , PureEffects effects
             , Unital usage
             )
          => Proof usage (Check usage ': effects) a
