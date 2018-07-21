@@ -44,6 +44,7 @@ runEval = go . lowerEff
                 maybe rest (pure . Just) res) (pure Nothing) bs
               maybe (error "non-exhaustive pattern match, should have been caught by typechecker") pure match
         go (Other u k) = liftHandler runEval u (Evaluator . k)
+
         match _ (Pattern Wildcard) next = next
         match s (Pattern (Variable name)) next = do
           address <- alloc name
