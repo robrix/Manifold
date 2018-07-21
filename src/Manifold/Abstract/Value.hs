@@ -17,7 +17,7 @@ sendFunction :: Member (Function value) effects => Function value (Eff effects) 
 sendFunction = send
 
 data Function value m result where
-  Lambda :: Name -> m a -> Function value m a
+  Lambda :: Name -> m value -> Function value m value
   Apply  :: value -> value -> Function value m value
 
 instance Effect (Function value) where
