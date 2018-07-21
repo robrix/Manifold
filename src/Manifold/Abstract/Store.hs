@@ -35,6 +35,11 @@ data Allocator address value (m :: * -> *) result where
   Alloc :: Name    -> Allocator address value m address
   Deref :: address -> Allocator address value m value
 
+instance PureEffect (Allocator address value)
+instance Effect (Allocator address value) where
+  handleState state handler (Request (Alloc name) k) = Request (Alloc name) (handler . (<$ state) . k)
+  handleState state handler (Request (Deref addr) k) = Request (Deref addr) (handler . (<$ state) . k)
+
 
 runStore :: Effects effects => Evaluator address value (State (Store address value) ': effects) a -> Evaluator address value effects (Store address value, a)
 runStore = runState lowerBound
