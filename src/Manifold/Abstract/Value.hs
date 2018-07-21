@@ -3,18 +3,17 @@ module Manifold.Abstract.Value where
 
 import Manifold.Abstract.Evaluator
 import Manifold.Name
-import Manifold.Term
 
 class Value address value effects where
-  lambda :: Name -> Term Name -> Evaluator address value effects value
-  apply :: value -> value -> Evaluator address value effects value
-
   construct :: Name -> [value] -> Evaluator address value effects value
   deconstruct :: value -> Evaluator address value effects (Name, [value])
 
 
-sendFunction :: Member (Function value) effects => Function value (Eff effects) a -> Evaluator address value effects a
-sendFunction = send
+lambda :: Member (Function value) effects => Name -> Evaluator address value effects value -> Evaluator address value effects value
+lambda name body = send (Lambda name (lowerEff body))
+
+apply :: Member (Function value) effects => value -> value -> Evaluator address value effects value
+apply f a = send (Apply f a)
 
 data Function value m result where
   Lambda :: Name -> m value -> Function value m value

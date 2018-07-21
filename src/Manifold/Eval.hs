@@ -1,19 +1,23 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, KindSignatures, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, KindSignatures, ScopedTypeVariables, TypeOperators #-}
 module Manifold.Eval where
 
 import Control.Monad.Effect.Internal hiding (apply)
+import qualified Data.Set as Set
 import Manifold.Abstract.Address
 import Manifold.Abstract.Env
 import Manifold.Abstract.Evaluator
 import Manifold.Abstract.Store
 import Manifold.Abstract.Value as Value
+import Manifold.Constraint
+import Manifold.Context
 import Manifold.Name
 import Manifold.Pattern
 import Manifold.Term as Term
 import Manifold.Term.Elim
 import Manifold.Term.Intro
 
-runEval :: ( Address address (Eval value ': effects)
+runEval :: forall address value effects a
+        .  ( Address address (Eval value ': effects)
            , Member (Function value) effects
            , Member (Reader (Env address)) effects
            , Member (Resumable (EnvError address)) effects
@@ -26,11 +30,16 @@ runEval :: ( Address address (Eval value ': effects)
         => Evaluator address value (Eval value ': effects) a
         -> Evaluator address value effects a
 runEval = go . lowerEff
-  where go (Return a) = pure a
+  where go :: Eff (Eval value ': effects) x -> Evaluator address value effects x
+        go (Return a) = pure a
         go (Effect (Eval (Term term)) k) = runEval $ Evaluator . k =<< case term of
           Var name -> lookupEnv name >>= deref
           Intro i -> case i of
-            Abs var body -> lambda (name var) body
+            Abs var body -> do
+              let n = name var
+                  fvs = Set.delete n (freeVariables body)
+              env <- contextFilter ((`elem` fvs) . name) <$> ask
+              lambda (name var) (foldr (\ (v ::: addr) -> v .= addr) (eval body) env)
             Data c as -> traverse eval as >>= construct c
           Elim e -> case e of
             App f a -> do

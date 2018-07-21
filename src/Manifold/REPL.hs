@@ -13,6 +13,7 @@ import Manifold.Abstract.Address (Precise)
 import Manifold.Abstract.Env (Env, EnvError, runEnv)
 import Manifold.Abstract.Evaluator (Evaluator(..))
 import Manifold.Abstract.Store (Store, StoreError, runStore)
+import qualified Manifold.Abstract.Value as Abstract
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Eval (Eval, eval, runEval)
@@ -28,7 +29,7 @@ import Manifold.Substitution
 import Manifold.Term
 import Manifold.Type
 import Manifold.Unification
-import Manifold.Value
+import Manifold.Value as Value
 import Text.Trifecta as Trifecta
 
 repl :: (Member Prompt effects, Member (REPL usage) effects, Monoid usage, Pretty usage) => Proof usage effects ()
@@ -64,15 +65,24 @@ data REPL usage (m :: * -> *) result where
     (Either
       (SomeExc
         (   EnvError Precise
-        :+: StoreError Precise (Value Precise)
-        :+: ValueError Precise))
-      (Value Precise)))
+        :+: StoreError Precise (Value Precise (ValueEff Precise '[]))
+        :+: ValueError Precise (ValueEff Precise '[])))
+      (Value Precise (ValueEff Precise '[]))))
 
 instance PureEffect (REPL usage)
 instance Effect (REPL usage) where
   handleState c dist (Request Help k) = Request Help (dist . (<$ c) . k)
   handleState c dist (Request (TypeOf t) k) = Request (TypeOf t) (dist . (<$ c) . k)
   handleState c dist (Request (Eval t) k) = Request (Eval t) (dist . (<$ c) . k)
+
+newtype ValueEff address effects a
+  = ValueEff (Eff (  Reader (Env Precise)
+                  ': State (Store Precise (Value Precise (ValueEff Precise effects)))
+                  ': Fresh
+                  ': Resumable (EnvError Precise)
+                  ': Resumable (StoreError Precise (Value Precise (ValueEff Precise effects)))
+                  ': Resumable (ValueError Precise (ValueEff Precise effects))
+                  ': effects) a)
 
 type Prelude var = Context (Constraint var (Type var))
 
@@ -89,7 +99,7 @@ runREPL prelude = interpret (\case
     res <- runCheck' Intensional (local (const prelude) (infer term))
     case res of
       Left err -> pure (Left err)
-      _        -> Right <$> Proof (runEvaluator (runEval' (eval term))))
+      _        -> pure (Right (run (runEvaluator (runEval' (eval term))))))
 
 
 runCheck' :: ( Effects effects
@@ -114,23 +124,24 @@ runCheck' :: ( Effects effects
 runCheck' purpose = runError . runSubstitution . runFresh 0 . runSigma purpose . runContext . runUnify . runCheck
 
 runEval' :: Effects effects
-         => Evaluator Precise (Value Precise)
-           (  Eval (Value Precise)
+         => Evaluator Precise (Value Precise (ValueEff Precise effects))
+           (  Eval (Value Precise (ValueEff Precise effects))
+           ': Abstract.Function (Value Precise (ValueEff Precise effects))
            ': Reader (Env Precise)
-           ': State (Store Precise (Value Precise))
+           ': State (Store Precise (Value Precise (ValueEff Precise effects)))
            ': Fresh
            ': Resumable (EnvError Precise)
-           ': Resumable (StoreError Precise (Value Precise))
-           ': Resumable (ValueError Precise)
+           ': Resumable (StoreError Precise (Value Precise (ValueEff Precise effects)))
+           ': Resumable (ValueError Precise (ValueEff Precise effects))
            ': effects) a
-         -> Evaluator Precise (Value Precise) effects
+         -> Evaluator Precise (Value Precise (ValueEff Precise effects)) effects
            (Either
              (SomeExc
                (   EnvError Precise
-               :+: StoreError Precise (Value Precise)
-               :+: ValueError Precise))
+               :+: StoreError Precise (Value Precise (ValueEff Precise effects))
+               :+: ValueError Precise (ValueEff Precise effects)))
              a)
-runEval' = fmap (merge . merge) . runResumable . runResumable . runResumable . runFresh 0 . fmap snd . runStore . runEnv . runEval
+runEval' = fmap (merge . merge) . runResumable . runResumable . runResumable . runFresh 0 . fmap snd . runStore . runEnv . Value.runFunction . runEval
   where merge :: Either (SomeExc sum) (Either (SomeExc exc) a) -> Either (SomeExc (exc :+: sum)) a
         merge (Left (SomeExc exc)) = Left (SomeExc (R1 exc))
         merge (Right (Left (SomeExc exc))) = Left (SomeExc (L1 exc))
