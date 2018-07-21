@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving, KindSignatures, LambdaCase, TypeOperators #-}
 module Manifold.Abstract.Store where
 
+import Data.List.NonEmpty (nonEmpty)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import Data.Monoid (Last(..))
@@ -51,6 +52,17 @@ runAllocatorPrecise :: ( Member Fresh effects
 runAllocatorPrecise = interpret $ \case
   Alloc _    -> Precise <$> fresh
   Deref addr -> gets (Map.lookup addr . unStore) >>= maybe (throwResumable (Unallocated addr)) pure >>= maybe (throwResumable (Uninitialized addr)) pure . getLast . foldMap (Last . Just)
+
+runAllocatorMonovariant :: ( Member NonDet effects
+                           , Member (Resumable (StoreError Monovariant value)) effects
+                           , Member (State (Store Monovariant value)) effects
+                           , PureEffects effects
+                           )
+                        => Evaluator Monovariant value (Allocator Monovariant value ': effects) a
+                        -> Evaluator Monovariant value effects a
+runAllocatorMonovariant = interpret $ \case
+  Alloc name -> pure (Monovariant name)
+  Deref addr -> gets (Map.lookup addr . unStore) >>= maybe (throwResumable (Unallocated addr)) pure >>= traverse (foldMapA pure) . nonEmpty . Set.toList >>= maybe (throwResumable (Uninitialized addr)) pure
 
 
 runStore :: Effects effects => Evaluator address value (State (Store address value) ': effects) a -> Evaluator address value effects (Store address value, a)
