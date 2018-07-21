@@ -35,30 +35,26 @@ deref address = gets (Map.lookup address . unStore) >>= maybe (throwResumable (U
 
 data Allocator address value (m :: * -> *) result where
   Alloc      :: Name                   -> Allocator address value m address
-  Deref      :: address                -> Allocator address value m value
+  DerefCell  :: Set.Set value          -> Allocator address value m (Maybe value)
   AssignCell :: value -> Set.Set value -> Allocator address value m (Set.Set value)
 
 instance PureEffect (Allocator address value)
 instance Effect (Allocator address value) where
   handleState state handler (Request (Alloc name) k) = Request (Alloc name) (handler . (<$ state) . k)
-  handleState state handler (Request (Deref addr) k) = Request (Deref addr) (handler . (<$ state) . k)
+  handleState state handler (Request (DerefCell cell) k) = Request (DerefCell cell) (handler . (<$ state) . k)
   handleState state handler (Request (AssignCell value cell) k) = Request (AssignCell value cell) (handler . (<$ state) . k)
 
 runAllocatorPrecise :: ( Member Fresh effects
-                       , Member (Resumable (StoreError Precise value)) effects
-                       , Member (State (Store Precise value)) effects
                        , PureEffects effects
                        )
                     => Evaluator Precise value (Allocator Precise value ': effects) a
                     -> Evaluator Precise value effects a
 runAllocatorPrecise = interpret $ \case
   Alloc _            -> Precise <$> fresh
-  Deref addr         -> gets (Map.lookup addr . unStore) >>= maybe (throwResumable (Unallocated addr)) pure >>= maybe (throwResumable (Uninitialized addr)) pure . getLast . foldMap (Last . Just)
+  DerefCell cell     -> pure (getLast (foldMap (Last . Just) cell))
   AssignCell value _ -> pure (Set.singleton value)
 
 runAllocatorMonovariant :: ( Member NonDet effects
-                           , Member (Resumable (StoreError Monovariant value)) effects
-                           , Member (State (Store Monovariant value)) effects
                            , Ord value
                            , PureEffects effects
                            )
@@ -66,7 +62,7 @@ runAllocatorMonovariant :: ( Member NonDet effects
                         -> Evaluator Monovariant value effects a
 runAllocatorMonovariant = interpret $ \case
   Alloc name            -> pure (Monovariant name)
-  Deref addr            -> gets (Map.lookup addr . unStore) >>= maybe (throwResumable (Unallocated addr)) pure >>= traverse (foldMapA pure) . nonEmpty . Set.toList >>= maybe (throwResumable (Uninitialized addr)) pure
+  DerefCell cell        -> traverse (foldMapA pure) (nonEmpty (Set.toList cell))
   AssignCell value cell -> pure (Set.insert value cell)
 
 
