@@ -47,6 +47,17 @@ runFunction = interpret $ \case
     n .= addr $ coerce b
   Abstract.Apply f a -> throwResumable (ApplyError f a)
 
+runData :: ( Member (Resumable (ValueError address eval)) effects
+           , PureEffects effects
+           )
+        => Evaluator address (Value address eval) (Abstract.Data (Value address eval) ': effects) a
+        -> Evaluator address (Value address eval) effects a
+runData = interpret $ \case
+  Abstract.Construct name fields -> pure (Data name fields)
+  Abstract.Deconstruct (Data name fields) -> pure (name, fields)
+  Abstract.Deconstruct value -> throwResumable (DeconstructError value)
+
+
 instance Pretty address => Pretty (Value address eval) where
   prettyPrec d = \case
     Closure name body -> prettyParen (d > 0) $ backslash <+> prettyPrec 0 name <+> dot <+> prettyPrec 0 body
