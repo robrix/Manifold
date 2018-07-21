@@ -29,7 +29,7 @@ instance Member (Resumable (ValueError address eval)) effects
 
 runFunction :: ( Address address effects
                , Coercible eval (Eff effects)
-               , Effects effects
+               , PureEffects effects
                , Member Fresh effects
                , Member (Reader (Env address)) effects
                , Member (Resumable (ValueError address eval)) effects
