@@ -16,6 +16,7 @@ library
   exposed-modules:     Data.Trifoldable
                      , Data.Trifunctor
                      , Manifold.Abstract.Address
+                     , Manifold.Abstract.Address.Precise
                      , Manifold.Abstract.Env
                      , Manifold.Abstract.Evaluator
                      , Manifold.Abstract.Store

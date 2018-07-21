@@ -9,7 +9,7 @@ import Control.Monad.Effect.Resumable
 import Data.Functor (($>))
 import Data.Semiring
 import GHC.Generics ((:+:)(..))
-import Manifold.Abstract.Address (Precise)
+import Manifold.Abstract.Address.Precise (Precise)
 import Manifold.Abstract.Env (Env, EnvError, runEnv)
 import Manifold.Abstract.Evaluator (Evaluator(..))
 import Manifold.Abstract.Store (Allocator, Store, StoreError, runAllocatorPrecise, runStore)
