@@ -69,13 +69,13 @@ cacheEvaluated :: Member (State (ModuleTable (Annotated usage) (Term Name))) eff
 cacheEvaluated = modify' . insert
 
 
-checkDeclaration :: ( Eq usage
+checkDeclaration :: ( Effects effects
+                    , Eq usage
                     , Member (Exc (Error (Annotated usage))) effects
                     , Member Fresh effects
                     , Member (IsType usage) effects
                     , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects
                     , Monoid usage
-                    , PureEffects effects
                     , Unital usage
                     )
                  => Declaration Name (Term Name)
