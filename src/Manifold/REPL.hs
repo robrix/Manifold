@@ -9,10 +9,10 @@ import Control.Monad.Effect.Resumable
 import Data.Functor (($>))
 import Data.Semiring
 import GHC.Generics ((:+:)(..))
-import Manifold.Abstract.Address.Precise (Precise)
+import Manifold.Abstract.Address.Precise as Precise (Precise, runAllocator)
 import Manifold.Abstract.Env (Env, EnvError, runEnv)
 import Manifold.Abstract.Evaluator (Evaluator(..))
-import Manifold.Abstract.Store (Allocator, Store, StoreError, runAllocatorPrecise, runStore)
+import Manifold.Abstract.Store (Allocator, Store, StoreError, runStore)
 import qualified Manifold.Abstract.Value as Abstract
 import Manifold.Constraint
 import Manifold.Context
@@ -144,7 +144,7 @@ runEval' :: Effects effects
                :+: StoreError Precise (Value Precise (ValueEff Precise effects))
                :+: ValueError Precise (ValueEff Precise effects)))
              a)
-runEval' = fmap (merge . merge) . runResumable . runResumable . runResumable . runFresh 0 . fmap snd . runStore . runAllocatorPrecise . runEnv . Value.runFunction . Value.runData . runEval
+runEval' = fmap (merge . merge) . runResumable . runResumable . runResumable . runFresh 0 . fmap snd . runStore . Precise.runAllocator . runEnv . Value.runFunction . Value.runData . runEval
   where merge :: Either (SomeExc sum) (Either (SomeExc exc) a) -> Either (SomeExc (exc :+: sum)) a
         merge (Left (SomeExc exc)) = Left (SomeExc (R1 exc))
         merge (Right (Left (SomeExc exc))) = Left (SomeExc (L1 exc))
