@@ -76,13 +76,13 @@ instance Effect (REPL usage) where
   handleState c dist (Request (Eval t) k) = Request (Eval t) (dist . (<$ c) . k)
 
 newtype ValueEff address effects a
-  = ValueEff (Eff (  Reader (Env Precise)
-                  ': Allocator Precise (Value Precise (ValueEff Precise effects))
-                  ': State (Store Precise (Value Precise (ValueEff Precise effects)))
+  = ValueEff (Eff (  Reader (Env address)
+                  ': Allocator address (Value address (ValueEff address effects))
+                  ': State (Store address (Value address (ValueEff address effects)))
                   ': Fresh
-                  ': Resumable (EnvError Precise)
-                  ': Resumable (StoreError Precise (Value Precise (ValueEff Precise effects)))
-                  ': Resumable (ValueError Precise (ValueEff Precise effects))
+                  ': Resumable (EnvError address)
+                  ': Resumable (StoreError address (Value address (ValueEff address effects)))
+                  ': Resumable (ValueError address (ValueEff address effects))
                   ': effects) a)
 
 type Prelude var = Context (Constraint var (Type var))
