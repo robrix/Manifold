@@ -5,7 +5,6 @@ import Data.Coerce
 import Data.Foldable (fold)
 import Data.Function (on)
 import Data.Functor.Classes (showsBinaryWith)
-import Manifold.Abstract.Address
 import Manifold.Abstract.Env
 import Manifold.Abstract.Evaluator
 import Manifold.Abstract.Store
@@ -21,12 +20,13 @@ data Value address eval
 data ClosureBody body = ClosureBody { closureId :: Int, closureBody :: body }
 
 
-runFunction :: ( Address address effects
-               , Coercible eval (Eff effects)
+runFunction :: ( Coercible eval (Eff effects)
+               , Member (Allocator address (Value address eval)) effects
                , Member Fresh effects
                , Member (Reader (Env address)) effects
                , Member (Resumable (ValueError address eval)) effects
                , Member (State (Store address (Value address eval))) effects
+               , Ord address
                , PureEffects effects
                )
             => Evaluator address (Value address eval) (Abstract.Function (Value address eval) ': effects) a

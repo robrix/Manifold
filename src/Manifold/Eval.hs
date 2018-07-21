@@ -3,7 +3,6 @@ module Manifold.Eval where
 
 import Control.Monad.Effect.Internal hiding (apply)
 import qualified Data.Set as Set
-import Manifold.Abstract.Address
 import Manifold.Abstract.Env
 import Manifold.Abstract.Evaluator
 import Manifold.Abstract.Store
@@ -16,13 +15,14 @@ import Manifold.Term as Term
 import Manifold.Term.Elim
 import Manifold.Term.Intro
 
-runEval :: ( Address address (Eval value ': effects)
+runEval :: ( Member (Allocator address value) effects
            , Member (Data value) effects
            , Member (Function value) effects
            , Member (Reader (Env address)) effects
            , Member (Resumable (EnvError address)) effects
            , Member (Resumable (StoreError address value)) effects
            , Member (State (Store address value)) effects
+           , Ord address
            , Ord value
            , PureEffects effects
            )

@@ -15,22 +15,32 @@ import Manifold.Pretty
 newtype Store address value = Store { unStore :: Map.Map address (Set.Set value) }
   deriving (Lower)
 
-assign :: (Address address effects, Member (State (Store address value)) effects, Ord value)
+alloc :: Member (Allocator address value) effects=> Name -> Evaluator address value effects address
+alloc = sendAllocator . Alloc
+
+assign :: ( Member (Allocator address value) effects
+          , Member (State (Store address value)) effects
+          , Ord address
+          )
        => address
        -> value
        -> Evaluator address value effects ()
 assign address value = do
   Store store <- get
-  cell <- assignCell address value (fromMaybe Set.empty (Map.lookup address store))
+  cell <- sendAllocator (AssignCell value (fromMaybe Set.empty (Map.lookup address store)))
   put (Store (Map.insert address cell store))
 
-deref :: ( Address address effects
+deref :: ( Member (Allocator address value) effects
          , Member (Resumable (StoreError address value)) effects
          , Member (State (Store address value)) effects
+         , Ord address
          )
       => address
       -> Evaluator address value effects value
-deref address = gets (Map.lookup address . unStore) >>= maybe (throwResumable (Unallocated address)) pure >>= derefCell address >>= maybe (throwResumable (Uninitialized address)) pure
+deref address = gets (Map.lookup address . unStore) >>= maybe (throwResumable (Unallocated address)) pure >>= sendAllocator . DerefCell >>= maybe (throwResumable (Uninitialized address)) pure
+
+sendAllocator :: Member (Allocator address value) effects => Allocator address value (Eff effects) a -> Evaluator address value effects a
+sendAllocator = send
 
 
 data Allocator address value (m :: * -> *) result where

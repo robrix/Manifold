@@ -12,7 +12,7 @@ import GHC.Generics ((:+:)(..))
 import Manifold.Abstract.Address (Precise)
 import Manifold.Abstract.Env (Env, EnvError, runEnv)
 import Manifold.Abstract.Evaluator (Evaluator(..))
-import Manifold.Abstract.Store (Store, StoreError, runStore)
+import Manifold.Abstract.Store (Allocator, Store, StoreError, runAllocatorPrecise, runStore)
 import qualified Manifold.Abstract.Value as Abstract
 import Manifold.Constraint
 import Manifold.Context
@@ -77,6 +77,7 @@ instance Effect (REPL usage) where
 
 newtype ValueEff address effects a
   = ValueEff (Eff (  Reader (Env Precise)
+                  ': Allocator Precise (Value Precise (ValueEff Precise effects))
                   ': State (Store Precise (Value Precise (ValueEff Precise effects)))
                   ': Fresh
                   ': Resumable (EnvError Precise)
@@ -129,6 +130,7 @@ runEval' :: Effects effects
            ': Abstract.Data (Value Precise (ValueEff Precise effects))
            ': Abstract.Function (Value Precise (ValueEff Precise effects))
            ': Reader (Env Precise)
+           ': Allocator Precise (Value Precise (ValueEff Precise effects))
            ': State (Store Precise (Value Precise (ValueEff Precise effects)))
            ': Fresh
            ': Resumable (EnvError Precise)
@@ -142,7 +144,7 @@ runEval' :: Effects effects
                :+: StoreError Precise (Value Precise (ValueEff Precise effects))
                :+: ValueError Precise (ValueEff Precise effects)))
              a)
-runEval' = fmap (merge . merge) . runResumable . runResumable . runResumable . runFresh 0 . fmap snd . runStore . runEnv . Value.runFunction . Value.runData . runEval
+runEval' = fmap (merge . merge) . runResumable . runResumable . runResumable . runFresh 0 . fmap snd . runStore . runAllocatorPrecise . runEnv . Value.runFunction . Value.runData . runEval
   where merge :: Either (SomeExc sum) (Either (SomeExc exc) a) -> Either (SomeExc (exc :+: sum)) a
         merge (Left (SomeExc exc)) = Left (SomeExc (R1 exc))
         merge (Right (Left (SomeExc exc))) = Left (SomeExc (L1 exc))
