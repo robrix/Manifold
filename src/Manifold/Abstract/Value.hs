@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, GADTs, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleContexts, GADTs, KindSignatures, MultiParamTypeClasses #-}
 module Manifold.Abstract.Value where
 
 import Manifold.Abstract.Evaluator
@@ -23,6 +23,6 @@ instance PureEffect (Function value) where
   handle handler (Request (Lambda n m) k) = Request (Lambda n (handler m)) (handler . k)
   handle handler (Request (Apply f a)  k) = Request (Apply f a)            (handler . k)
 
-data Data value m result where
+data Data value (m :: * -> *) result where
   Construct   :: Name -> [value] -> Data value m value
   Deconstruct :: value -> Data value m (Name, [value])
