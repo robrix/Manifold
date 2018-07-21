@@ -171,7 +171,7 @@ checkPattern (Pattern (Constructor name patterns)) subject = \ action -> do
 runSubstitution :: Effects effects => Named var => Proof usage (State (Substitution (Type var)) ': effects) (Type var) -> Proof usage effects (Type var)
 runSubstitution = fmap (uncurry apply) . runState lowerBound
 
-runSigma :: (Effects effects, Monoid usage, Unital usage) => Purpose -> Proof usage (Reader usage ': effects) a -> Proof usage effects a
+runSigma :: (PureEffects effects, Monoid usage, Unital usage) => Purpose -> Proof usage (Reader usage ': effects) a -> Proof usage effects a
 runSigma Extensional = runReader zero
 runSigma Intensional = runReader one
 
