@@ -1,8 +1,9 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving, KindSignatures, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving, KindSignatures, LambdaCase, TypeOperators #-}
 module Manifold.Abstract.Store where
 
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
+import Data.Monoid (Last(..))
 import Data.Semilattice.Lower
 import qualified Data.Set as Set
 import Manifold.Abstract.Address
@@ -39,6 +40,17 @@ instance PureEffect (Allocator address value)
 instance Effect (Allocator address value) where
   handleState state handler (Request (Alloc name) k) = Request (Alloc name) (handler . (<$ state) . k)
   handleState state handler (Request (Deref addr) k) = Request (Deref addr) (handler . (<$ state) . k)
+
+runAllocatorPrecise :: ( Member Fresh effects
+                       , Member (Resumable (StoreError Precise value)) effects
+                       , Member (State (Store Precise value)) effects
+                       , PureEffects effects
+                       )
+                    => Evaluator Precise value (Allocator Precise value ': effects) a
+                    -> Evaluator Precise value effects a
+runAllocatorPrecise = interpret $ \case
+  Alloc _    -> Precise <$> fresh
+  Deref addr -> gets (Map.lookup addr . unStore) >>= maybe (throwResumable (Unallocated addr)) pure >>= maybe (throwResumable (Uninitialized addr)) pure . getLast . foldMap (Last . Just)
 
 
 runStore :: Effects effects => Evaluator address value (State (Store address value) ': effects) a -> Evaluator address value effects (Store address value, a)
