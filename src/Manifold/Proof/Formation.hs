@@ -13,10 +13,10 @@ import Manifold.Name.Annotated
 import Manifold.Proof
 import Manifold.Type
 
-runIsType :: ( Effects effects
-             , Member (Exc (Error (Annotated usage))) effects
+runIsType :: ( Member (Exc (Error (Annotated usage))) effects
              , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects
              , Monoid usage
+             , PureEffects effects
              )
           => Proof usage (IsType usage ': effects) a
           -> Proof usage effects a
@@ -44,5 +44,6 @@ data IsType usage (m :: * -> *) result where
   IsType :: Type Name -> IsType usage m (Type (Annotated usage))
 
 
+instance PureEffect (IsType usage)
 instance Effect (IsType usage) where
   handleState c dist (Request (IsType ty) k) = Request (IsType ty) (dist . (<$ c) . k)

@@ -69,13 +69,13 @@ cacheEvaluated :: Member (State (ModuleTable (Annotated usage) (Term Name))) eff
 cacheEvaluated = modify' . insert
 
 
-checkDeclaration :: ( Effects effects
-                    , Eq usage
+checkDeclaration :: ( Eq usage
                     , Member (Exc (Error (Annotated usage))) effects
                     , Member Fresh effects
                     , Member (IsType usage) effects
                     , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects
                     , Monoid usage
+                    , PureEffects effects
                     , Unital usage
                     )
                  => Declaration Name (Term Name)
@@ -187,6 +187,7 @@ data Check usage (m :: * -> *) result where
   Infer :: Term Name                           -> Check usage m (Type (Annotated usage))
 
 
+instance PureEffect (Check usage)
 instance Effect (Check usage) where
   handleState c dist (Request (Check term ty) k) = Request (Check term ty) (dist . (<$ c) . k)
   handleState c dist (Request (Infer term)    k) = Request (Infer term)    (dist . (<$ c) . k)

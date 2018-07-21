@@ -14,12 +14,13 @@ import Manifold.Term.Elim
 import Manifold.Term.Intro
 
 runEval :: ( Address address (Eval value ': effects)
-           , Effects effects
+           , Member (Function value) effects
            , Member (Reader (Env address)) effects
            , Member (Resumable (EnvError address)) effects
            , Member (Resumable (StoreError address value)) effects
            , Member (State (Store address value)) effects
            , Ord value
+           , PureEffects effects
            , Value address value (Eval value ': effects)
            )
         => Evaluator address value (Eval value ': effects) a
@@ -63,5 +64,6 @@ data Eval value (m :: * -> *) result where
   Eval :: Term Name -> Eval value m value
 
 
+instance PureEffect (Eval value)
 instance Effect (Eval value) where
   handleState c dist (Request (Eval term) k) = Request (Eval term) (dist . (<$ c) . k)

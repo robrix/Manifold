@@ -68,6 +68,7 @@ data REPL usage (m :: * -> *) result where
         :+: ValueError Precise))
       (Value Precise)))
 
+instance PureEffect (REPL usage)
 instance Effect (REPL usage) where
   handleState c dist (Request Help k) = Request Help (dist . (<$ c) . k)
   handleState c dist (Request (TypeOf t) k) = Request (TypeOf t) (dist . (<$ c) . k)

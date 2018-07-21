@@ -16,12 +16,12 @@ import Manifold.Term.Intro
 import Manifold.Type
 import Manifold.Type.Intro
 
-runUnify :: ( Effects effects
-            , Eq usage
+runUnify :: ( Eq usage
             , Member (Exc (Error (Annotated usage))) effects
             , Member Fresh effects
             , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects
             , Member (State (Substitution (Type (Annotated usage)))) effects
+            , PureEffects effects
             )
          => Proof usage (Unify usage ': effects) a
          -> Proof usage effects a
@@ -74,5 +74,6 @@ unify t1 t2 = send (Unify t1 t2)
 data Unify usage (m :: * -> *) result where
   Unify :: Type (Annotated usage) -> Type (Annotated usage) -> Unify usage m (Type (Annotated usage))
 
+instance PureEffect (Unify usage)
 instance Effect (Unify usage) where
   handleState c dist (Request (Unify t1 t2) k) = Request (Unify t1 t2) (dist . (<$ c) . k)

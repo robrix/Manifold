@@ -36,6 +36,7 @@ settings = Settings
   }
 
 
+instance PureEffect Prompt
 instance Effect Prompt where
   handleState c dist (Request Prompt k) = Request Prompt (dist . (<$ c) . k)
   handleState c dist (Request (Output s) k) = Request (Output s) (dist . (<$ c) . k)
