@@ -126,6 +126,7 @@ runCheck' purpose = runError . runSubstitution . runFresh 0 . runSigma purpose .
 runEval' :: Effects effects
          => Evaluator Precise (Value Precise (ValueEff Precise effects))
            (  Eval (Value Precise (ValueEff Precise effects))
+           ': Abstract.Data (Value Precise (ValueEff Precise effects))
            ': Abstract.Function (Value Precise (ValueEff Precise effects))
            ': Reader (Env Precise)
            ': State (Store Precise (Value Precise (ValueEff Precise effects)))
@@ -141,7 +142,7 @@ runEval' :: Effects effects
                :+: StoreError Precise (Value Precise (ValueEff Precise effects))
                :+: ValueError Precise (ValueEff Precise effects)))
              a)
-runEval' = fmap (merge . merge) . runResumable . runResumable . runResumable . runFresh 0 . fmap snd . runStore . runEnv . Value.runFunction . runEval
+runEval' = fmap (merge . merge) . runResumable . runResumable . runResumable . runFresh 0 . fmap snd . runStore . runEnv . Value.runFunction . Value.runData . runEval
   where merge :: Either (SomeExc sum) (Either (SomeExc exc) a) -> Either (SomeExc (exc :+: sum)) a
         merge (Left (SomeExc exc)) = Left (SomeExc (R1 exc))
         merge (Right (Left (SomeExc exc))) = Left (SomeExc (L1 exc))

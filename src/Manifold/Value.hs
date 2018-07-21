@@ -21,12 +21,6 @@ data Value address eval
 data ClosureBody body = ClosureBody { closureId :: Int, closureBody :: body }
 
 
-instance Member (Resumable (ValueError address eval)) effects
-      => Abstract.Value address (Value address eval) effects where
-  construct n vs = pure (Data n vs)
-  deconstruct (Data name values) = pure (name, values)
-  deconstruct a = throwResumable (DeconstructError a)
-
 runFunction :: ( Address address effects
                , Coercible eval (Eff effects)
                , Member Fresh effects

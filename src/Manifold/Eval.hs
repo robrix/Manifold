@@ -17,6 +17,7 @@ import Manifold.Term.Elim
 import Manifold.Term.Intro
 
 runEval :: ( Address address (Eval value ': effects)
+           , Member (Data value) effects
            , Member (Function value) effects
            , Member (Reader (Env address)) effects
            , Member (Resumable (EnvError address)) effects
@@ -24,7 +25,6 @@ runEval :: ( Address address (Eval value ': effects)
            , Member (State (Store address value)) effects
            , Ord value
            , PureEffects effects
-           , Value address value (Eval value ': effects)
            )
         => Evaluator address value (Eval value ': effects) a
         -> Evaluator address value effects a
