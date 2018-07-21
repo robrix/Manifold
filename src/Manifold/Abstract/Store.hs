@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving, TypeOperators #-}
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving, KindSignatures, TypeOperators #-}
 module Manifold.Abstract.Store where
 
 import qualified Data.Map as Map
@@ -7,6 +7,7 @@ import Data.Semilattice.Lower
 import qualified Data.Set as Set
 import Manifold.Abstract.Address
 import Manifold.Abstract.Evaluator
+import Manifold.Name
 import Manifold.Pretty
 
 newtype Store address value = Store { unStore :: Map.Map address (Set.Set value) }
@@ -28,6 +29,11 @@ deref :: ( Address address effects
       => address
       -> Evaluator address value effects value
 deref address = gets (Map.lookup address . unStore) >>= maybe (throwResumable (Unallocated address)) pure >>= derefCell address >>= maybe (throwResumable (Uninitialized address)) pure
+
+
+data Allocator address value (m :: * -> *) result where
+  Alloc :: Name    -> Allocator address value m address
+  Deref :: address -> Allocator address value m value
 
 
 runStore :: Effects effects => Evaluator address value (State (Store address value) ': effects) a -> Evaluator address value effects (Store address value, a)
