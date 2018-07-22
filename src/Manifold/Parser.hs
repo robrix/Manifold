@@ -83,7 +83,7 @@ module' =
          <*> declarations
   where imports = many (absoluteIndentation import')
         declarations = many (absoluteIndentation declaration) >>= resolve
-        resolve decls = checkDecls [] $ foldr combine [] decls
+        resolve = checkDecls [] . foldr combine []
         combine (Done d) rest = ((Name.name d, Done d) : rest)
         combine (Sig name ty) rest = case lookup name rest of
           Just (Bind name tm) -> (name, Done (Binding (name ::: ty) tm)) : deleteBy ((==) `on` fst) (name, Bind name tm) rest
