@@ -110,7 +110,7 @@ import' = keyword "import" *> moduleName
 declaration, datatype :: MonadParsing m => m Decl
 signature, binding :: MonadParsing m => m (Name -> Decl)
 
-declaration = choice [ name <**> (signature <|> binding), datatype ]
+declaration = choice [ name <**> (signature <|> binding), datatype ] <?> "declaration"
 
 signature = flip Sig . Type.generalize <$ colon <*> type' <?> "type signature"
 
