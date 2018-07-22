@@ -20,12 +20,12 @@ import Manifold.Context
 import Manifold.Eval (Eval, eval, runEval)
 import Manifold.Name
 import Manifold.Name.Annotated
+import Manifold.Parser as Parser
 import Manifold.Pretty (Pretty, prettyShow)
 import Manifold.Prompt
 import Manifold.Proof
 import Manifold.Proof.Checking
 import Manifold.Purpose
-import Manifold.Parser as Parser
 import Manifold.Substitution
 import Manifold.Term
 import Manifold.Type
