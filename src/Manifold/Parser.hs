@@ -94,9 +94,9 @@ module' =
         checkDecls names ((name, Done d) : ds)
           | name `notElem` names = (d :) <$> checkDecls (name:names) ds
           | otherwise = fail ("redundant definition of " <> prettyShow name)
-        checkDecls _ ((name, Sig _ _) : _) = fail ("no definition for " <> prettyShow name)
-        checkDecls _ ((name, Bind _ _) : _) = fail ("no signature for " <> prettyShow name)
-        checkDecls _ [] = pure []
+        checkDecls _ ((name, Sig  _ _) : _) = fail ("no definition for " <> prettyShow name)
+        checkDecls _ ((name, Bind _ _) : _) = fail ("no signature for "  <> prettyShow name)
+        checkDecls _ []                     = pure []
 
 data Decl
   = Sig Name (Type.Type Name)
