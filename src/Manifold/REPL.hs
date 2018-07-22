@@ -11,7 +11,7 @@ import Data.Semilattice.Lower
 import Data.Semiring
 import GHC.Generics ((:+:)(..))
 import Manifold.Abstract.Address.Precise as Precise (Precise, runAllocator, runEnv)
-import Manifold.Abstract.Env (Env, Environment, EnvError)
+import Manifold.Abstract.Env (Env, EnvError)
 import Manifold.Abstract.Evaluator (Evaluator(..))
 import Manifold.Abstract.Store (Allocator, Store, StoreError, runStore)
 import qualified Manifold.Abstract.Value as Abstract
@@ -78,7 +78,6 @@ instance Effect (REPL usage) where
 
 newtype ValueEff address effects a
   = ValueEff (Eff (  Env address
-                  ': Reader (Environment address)
                   ': Allocator address (Value address (ValueEff address effects))
                   ': State (Store address (Value address (ValueEff address effects)))
                   ': Fresh
@@ -132,7 +131,6 @@ runEval' :: Effects effects
            ': Abstract.Data (Value Precise (ValueEff Precise effects))
            ': Abstract.Function (Value Precise (ValueEff Precise effects))
            ': Env Precise
-           ': Reader (Environment Precise)
            ': Allocator Precise (Value Precise (ValueEff Precise effects))
            ': State (Store Precise (Value Precise (ValueEff Precise effects)))
            ': Fresh

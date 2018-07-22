@@ -18,12 +18,10 @@ instance Pretty Precise where
   prettyPrec d (Precise i) = prettyParen (d > 10) $ prettyString "Precise" <+> pretty i
 
 
-runEnv :: ( Member (Reader (Environment Precise)) effects
-          , PureEffects effects
-          )
+runEnv :: PureEffects effects
        => Evaluator Precise value (Env Precise ': effects) a
-       -> Evaluator Precise value effects a
-runEnv = interpret $ \case
+       -> Evaluator Precise value (Reader (Environment Precise) ': effects) a
+runEnv = reinterpret $ \case
   Lookup name -> askEnv >>= pure . fmap constraintValue . contextLookup name
   Bind name addr m -> local (|> (name ::: addr)) (runEnv (Evaluator m))
   Close fvs -> contextFilter ((`elem` fvs) . name) <$> askEnv
