@@ -34,8 +34,7 @@ runEval = go . lowerEff
           Var name -> lookupEnv name >>= deref
           Intro i -> case i of
             Abs var body -> do
-              let n = name var
-                  fvs = Set.delete n (freeVariables body)
+              let fvs = Set.delete (name var) (freeVariables body)
               env <- contextFilter ((`elem` fvs) . name) <$> ask
               lambda (name var) (foldr (\ (v ::: addr) -> v .= addr) (eval body) env)
             Data c as -> traverse eval as >>= construct c
