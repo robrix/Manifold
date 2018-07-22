@@ -8,21 +8,21 @@ import Manifold.Name
 import Manifold.Pretty
 import Data.Semilattice.Lower
 
-type Env address = Context (Constraint Name address)
+type Environment address = Context (Constraint Name address)
 
 
-askEnv :: Member (Reader (Env address)) effects => Evaluator address value effects (Env address)
+askEnv :: Member (Reader (Environment address)) effects => Evaluator address value effects (Environment address)
 askEnv = ask
 
-lookupEnv :: (Member (Reader (Env address)) effects, Member (Resumable (EnvError address)) effects) => Name -> Evaluator address value effects address
+lookupEnv :: (Member (Reader (Environment address)) effects, Member (Resumable (EnvError address)) effects) => Name -> Evaluator address value effects address
 lookupEnv name = askEnv >>= maybe (throwResumable (FreeVariable name)) (pure . constraintValue) . contextLookup name
 
 
-runEnv :: Effects effects => Evaluator address value (Reader (Env address) ': effects) a -> Evaluator address value effects a
+runEnv :: Effects effects => Evaluator address value (Reader (Environment address) ': effects) a -> Evaluator address value effects a
 runEnv = runReader lowerBound
 
 
-(.=) :: Member (Reader (Env address)) effects => Name -> address -> Evaluator address value effects a -> Evaluator address value effects a
+(.=) :: Member (Reader (Environment address)) effects => Name -> address -> Evaluator address value effects a -> Evaluator address value effects a
 name .= value = local (|> (name ::: value))
 
 infixl 1 .=

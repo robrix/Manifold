@@ -10,7 +10,7 @@ import Data.Functor (($>))
 import Data.Semiring
 import GHC.Generics ((:+:)(..))
 import Manifold.Abstract.Address.Precise as Precise (Precise, runAllocator)
-import Manifold.Abstract.Env (Env, EnvError, runEnv)
+import Manifold.Abstract.Env (Environment, EnvError, runEnv)
 import Manifold.Abstract.Evaluator (Evaluator(..))
 import Manifold.Abstract.Store (Allocator, Store, StoreError, runStore)
 import qualified Manifold.Abstract.Value as Abstract
@@ -76,7 +76,7 @@ instance Effect (REPL usage) where
   handleState c dist (Request (Eval t) k) = Request (Eval t) (dist . (<$ c) . k)
 
 newtype ValueEff address effects a
-  = ValueEff (Eff (  Reader (Env address)
+  = ValueEff (Eff (  Reader (Environment address)
                   ': Allocator address (Value address (ValueEff address effects))
                   ': State (Store address (Value address (ValueEff address effects)))
                   ': Fresh
@@ -129,7 +129,7 @@ runEval' :: Effects effects
            (  Eval (Value Precise (ValueEff Precise effects))
            ': Abstract.Data (Value Precise (ValueEff Precise effects))
            ': Abstract.Function (Value Precise (ValueEff Precise effects))
-           ': Reader (Env Precise)
+           ': Reader (Environment Precise)
            ': Allocator Precise (Value Precise (ValueEff Precise effects))
            ': State (Store Precise (Value Precise (ValueEff Precise effects)))
            ': Fresh
