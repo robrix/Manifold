@@ -1,5 +1,9 @@
 {-# LANGUAGE DataKinds, FlexibleContexts, GADTs, LambdaCase, TypeOperators #-}
-module Manifold.Abstract.Address.Monovariant where
+module Manifold.Abstract.Address.Monovariant
+( Monovariant(..)
+, runEnv
+, runAllocator
+) where
 
 import Data.List.NonEmpty (nonEmpty)
 import qualified Data.Map as Map
