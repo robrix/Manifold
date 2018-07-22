@@ -32,6 +32,11 @@ data Env address m result where
   Lookup :: Name                   -> Env address m address
   Bind   :: Name -> address -> m a -> Env address m a
 
+instance PureEffect (Env address)
+instance Effect (Env address) where
+  handleState state handler (Request (Lookup name) k) = Request (Lookup name) (handler . (<$ state) . k)
+  handleState state handler (Request (Bind name addr m) k) = Request (Bind name addr (handler (m <$ state))) (handler . fmap k)
+
 
 data EnvError address result where
   FreeVariable :: Name -> EnvError address address
