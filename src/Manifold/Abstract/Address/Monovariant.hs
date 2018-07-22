@@ -2,8 +2,10 @@
 module Manifold.Abstract.Address.Monovariant where
 
 import Data.List.NonEmpty (nonEmpty)
+import qualified Data.Map as Map
 import Data.Monoid (Alt(..))
 import qualified Data.Set as Set
+import Manifold.Abstract.Env (Env(..))
 import Manifold.Abstract.Evaluator
 import Manifold.Abstract.Store
 import Manifold.Name
@@ -14,6 +16,29 @@ newtype Monovariant = Monovariant { unMonovariant :: Name }
 
 instance Pretty Monovariant where
   prettyPrec d (Monovariant n) = prettyParen (d > 10) $ prettyString "Monovariant" <+> pretty n
+
+
+runEnv :: ( Member (State (Store Monovariant value)) effects
+          , PureEffects effects
+          , Ord value
+          )
+       => Evaluator Monovariant value (Env Monovariant ': effects) a
+       -> Evaluator Monovariant value effects a
+runEnv = interpret $ \case
+  Lookup name -> do
+    Store store <- getStore
+    let addr = Monovariant name
+    pure (addr <$ Map.lookup addr store)
+  Bind _ addr m -> do
+    modifyStore (Store . Map.insertWith (<>) addr Set.empty . unStore)
+    runEnv (Evaluator m)
+
+
+getStore :: Member (State (Store Monovariant value)) effects => Evaluator Monovariant value effects (Store Monovariant value)
+getStore = get
+
+modifyStore :: Member (State (Store Monovariant value)) effects => (Store Monovariant value -> Store Monovariant value) -> Evaluator Monovariant value effects ()
+modifyStore = modify'
 
 
 runAllocator :: ( Member NonDet effects
