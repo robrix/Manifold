@@ -1,5 +1,9 @@
 {-# LANGUAGE DataKinds, FlexibleContexts, GADTs, LambdaCase, TypeOperators #-}
-module Manifold.Abstract.Address.Precise where
+module Manifold.Abstract.Address.Precise
+( Precise(..)
+, runEnv
+, runAllocator
+) where
 
 import Data.Monoid (Last(..))
 import qualified Data.Set as Set
