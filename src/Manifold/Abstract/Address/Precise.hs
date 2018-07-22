@@ -8,6 +8,7 @@ import Manifold.Abstract.Evaluator
 import Manifold.Abstract.Store
 import Manifold.Constraint
 import Manifold.Context
+import Manifold.Name
 import Manifold.Pretty
 
 newtype Precise = Precise { unPrecise :: Int }
@@ -25,6 +26,7 @@ runEnv :: ( Member (Reader (Environment Precise)) effects
 runEnv = interpret $ \case
   Lookup name -> askEnv >>= pure . fmap constraintValue . contextLookup name
   Bind name addr m -> local (|> (name ::: addr)) (runEnv (Evaluator m))
+  Close fvs -> contextFilter ((`elem` fvs) . name) <$> askEnv
 
 
 runAllocator :: ( Member Fresh effects

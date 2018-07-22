@@ -4,10 +4,13 @@ module Manifold.Abstract.Address.Monovariant where
 import Data.List.NonEmpty (nonEmpty)
 import qualified Data.Map as Map
 import Data.Monoid (Alt(..))
+import Data.Semilattice.Lower
 import qualified Data.Set as Set
 import Manifold.Abstract.Env (Env(..))
 import Manifold.Abstract.Evaluator
 import Manifold.Abstract.Store
+import Manifold.Constraint
+import Manifold.Context
 import Manifold.Name
 import Manifold.Pretty
 
@@ -32,6 +35,7 @@ runEnv = interpret $ \case
   Bind _ addr m -> do
     modifyStore (Store . Map.insertWith (<>) addr Set.empty . unStore)
     runEnv (Evaluator m)
+  Close fvs -> pure (foldl (|>) lowerBound (Set.map ((:::) <*> Monovariant) fvs))
 
 
 getStore :: Member (State (Store Monovariant value)) effects => Evaluator Monovariant value effects (Store Monovariant value)

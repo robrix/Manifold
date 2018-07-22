@@ -2,6 +2,7 @@
 module Manifold.Abstract.Env where
 
 import Data.Semilattice.Lower
+import qualified Data.Set as Set
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Abstract.Evaluator
@@ -31,11 +32,13 @@ infixl 1 .=
 data Env address m result where
   Lookup :: Name                   -> Env address m (Maybe address)
   Bind   :: Name -> address -> m a -> Env address m a
+  Close  :: Set.Set Name           -> Env address m (Environment address)
 
 instance PureEffect (Env address)
 instance Effect (Env address) where
   handleState state handler (Request (Lookup name) k) = Request (Lookup name) (handler . (<$ state) . k)
   handleState state handler (Request (Bind name addr m) k) = Request (Bind name addr (handler (m <$ state))) (handler . fmap k)
+  handleState state handler (Request (Close fvs) k) = Request (Close fvs) (handler . (<$ state) . k)
 
 
 data EnvError address result where
