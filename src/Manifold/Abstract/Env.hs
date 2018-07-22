@@ -1,12 +1,12 @@
 {-# LANGUAGE DataKinds, FlexibleContexts, GADTs, TypeOperators #-}
 module Manifold.Abstract.Env where
 
+import Data.Semilattice.Lower
 import Manifold.Constraint
 import Manifold.Context
 import Manifold.Abstract.Evaluator
 import Manifold.Name
 import Manifold.Pretty
-import Data.Semilattice.Lower
 
 type Environment address = Context (Constraint Name address)
 
