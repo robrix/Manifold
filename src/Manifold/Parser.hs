@@ -107,16 +107,17 @@ data Decl
 import' :: (Monad m, TokenParsing m) => m Name
 import' = keyword "import" *> moduleName
 
-declaration, datatype :: MonadParsing m => m Decl
+declaration :: MonadParsing m => m Decl
 signature, binding :: MonadParsing m => m (Name -> Decl)
+datatype :: MonadParsing m => m (Declaration Name (Term.Term Name))
 
-declaration = choice [ name <**> (signature <|> binding), datatype ] <?> "declaration"
+declaration = choice [ name <**> (signature <|> binding), Done <$> datatype ] <?> "declaration"
 
 signature = flip Sig . Type.generalize <$ colon <*> type' <?> "type signature"
 
 binding = flip Bind <$ op "=" <*> term <?> "binding"
 
-datatype = fmap Done $
+datatype =
   Datatype <$> ((:::) <$ keyword "data" <*> constructorName <* colon <*> type')
            <*> option [] (keyword "where" *> gconstructors)
            <?> "datatype"
