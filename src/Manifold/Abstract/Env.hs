@@ -18,6 +18,9 @@ askEnv = ask
 lookupEnv :: (Member (Reader (Environment address)) effects, Member (Resumable (EnvError address)) effects) => Name -> Evaluator address value effects address
 lookupEnv name = askEnv >>= maybe (throwResumable (FreeVariable name)) (pure . constraintValue) . contextLookup name
 
+close :: Member (Reader (Environment address)) effects => Set.Set Name -> Evaluator address value effects (Environment address)
+close fvs = contextFilter ((`elem` fvs) . name) <$> askEnv
+
 
 runEnv :: Effects effects => Evaluator address value (Reader (Environment address) ': effects) a -> Evaluator address value effects a
 runEnv = runReader lowerBound

@@ -8,7 +8,6 @@ import Manifold.Abstract.Evaluator
 import Manifold.Abstract.Store
 import Manifold.Abstract.Value as Value
 import Manifold.Constraint
-import Manifold.Context
 import Manifold.Name
 import Manifold.Pattern
 import Manifold.Term as Term
@@ -35,7 +34,7 @@ runEval = go . lowerEff
           Intro i -> case i of
             Abs var body -> do
               let fvs = Set.delete (name var) (freeVariables body)
-              env <- contextFilter ((`elem` fvs) . name) <$> ask
+              env <- close fvs
               lambda (name var) (foldr (\ (v ::: addr) -> v .= addr) (eval body) env)
             Data c as -> traverse eval as >>= construct c
           Elim e -> case e of
