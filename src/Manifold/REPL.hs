@@ -89,7 +89,7 @@ newtype ValueEff address effects a
 type Prelude var = Context (Constraint var (Type var))
 
 runREPL :: (Effects effects, Eq usage, Member Prompt effects, Monoid usage, Unital usage) => Prelude (Annotated usage) -> Proof usage (REPL usage ': effects) a -> Proof usage effects a
-runREPL prelude = interpret (\case
+runREPL prelude = interpret $ \case
   Help -> output (unlines
     [ ":help, :h, :?     - print this help text"
     , ":quit, :q         - exit the REPL"
@@ -101,7 +101,7 @@ runREPL prelude = interpret (\case
     res <- runCheck' Intensional (local (const prelude) (infer term))
     case res of
       Left err -> pure (Left err)
-      _        -> pure (Right (run (runEvaluator (runEval' (eval term))))))
+      _        -> pure (Right (run (runEvaluator (runEval' (eval term)))))
 
 
 runCheck' :: ( Effects effects
