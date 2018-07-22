@@ -3,7 +3,7 @@ module Manifold.Abstract.Address.Precise where
 
 import Data.Monoid (Last(..))
 import qualified Data.Set as Set
-import Manifold.Abstract.Env (Env(..), Environment, askEnv)
+import Manifold.Abstract.Env (Env(..), Environment)
 import Manifold.Abstract.Evaluator
 import Manifold.Abstract.Store
 import Manifold.Constraint
@@ -27,6 +27,9 @@ runEnv = interpret $ \case
   Lookup name -> askEnv >>= pure . fmap constraintValue . contextLookup name
   Bind name addr m -> local (|> (name ::: addr)) (runEnv (Evaluator m))
   Close fvs -> contextFilter ((`elem` fvs) . name) <$> askEnv
+
+askEnv :: Member (Reader (Environment address)) effects => Evaluator address value effects (Environment address)
+askEnv = ask
 
 
 runAllocator :: ( Member Fresh effects

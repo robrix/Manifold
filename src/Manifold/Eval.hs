@@ -16,8 +16,8 @@ import Manifold.Term.Intro
 
 runEval :: ( Member (Allocator address value) effects
            , Member (Data value) effects
+           , Member (Env address) effects
            , Member (Function value) effects
-           , Member (Reader (Environment address)) effects
            , Member (Resumable (EnvError address)) effects
            , Member (Resumable (StoreError address value)) effects
            , Member (State (Store address value)) effects

@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds, FlexibleContexts, GADTs, TypeOperators #-}
 module Manifold.Abstract.Env where
 
-import Data.Semilattice.Lower
 import qualified Data.Set as Set
 import Manifold.Constraint
 import Manifold.Context
@@ -12,22 +11,15 @@ import Manifold.Pretty
 type Environment address = Context (Constraint Name address)
 
 
-askEnv :: Member (Reader (Environment address)) effects => Evaluator address value effects (Environment address)
-askEnv = ask
+lookupEnv :: (Member (Env address) effects, Member (Resumable (EnvError address)) effects) => Name -> Evaluator address value effects address
+lookupEnv name = send (Lookup name) >>= maybe (throwResumable (FreeVariable name)) pure
 
-lookupEnv :: (Member (Reader (Environment address)) effects, Member (Resumable (EnvError address)) effects) => Name -> Evaluator address value effects address
-lookupEnv name = askEnv >>= maybe (throwResumable (FreeVariable name)) (pure . constraintValue) . contextLookup name
-
-close :: Member (Reader (Environment address)) effects => Set.Set Name -> Evaluator address value effects (Environment address)
-close fvs = contextFilter ((`elem` fvs) . name) <$> askEnv
+close :: Member (Env address) effects => Set.Set Name -> Evaluator address value effects (Environment address)
+close = send . Close
 
 
-runEnv :: Effects effects => Evaluator address value (Reader (Environment address) ': effects) a -> Evaluator address value effects a
-runEnv = runReader lowerBound
-
-
-(.=) :: Member (Reader (Environment address)) effects => Name -> address -> Evaluator address value effects a -> Evaluator address value effects a
-name .= value = local (|> (name ::: value))
+(.=) :: Member (Env address) effects => Name -> address -> Evaluator address value effects a -> Evaluator address value effects a
+name .= value = send . Bind name value . runEvaluator
 
 infixl 1 .=
 

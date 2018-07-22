@@ -22,8 +22,8 @@ data ClosureBody body = ClosureBody { closureId :: Int, closureBody :: body }
 
 runFunction :: ( Coercible eval (Eff effects)
                , Member (Allocator address (Value address eval)) effects
+               , Member (Env address) effects
                , Member Fresh effects
-               , Member (Reader (Environment address)) effects
                , Member (Resumable (ValueError address eval)) effects
                , Member (State (Store address (Value address eval))) effects
                , Ord address

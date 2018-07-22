@@ -7,10 +7,11 @@ import Control.Monad.Effect.Fresh
 import Control.Monad.Effect.Reader
 import Control.Monad.Effect.Resumable
 import Data.Functor (($>))
+import Data.Semilattice.Lower
 import Data.Semiring
 import GHC.Generics ((:+:)(..))
-import Manifold.Abstract.Address.Precise as Precise (Precise, runAllocator)
-import Manifold.Abstract.Env (Environment, EnvError, runEnv)
+import Manifold.Abstract.Address.Precise as Precise (Precise, runAllocator, runEnv)
+import Manifold.Abstract.Env (Env, Environment, EnvError)
 import Manifold.Abstract.Evaluator (Evaluator(..))
 import Manifold.Abstract.Store (Allocator, Store, StoreError, runStore)
 import qualified Manifold.Abstract.Value as Abstract
@@ -76,7 +77,8 @@ instance Effect (REPL usage) where
   handleState c dist (Request (Eval t) k) = Request (Eval t) (dist . (<$ c) . k)
 
 newtype ValueEff address effects a
-  = ValueEff (Eff (  Reader (Environment address)
+  = ValueEff (Eff (  Env address
+                  ': Reader (Environment address)
                   ': Allocator address (Value address (ValueEff address effects))
                   ': State (Store address (Value address (ValueEff address effects)))
                   ': Fresh
@@ -129,6 +131,7 @@ runEval' :: Effects effects
            (  Eval (Value Precise (ValueEff Precise effects))
            ': Abstract.Data (Value Precise (ValueEff Precise effects))
            ': Abstract.Function (Value Precise (ValueEff Precise effects))
+           ': Env Precise
            ': Reader (Environment Precise)
            ': Allocator Precise (Value Precise (ValueEff Precise effects))
            ': State (Store Precise (Value Precise (ValueEff Precise effects)))
@@ -144,7 +147,7 @@ runEval' :: Effects effects
                :+: StoreError Precise (Value Precise (ValueEff Precise effects))
                :+: ValueError Precise (ValueEff Precise effects)))
              a)
-runEval' = fmap (merge . merge) . runResumable . runResumable . runResumable . runFresh 0 . fmap snd . runStore . Precise.runAllocator . runEnv . Value.runFunction . Value.runData . runEval
+runEval' = fmap (merge . merge) . runResumable . runResumable . runResumable . runFresh 0 . fmap snd . runStore . Precise.runAllocator . runReader lowerBound . Precise.runEnv . Value.runFunction . Value.runData . runEval
   where merge :: Either (SomeExc sum) (Either (SomeExc exc) a) -> Either (SomeExc (exc :+: sum)) a
         merge (Left (SomeExc exc)) = Left (SomeExc (R1 exc))
         merge (Right (Left (SomeExc exc))) = Left (SomeExc (L1 exc))
