@@ -25,7 +25,7 @@ import System.Exit (exitFailure)
 argumentsParser :: Prelude (Annotated ()) -> ParserInfo (IO ())
 argumentsParser prelude = info
   (version <*> helper <*> options prelude)
-    (fullDesc
+  (  fullDesc
   <> progDesc "Manifold is a small experiment in quantitative type theory."
   <> header   "Manifold - a quantitative, dependently-typed language")
   where options prelude = flag' (runIO prelude repl) (short 'i' <> long "interactive" <> help "run in interactive mode (REPL)")
