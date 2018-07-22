@@ -28,6 +28,11 @@ name .= value = local (|> (name ::: value))
 infixl 1 .=
 
 
+data Env address m result where
+  Lookup :: Name                   -> Env address m address
+  Bind   :: Name -> address -> m a -> Env address m a
+
+
 data EnvError address result where
   FreeVariable :: Name -> EnvError address address
 
