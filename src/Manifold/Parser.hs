@@ -7,6 +7,7 @@ module Manifold.Parser
 -- * Parsers
 , whole
 , module'
+, declaration
 , term
 ) where
 
