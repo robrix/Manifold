@@ -8,6 +8,7 @@ module Manifold.Parser
 , whole
 , module'
 , declaration
+, datatype
 , term
 ) where
 
