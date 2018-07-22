@@ -29,7 +29,7 @@ infixl 1 .=
 
 
 data Env address m result where
-  Lookup :: Name                   -> Env address m address
+  Lookup :: Name                   -> Env address m (Maybe address)
   Bind   :: Name -> address -> m a -> Env address m a
 
 instance PureEffect (Env address)
