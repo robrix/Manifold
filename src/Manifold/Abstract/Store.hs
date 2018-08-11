@@ -12,7 +12,7 @@ import Manifold.Pretty
 newtype Store address value = Store { unStore :: Map.Map address (Set.Set value) }
   deriving (Lower)
 
-alloc :: Member (Allocator address value) effects=> Name -> Evaluator address value effects address
+alloc :: Member (Allocator address value) effects => Name -> Evaluator address value effects address
 alloc = sendAllocator . Alloc
 
 assign :: ( Member (Allocator address value) effects
