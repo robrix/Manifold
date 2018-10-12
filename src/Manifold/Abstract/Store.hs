@@ -63,7 +63,7 @@ runStore :: Effectful sig m => Evaluator address value (StateC (Store address va
 runStore = runState lowerBound . runEvaluator
 
 data StoreError address value result where
-  Unallocated :: address -> StoreError address value (Set.Set value)
+  Unallocated   :: address -> StoreError address value (Set.Set value)
   Uninitialized :: address -> StoreError address value value
 
 instance Pretty address => Pretty1 (StoreError address value) where
