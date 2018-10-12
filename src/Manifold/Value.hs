@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, FlexibleInstances, GADTs, LambdaCase, MultiParamTypeClasses, TypeOperators, UndecidableInstances #-}
+{-# LANGUAGE DeriveFunctor, FlexibleContexts, FlexibleInstances, GADTs, LambdaCase, MultiParamTypeClasses, PolyKinds, ScopedTypeVariables, TypeOperators, UndecidableInstances #-}
 module Manifold.Value where
 
 import Data.Coerce
@@ -20,37 +20,59 @@ data Value address eval
 data ClosureBody body = ClosureBody { closureId :: Int, closureBody :: body }
 
 
-runFunction :: ( Coercible eval (Eff effects)
-               , Member (Allocator address (Value address eval)) effects
-               , Member (Env address) effects
-               , Member Fresh effects
-               , Member (Resumable (ValueError address eval)) effects
-               , Member (State (Store address (Value address eval))) effects
+runFunction :: ( Carrier sig m
+               , Coercible eval (Eff m)
+               , Member (Allocator address (Value address eval)) sig
+               , Member (Env address) sig
+               , Member Fresh sig
+               , Member (Resumable (ValueError address eval)) sig
+               , Member (State (Store address (Value address eval))) sig
                , Ord address
-               , PureEffects effects
                )
-            => Evaluator address (Value address eval) (Abstract.Function (Value address eval) ': effects) a
-            -> Evaluator address (Value address eval) effects a
-runFunction = interpret $ \case
-  Abstract.Lambda n body -> do
-    i <- fresh
-    pure (Closure n (ClosureBody i (coerce (runFunction (Evaluator body)))))
-  Abstract.Apply (Closure n (ClosureBody _ b)) a -> do
-    addr <- alloc n
-    assign addr a
-    n .= addr $ coerce b
-  Abstract.Apply f a -> throwResumable (ApplyError f a)
+            => Evaluator address (Value address eval) (FunctionC (Evaluator address (Value address eval) m)) a
+            -> Evaluator address (Value address eval) m a
+runFunction = runFunctionC . interpret . runEvaluator
 
-runData :: ( Member (Resumable (ValueError address eval)) effects
-           , PureEffects effects
+newtype FunctionC m a = FunctionC { runFunctionC :: m a }
+
+instance ( Carrier sig m
+         , Coercible eval (Eff m)
+         , Member (Allocator address (Value address eval)) sig
+         , Member (Env address) sig
+         , Member Fresh sig
+         , Member (Resumable (ValueError address eval)) sig
+         , Member (State (Store address (Value address eval))) sig
+         , Ord address
+         )
+      => Carrier (Abstract.Function (Value address eval) :+: sig) (FunctionC (Evaluator address (Value address eval) m)) where
+  gen = FunctionC . gen
+  alg = algF \/ (FunctionC . alg . handlePure runFunctionC)
+    where algF :: Abstract.Function (Value address eval) (FunctionC (Evaluator address (Value address eval) m)) (FunctionC (Evaluator address (Value address eval) m) a)
+               -> FunctionC (Evaluator address (Value address eval) m) a
+          algF (Abstract.Lambda n body k) = FunctionC (do
+            i <- fresh
+            runFunctionC (k (Closure n (ClosureBody i (coerce (runFunctionC body))))))
+          algF (Abstract.Apply (Closure n (ClosureBody _ b)) a k) = FunctionC ((do
+            addr <- alloc n
+            assign addr a
+            n .= addr $ coerce b) >>= runFunctionC . k)
+          algF (Abstract.Apply f a k) = FunctionC (throwResumable (ApplyError f a) >>= runFunctionC . k)
+
+runData :: ( Member (Resumable (ValueError address eval)) sig
+           , Carrier sig m
            )
-        => Evaluator address (Value address eval) (Abstract.Data (Value address eval) ': effects) a
-        -> Evaluator address (Value address eval) effects a
-runData = interpret $ \case
-  Abstract.Construct name fields -> pure (Data name fields)
-  Abstract.Deconstruct (Data name fields) -> pure (name, fields)
-  Abstract.Deconstruct value -> throwResumable (DeconstructError value)
+        => Evaluator address (Value address eval) (DataC (Evaluator address (Value address eval) m)) a
+        -> Evaluator address (Value address eval) m a
+runData = runDataC . interpret . runEvaluator
 
+newtype DataC m a = DataC { runDataC :: m a }
+
+instance (Member (Resumable (ValueError address eval)) sig, Carrier sig m) => Carrier (Abstract.Data (Value address eval) :+: sig) (DataC (Evaluator address (Value address eval) m)) where
+  gen = DataC . gen
+  alg = algD \/ (DataC . alg . handlePure runDataC)
+    where algD (Abstract.Construct name fields          k) = k (Data name fields)
+          algD (Abstract.Deconstruct (Data name fields) k) = k (name, fields)
+          algD (Abstract.Deconstruct value              k) = DataC (throwResumable (DeconstructError value) >>= runDataC . k)
 
 instance Pretty address => Pretty (Value address eval) where
   prettyPrec d = \case

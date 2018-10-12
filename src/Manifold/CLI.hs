@@ -2,9 +2,7 @@
 module Manifold.CLI where
 
 import Control.Monad ((>=>))
-import Control.Monad.Effect
-import Control.Monad.Effect.Reader
-import Control.Monad.Effect.State
+import Control.Effect
 import Data.List (intersperse)
 import Data.Semilattice.Lower
 import Data.Semiring.Class
@@ -31,16 +29,17 @@ argumentsParser prelude = info
   where options prelude = flag' (runIO prelude repl) (short 'i' <> long "interactive" <> help "run in interactive mode (REPL)")
               <|> (runFile prelude >=> prettify) <$> some (strArgument (metavar "FILES" <> help "The files to check."))
 
-runFile :: (Eq usage, Monoid usage, Unital usage) => Prelude (Annotated usage) -> [FilePath] -> IO (Either (Error (Annotated usage)) (ModuleTable (Annotated usage) (Term Name), [Module (Annotated usage) (Term Name)]))
+runFile :: (Eq usage, Monoid usage, Unital usage) => Prelude (Annotated usage) -> [FilePath] -> IO (Either (ProofError (Annotated usage)) (ModuleTable (Annotated usage) (Term Name), [Module (Annotated usage) (Term Name)]))
 runFile _ paths = do
   ms <- traverse (parseFile (whole module') >=> maybe exitFailure pure) paths
   pure (run
        (runError
        (runReader (fromModules ms)
        (runState (lowerBound @(ModuleTable (Annotated _) (Term Name)))
-       (traverse checkModule ms)))))
+       (runProof
+       (traverse checkModule ms))))))
 
-prettify :: Pretty usage => Either (Error (Annotated usage)) (ModuleTable (Annotated usage) (Term Name), [Module (Annotated usage) (Term Name)]) -> IO ()
+prettify :: Pretty usage => Either (ProofError (Annotated usage)) (ModuleTable (Annotated usage) (Term Name), [Module (Annotated usage) (Term Name)]) -> IO ()
 prettify = either
   (prettyPrint >=> const exitFailure)
   (putDoc . vsep . intersperse mempty . map pretty . snd)

@@ -11,7 +11,7 @@ module Manifold.Pretty
 , putDoc
 ) where
 
-import Control.Monad.Effect
+import Control.Effect (SomeError(..))
 import Data.Text.Prettyprint.Doc as Doc hiding (Pretty(..))
 import qualified Data.Text.Prettyprint.Doc as Doc
 import qualified Data.Text.Prettyprint.Doc.Render.Terminal as Doc
@@ -62,9 +62,8 @@ instance Pretty a => Pretty [a] where
 
 instance Pretty Int
 
-instance Pretty1 exc => Pretty (SomeExc exc) where
-  prettyPrec d (SomeExc exc) = liftPrettyPrec (const (const mempty)) d exc
-
+instance Pretty1 err => Pretty (SomeError err) where
+  prettyPrec d (SomeError err) = liftPrettyPrec (const (const mempty)) d err
 
 instance Pretty1 [] where
   liftPrettyPrec pp _ = list . map (pp 0)

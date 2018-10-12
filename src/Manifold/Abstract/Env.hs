@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, TypeOperators #-}
+{-# LANGUAGE DeriveFunctor, ExistentialQuantification, FlexibleContexts, GADTs, PolyKinds, StandaloneDeriving, TypeOperators #-}
 module Manifold.Abstract.Env where
 
 import qualified Data.Set as Set
@@ -11,29 +11,35 @@ import Manifold.Pretty
 type Environment address = Context (Constraint Name address)
 
 
-lookupEnv :: (Member (Env address) effects, Member (Resumable (EnvError address)) effects) => Name -> Evaluator address value effects address
-lookupEnv name = send (Lookup name) >>= maybe (throwResumable (FreeVariable name)) pure
+lookupEnv :: (Member (Env address) sig, Member (Resumable (EnvError address)) sig, Carrier sig m) => Name -> Evaluator address value m address
+lookupEnv name = send (Lookup name gen) >>= maybe (throwResumable (FreeVariable name)) pure
 
-close :: Member (Env address) effects => Set.Set Name -> Evaluator address value effects (Environment address)
-close = send . Close
+close :: (Member (Env address) sig, Carrier sig carrier) => Set.Set Name -> Evaluator address value carrier (Environment address)
+close = send . flip Close gen
 
 
-(.=) :: Member (Env address) effects => Name -> address -> Evaluator address value effects a -> Evaluator address value effects a
-name .= value = send . Bind name value . runEvaluator
+(.=) :: (Member (Env address) sig, Carrier sig carrier) => Name -> address -> Evaluator address value carrier a -> Evaluator address value carrier a
+name .= value = send . flip (Bind name value) gen
 
 infixl 1 .=
 
 
-data Env address m result where
-  Lookup :: Name                   -> Env address m (Maybe address)
-  Bind   :: Name -> address -> m a -> Env address m a
-  Close  :: Set.Set Name           -> Env address m (Environment address)
+data Env address m k
+  = Lookup Name (Maybe address -> k)
+  | forall a . Bind Name address (m a) (a -> k)
+  | Close (Set.Set Name) (Environment address -> k)
 
-instance PureEffect (Env address)
+deriving instance Functor (Env address m)
+
+instance HFunctor (Env address) where
+  hfmap _ (Lookup name k)      = Lookup name k
+  hfmap f (Bind name addr m k) = Bind name addr (f m) k
+  hfmap _ (Close addrs k)      = Close addrs k
+
 instance Effect (Env address) where
-  handleState state handler (Request (Lookup name) k) = Request (Lookup name) (handler . (<$ state) . k)
-  handleState state handler (Request (Bind name addr m) k) = Request (Bind name addr (handler (m <$ state))) (handler . fmap k)
-  handleState state handler (Request (Close fvs) k) = Request (Close fvs) (handler . (<$ state) . k)
+  handle state handler (Lookup name k)      = Lookup name (handler . (<$ state) . k)
+  handle state handler (Bind name addr m k) = Bind name addr (handler (m <$ state)) (handler . fmap k)
+  handle state handler (Close fvs k)        = Close fvs (handler . (<$ state) . k)
 
 
 data EnvError address result where

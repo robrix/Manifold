@@ -1,35 +1,40 @@
-{-# LANGUAGE FlexibleContexts, GADTs, KindSignatures, MultiParamTypeClasses #-}
+{-# LANGUAGE DeriveFunctor, FlexibleContexts, KindSignatures, MultiParamTypeClasses #-}
 module Manifold.Abstract.Value where
 
 import Manifold.Abstract.Evaluator
 import Manifold.Name
 
-lambda :: Member (Function value) effects => Name -> Evaluator address value effects value -> Evaluator address value effects value
-lambda name body = send (Lambda name (lowerEff body))
+lambda :: (Member (Function value) sig, Carrier sig carrier) => Name -> Evaluator address value carrier value -> Evaluator address value carrier value
+lambda name body = send (Lambda name body gen)
 
-apply :: Member (Function value) effects => value -> value -> Evaluator address value effects value
-apply f a = send (Apply f a)
+apply :: (Member (Function value) sig, Carrier sig carrier) => value -> value -> Evaluator address value carrier value
+apply f a = send (Apply f a gen)
 
-data Function value m result where
-  Lambda :: Name -> m value -> Function value m value
-  Apply  :: value -> value -> Function value m value
+data Function value m k
+  = Lambda Name (m value) (value -> k)
+  | Apply value value (value -> k)
+  deriving (Functor)
 
-instance PureEffect (Function value) where
-  handle handler (Request (Lambda n m) k) = Request (Lambda n (handler m)) (handler . k)
-  handle handler (Request (Apply f a)  k) = Request (Apply f a)            (handler . k)
+instance HFunctor (Function value) where
+  hfmap f (Lambda n m k) = Lambda n (f m) k
+  hfmap _ (Apply f a k)  = Apply f a      k
 
 
-construct :: Member (Data value) effects => Name -> [value] -> Evaluator address value effects value
-construct name values = send (Construct name values)
+construct :: (Member (Data value) sig, Carrier sig carrier) => Name -> [value] -> Evaluator address value carrier value
+construct name values = send (Construct name values gen)
 
-deconstruct :: Member (Data value) effects => value -> Evaluator address value effects (Name, [value])
-deconstruct = send . Deconstruct
+deconstruct :: (Member (Data value) sig, Carrier sig carrier) => value -> Evaluator address value carrier (Name, [value])
+deconstruct value = send (Deconstruct value gen)
 
-data Data value (m :: * -> *) result where
-  Construct   :: Name -> [value] -> Data value m value
-  Deconstruct :: value -> Data value m (Name, [value])
+data Data value (m :: * -> *) k
+  = Construct Name [value] (value -> k)
+  | Deconstruct value ((Name, [value]) -> k)
+  deriving (Functor)
 
-instance PureEffect (Data value)
+instance HFunctor (Data value) where
+  hfmap _ (Construct name values k) = Construct name values k
+  hfmap _ (Deconstruct value     k) = Deconstruct value k
+
 instance Effect (Data value) where
-  handleState state handler (Request (Construct name values) k) = Request (Construct name values) (handler . (<$ state) . k)
-  handleState state handler (Request (Deconstruct value) k) = Request (Deconstruct value) (handler . (<$ state) . k)
+  handle state handler (Construct name values k) = Construct name values (handler . (<$ state) . k)
+  handle state handler (Deconstruct value k)     = Deconstruct value (handler . (<$ state) . k)
