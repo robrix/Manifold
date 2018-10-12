@@ -1,8 +1,10 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, LambdaCase, TypeOperators #-}
+{-# LANGUAGE FlexibleContexts, FlexibleInstances, LambdaCase, MultiParamTypeClasses, PolyKinds, TypeOperators, UndecidableInstances #-}
 module Manifold.Abstract.Address.Monovariant
 ( Monovariant(..)
 , runEnv
+, EnvC(..)
 , runAllocator
+, AllocatorC(..)
 ) where
 
 import Data.List.NonEmpty (nonEmpty)
@@ -25,40 +27,52 @@ instance Pretty Monovariant where
   prettyPrec d (Monovariant n) = prettyParen (d > 10) $ prettyString "Monovariant" <+> pretty n
 
 
-runEnv :: ( Member (State (Store Monovariant value)) effects
-          , PureEffects effects
+runEnv :: ( Member (State (Store Monovariant value)) sig
+          , Carrier sig m
           , Ord value
           )
-       => Evaluator Monovariant value (Env Monovariant ': effects) a
-       -> Evaluator Monovariant value effects a
-runEnv = interpret $ \case
-  Lookup name -> do
-    Store store <- getStore
-    let addr = Monovariant name
-    pure (addr <$ Map.lookup addr store)
-  Bind _ addr m -> do
-    modifyStore (Store . Map.insertWith (<>) addr Set.empty . unStore)
-    runEnv (Evaluator m)
-  Close fvs -> pure (foldl (|>) lowerBound (Set.map ((:::) <*> Monovariant) fvs))
+       => Evaluator Monovariant value (EnvC (Evaluator Monovariant value m)) a
+       -> Evaluator Monovariant value m a
+runEnv = runEnvC . interpret . runEvaluator
+
+newtype EnvC m a = EnvC { runEnvC :: m a }
+
+instance (Carrier sig m, Member (State (Store Monovariant value)) sig, Ord value) => Carrier (Env Monovariant :+: sig) (EnvC (Evaluator Monovariant value m)) where
+  gen = EnvC . gen
+  alg = algE \/ (EnvC . alg . handlePure runEnvC)
+    where algE (Lookup name k) = EnvC $ do
+            Store store <- getStore
+            let addr = Monovariant name
+            runEnvC (k (addr <$ Map.lookup addr store))
+          algE (Bind _ addr m k) = EnvC $ do
+            modifyStore (Store . Map.insertWith (<>) addr Set.empty . unStore)
+            runEnvC m >>= runEnvC . k
+          algE (Close fvs k) = k (foldl (|>) lowerBound (Set.map ((:::) <*> Monovariant) fvs))
 
 
-getStore :: Member (State (Store Monovariant value)) effects => Evaluator Monovariant value effects (Store Monovariant value)
+getStore :: (Member (State (Store Monovariant value)) sig, Carrier sig m) => Evaluator Monovariant value m (Store Monovariant value)
 getStore = get
 
-modifyStore :: Member (State (Store Monovariant value)) effects => (Store Monovariant value -> Store Monovariant value) -> Evaluator Monovariant value effects ()
-modifyStore = modify'
+modifyStore :: (Member (State (Store Monovariant value)) sig, Carrier sig m) => (Store Monovariant value -> Store Monovariant value) -> Evaluator Monovariant value m ()
+modifyStore = modify
 
 
-runAllocator :: ( Member NonDet effects
+runAllocator :: ( Member NonDet sig
                 , Ord value
-                , PureEffects effects
+                , Carrier sig m
                 )
-             => Evaluator Monovariant value (Allocator Monovariant value ': effects) a
-             -> Evaluator Monovariant value effects a
-runAllocator = interpret $ \case
-  Alloc name            -> pure (Monovariant name)
-  DerefCell cell        -> traverse (foldMapA pure) (nonEmpty (Set.toList cell))
-  AssignCell value cell -> pure (Set.insert value cell)
+             => Evaluator Monovariant value (AllocatorC value (Evaluator Monovariant value m)) a
+             -> Evaluator Monovariant value m a
+runAllocator = runAllocatorC . interpret . runEvaluator
+
+newtype AllocatorC value m a = AllocatorC { runAllocatorC :: m a }
+
+instance (Alternative m, Carrier sig m, Ord value, Monad m) => Carrier (Allocator Monovariant value :+: sig) (AllocatorC value m) where
+  gen = AllocatorC . gen
+  alg = algA \/ (AllocatorC . alg . handlePure runAllocatorC)
+    where algA (Alloc name k)            = k (Monovariant name)
+          algA (DerefCell cell k)        = AllocatorC (traverse (foldMapA pure) (nonEmpty (Set.toList cell)) >>= runAllocatorC . k)
+          algA (AssignCell value cell k) = k (Set.insert value cell)
 
 foldMapA :: (Alternative m, Foldable t) => (b -> m a) -> t b -> m a
 foldMapA f = getAlt . foldMap (Alt . f)

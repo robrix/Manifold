@@ -1,23 +1,29 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, KindSignatures, LambdaCase, TypeOperators #-}
+{-# LANGUAGE DeriveFunctor, FlexibleContexts, FlexibleInstances, LambdaCase, MultiParamTypeClasses, PolyKinds, TypeOperators, UndecidableInstances #-}
 module Manifold.Prompt where
 
-import Control.Monad.Effect
+import Control.Effect
 import System.Console.Haskeline
 
-prompt :: (Effectful m, Member Prompt effects) => m effects (Maybe String)
-prompt = send Prompt
+prompt :: (Member Prompt sig, Carrier sig m) => m (Maybe String)
+prompt = send (Prompt gen)
 
-output :: (Effectful m, Member Prompt effects) => String -> m effects ()
-output = send . Output
+output :: (Member Prompt sig, Carrier sig m) => String -> m ()
+output = send . flip Output (gen ())
 
-data Prompt (m :: * -> *) result where
-  Prompt :: Prompt m (Maybe String)
-  Output :: String -> Prompt m ()
+data Prompt m k
+  = Prompt (Maybe String -> k)
+  | Output String k
+  deriving (Functor)
 
-runPrompt :: Effectful m => String -> m '[Prompt] a -> IO a
-runPrompt prompt action = runInputT settings (runM (reinterpret (\case
-  Prompt -> sendInputT (getInputLine (cyan <> prompt <> plain))
-  Output s -> sendInputT (outputStrLn s)) action))
+runPrompt :: String -> Eff (PromptC (Eff (LiftC (InputT IO)))) a -> IO a
+runPrompt prompt = runInputT settings . runM . flip runPromptC prompt . interpret
+
+newtype PromptC m a = PromptC { runPromptC :: String -> m a }
+
+instance (Carrier (Lift (InputT IO)) m, Monad m) => Carrier Prompt (PromptC m) where
+  gen a = PromptC (\ _ -> pure a)
+  alg (Prompt k) = PromptC (\ prompt -> sendInputT (getInputLine (cyan <> prompt <> plain)) >>= flip runPromptC prompt . k)
+  alg (Output s k) = PromptC (\ prompt -> sendInputT (outputStrLn s) *> runPromptC k prompt)
 
 cyan :: String
 cyan = "\ESC[1;36m\STX"
@@ -25,8 +31,8 @@ cyan = "\ESC[1;36m\STX"
 plain :: String
 plain = "\ESC[0m\STX"
 
-sendInputT :: (Effectful m, Member (Lift (InputT IO)) effects) => InputT IO a -> m effects a
-sendInputT = send . Lift
+sendInputT :: (Member (Lift (InputT IO)) sig, Carrier sig m) => InputT IO a -> m a
+sendInputT = send . Lift . fmap gen
 
 settings :: Settings IO
 settings = Settings
@@ -36,7 +42,10 @@ settings = Settings
   }
 
 
-instance PureEffect Prompt
+instance HFunctor Prompt where
+  hfmap _ (Prompt k) = Prompt k
+  hfmap _ (Output s k) = Output s k
+
 instance Effect Prompt where
-  handleState c dist (Request Prompt k) = Request Prompt (dist . (<$ c) . k)
-  handleState c dist (Request (Output s) k) = Request (Output s) (dist . (<$ c) . k)
+  handle state handler (Prompt k) = Prompt (handler . (<$ state) . k)
+  handle state handler (Output s k) = Output s (handler (k <$ state))

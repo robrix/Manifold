@@ -1,8 +1,10 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, LambdaCase, TypeOperators #-}
+{-# LANGUAGE FlexibleContexts, FlexibleInstances, LambdaCase, MultiParamTypeClasses, PolyKinds, TypeOperators, UndecidableInstances #-}
 module Manifold.Abstract.Address.Precise
 ( Precise(..)
 , runEnv
+, EnvC(..)
 , runAllocator
+, AllocatorC(..)
 ) where
 
 import Data.Monoid (Last(..))
@@ -22,24 +24,37 @@ instance Pretty Precise where
   prettyPrec d (Precise i) = prettyParen (d > 10) $ prettyString "Precise" <+> pretty i
 
 
-runEnv :: PureEffects effects
-       => Evaluator Precise value (Env Precise ': effects) a
-       -> Evaluator Precise value (Reader (Environment Precise) ': effects) a
-runEnv = reinterpret $ \case
-  Lookup name -> askEnv >>= pure . fmap constraintValue . contextLookup name
-  Bind name addr m -> local (|> (name ::: addr)) (runEnv (Evaluator m))
-  Close fvs -> contextFilter ((`elem` fvs) . name) <$> askEnv
+runEnv :: (HFunctor sig, Carrier (Reader (Environment Precise) :+: sig) m)
+       => Evaluator Precise value (EnvC (Evaluator Precise value m)) a
+       -> Evaluator Precise value m a
+runEnv = runEnvC . interpret . runEvaluator
 
-askEnv :: Member (Reader (Environment address)) effects => Evaluator address value effects (Environment address)
+newtype EnvC m a = EnvC { runEnvC :: m a }
+
+instance (Carrier (Reader (Environment Precise) :+: sig) m, HFunctor sig) => Carrier (Env Precise :+: sig) (EnvC (Evaluator Precise value m)) where
+  gen = EnvC . gen
+  alg = algE \/ (EnvC . alg . R . handlePure runEnvC)
+    where algE (Lookup name      k) = EnvC (askEnv >>= runEnvC . k . fmap constraintValue . contextLookup name)
+          algE (Bind name addr m k) = EnvC (local (|> (name ::: addr)) (runEnvC m) >>= runEnvC . k)
+          algE (Close fvs        k) = EnvC (askEnv >>= runEnvC . k . contextFilter ((`elem` fvs) . name))
+
+
+askEnv :: (Member (Reader (Environment address)) sig, Carrier sig carrier) => Evaluator address value carrier (Environment address)
 askEnv = ask
 
 
-runAllocator :: ( Member Fresh effects
-                , PureEffects effects
+runAllocator :: ( Member Fresh sig
+                , Carrier sig m
                 )
-             => Evaluator Precise value (Allocator Precise value ': effects) a
-             -> Evaluator Precise value effects a
-runAllocator = interpret $ \case
-  Alloc _            -> Precise <$> fresh
-  DerefCell cell     -> pure (getLast (foldMap (Last . Just) cell))
-  AssignCell value _ -> pure (Set.singleton value)
+             => Evaluator address value (AllocatorC (Evaluator address value m)) a
+             -> Evaluator address value m a
+runAllocator = runAllocatorC . interpret . runEvaluator
+
+newtype AllocatorC m a = AllocatorC { runAllocatorC :: m a }
+
+instance (Carrier sig m, Member Fresh sig) => Carrier (Allocator Precise value :+: sig) (AllocatorC (Evaluator address value m)) where
+  gen = AllocatorC . gen
+  alg = algA \/ (AllocatorC . alg . handlePure runAllocatorC)
+    where algA (Alloc _            k) = AllocatorC (fresh >>= runAllocatorC . k . Precise)
+          algA (DerefCell cell     k) = k (getLast (foldMap (Last . Just) cell))
+          algA (AssignCell value _ k) = k (Set.singleton value)

@@ -1,8 +1,7 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, KindSignatures, TypeOperators #-}
+{-# LANGUAGE DeriveFunctor, FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, PolyKinds, TypeOperators, UndecidableInstances #-}
 module Manifold.Proof.Formation where
 
-import Control.Monad.Effect
-import Control.Monad.Effect.Internal
+import Control.Effect
 import Data.Semiring (zero)
 import Manifold.Constraint
 import Manifold.Context
@@ -13,37 +12,43 @@ import Manifold.Name.Annotated
 import Manifold.Proof
 import Manifold.Type
 
-runIsType :: ( Member (Exc (Error (Annotated usage))) effects
-             , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) effects
+runIsType :: ( Member (Error (ProofError (Annotated usage))) sig
+             , Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) sig
              , Monoid usage
-             , PureEffects effects
+             , Carrier sig m
              )
-          => Proof usage (IsType usage ': effects) a
-          -> Proof usage effects a
-runIsType = go . lowerEff
-  where go (Return a) = pure a
-        go (Effect (IsType ty) k) = runIsType $ case unType ty of
-          Var name -> lookupType name *> Proof (k (tvar name))
-          IntroT TypeT -> Proof (k typeT)
-          IntroT (TypeC con ts) -> typeC con <$> traverse isType ts >>= Proof . k
-          IntroT (var ::: _S :-> _T) -> do
-            _S' <- isType _S
-            let binding = Annotated var zero
-            _T' <- binding ::: _S' >- isType _T
-            Proof (k (binding ::: _S' .-> _T'))
-          IntroT (_S :* _T) -> (.*) <$> isType _S <*> isType _T >>= Proof . k
-          Elim (App f a) -> (#) <$> isType f <*> isType a >>= Proof . k
-          _ -> noRuleToCheckIsType ty
-        go (Other u k) = liftHandler runIsType u (Proof . k)
+          => Proof usage (IsTypeH usage (Proof usage m)) a
+          -> Proof usage m a
+runIsType = runIsTypeH . interpret . runProof
+
+newtype IsTypeH usage m a = IsTypeH { runIsTypeH :: m a }
+
+instance (Carrier sig m, Member (Error (ProofError (Annotated usage))) sig, Member (Reader (Context (Constraint (Annotated usage) (Type (Annotated usage))))) sig, Monoid usage) => Carrier (IsType usage :+: sig) (IsTypeH usage (Proof usage m)) where
+  gen = IsTypeH . gen
+  alg = algI \/ (IsTypeH . alg . handlePure runIsTypeH)
+    where algI (IsType ty k) = IsTypeH $ case unType ty of
+            Var name -> lookupType name *> runIsTypeH (k (tvar name))
+            IntroT TypeT -> runIsTypeH (k typeT)
+            IntroT (TypeC con ts) -> typeC con <$> traverse (runIsType . isType) ts >>= runIsTypeH . k
+            IntroT (var ::: _S :-> _T) -> do
+              _S' <- runIsType (isType _S)
+              let binding = Annotated var zero
+              _T' <- binding ::: _S' >- runIsType (isType _T)
+              runIsTypeH (k (binding ::: _S' .-> _T'))
+            IntroT (_S :* _T) -> runIsType ((.*) <$> isType _S <*> isType _T) >>= runIsTypeH . k
+            Elim (App f a) -> runIsType ((#) <$> isType f <*> isType a) >>= runIsTypeH . k
+            _ -> noRuleToCheckIsType ty
 
 
-isType :: Member (IsType usage) effects => Type Name -> Proof usage effects (Type (Annotated usage))
-isType = send . IsType
+isType :: (Member (IsType usage) sig, Carrier sig m) => Type Name -> Proof usage m (Type (Annotated usage))
+isType = send . flip IsType gen
 
-data IsType usage (m :: * -> *) result where
-  IsType :: Type Name -> IsType usage m (Type (Annotated usage))
+data IsType usage m k
+  = IsType (Type Name) (Type (Annotated usage) -> k)
+  deriving (Functor)
 
+instance HFunctor (IsType usage) where
+  hfmap _ (IsType ty k) = IsType ty k
 
-instance PureEffect (IsType usage)
 instance Effect (IsType usage) where
-  handleState c dist (Request (IsType ty) k) = Request (IsType ty) (dist . (<$ c) . k)
+  handle state handler (IsType ty k) = IsType ty (handler . (<$ state) . k)

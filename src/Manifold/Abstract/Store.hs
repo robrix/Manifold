@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving, KindSignatures, LambdaCase, TypeOperators #-}
+{-# LANGUAGE DeriveFunctor, FlexibleContexts, GADTs, GeneralizedNewtypeDeriving, LambdaCase, PolyKinds, StandaloneDeriving, TypeOperators #-}
 module Manifold.Abstract.Store where
 
 import qualified Data.Map as Map
@@ -12,51 +12,58 @@ import Manifold.Pretty
 newtype Store address value = Store { unStore :: Map.Map address (Set.Set value) }
   deriving (Lower)
 
-alloc :: Member (Allocator address value) effects => Name -> Evaluator address value effects address
-alloc = sendAllocator . Alloc
+alloc :: (Member (Allocator address value) sig, Carrier sig carrier) => Name -> Evaluator address value carrier address
+alloc name = sendAllocator (Alloc name gen)
 
-assign :: ( Member (Allocator address value) effects
-          , Member (State (Store address value)) effects
+assign :: ( Carrier sig m
+          , Member (Allocator address value) sig
+          , Member (State (Store address value)) sig
           , Ord address
           )
        => address
        -> value
-       -> Evaluator address value effects ()
+       -> Evaluator address value m ()
 assign address value = do
   Store store <- get
-  cell <- sendAllocator (AssignCell value (fromMaybe Set.empty (Map.lookup address store)))
+  cell <- sendAllocator (AssignCell value (fromMaybe Set.empty (Map.lookup address store)) gen)
   put (Store (Map.insert address cell store))
 
-deref :: ( Member (Allocator address value) effects
-         , Member (Resumable (StoreError address value)) effects
-         , Member (State (Store address value)) effects
+deref :: ( Carrier sig m
+         , Member (Allocator address value) sig
+         , Member (Resumable (StoreError address value)) sig
+         , Member (State (Store address value)) sig
          , Ord address
          )
       => address
-      -> Evaluator address value effects value
-deref address = gets (Map.lookup address . unStore) >>= maybe (throwResumable (Unallocated address)) pure >>= sendAllocator . DerefCell >>= maybe (throwResumable (Uninitialized address)) pure
+      -> Evaluator address value m value
+deref address = gets (Map.lookup address . unStore) >>= maybe (throwResumable (Unallocated address)) pure >>= sendAllocator . flip DerefCell gen >>= maybe (throwResumable (Uninitialized address)) pure
 
-sendAllocator :: Member (Allocator address value) effects => Allocator address value (Eff effects) a -> Evaluator address value effects a
+sendAllocator :: (Member (Allocator address value) sig, Carrier sig carrier) => Allocator address value (Evaluator address value carrier) (Evaluator address value carrier a) -> Evaluator address value carrier a
 sendAllocator = send
 
 
-data Allocator address value (m :: * -> *) result where
-  Alloc      :: Name                   -> Allocator address value m address
-  DerefCell  :: Set.Set value          -> Allocator address value m (Maybe value)
-  AssignCell :: value -> Set.Set value -> Allocator address value m (Set.Set value)
+data Allocator address value m k
+  = Alloc Name (address -> k)
+  | DerefCell (Set.Set value) (Maybe value -> k)
+  | AssignCell value (Set.Set value) (Set.Set value -> k)
+  deriving (Functor)
 
-instance PureEffect (Allocator address value)
+instance HFunctor (Allocator address value) where
+  hfmap _ (Alloc name k)            = Alloc name k
+  hfmap _ (DerefCell cell k)        = DerefCell cell k
+  hfmap _ (AssignCell value cell k) = AssignCell value cell k
+
 instance Effect (Allocator address value) where
-  handleState state handler (Request (Alloc name) k) = Request (Alloc name) (handler . (<$ state) . k)
-  handleState state handler (Request (DerefCell cell) k) = Request (DerefCell cell) (handler . (<$ state) . k)
-  handleState state handler (Request (AssignCell value cell) k) = Request (AssignCell value cell) (handler . (<$ state) . k)
+  handle state handler (Alloc name k)            = Alloc name (handler . (<$ state) . k)
+  handle state handler (DerefCell cell k)        = DerefCell cell (handler . (<$ state) . k)
+  handle state handler (AssignCell value cell k) = AssignCell value cell (handler . (<$ state) . k)
 
 
-runStore :: Effects effects => Evaluator address value (State (Store address value) ': effects) a -> Evaluator address value effects (Store address value, a)
-runStore = runState lowerBound
+runStore :: Effectful sig m => Evaluator address value (StateC (Store address value) m) a -> m (Store address value, a)
+runStore = runState lowerBound . runEvaluator
 
 data StoreError address value result where
-  Unallocated   :: address -> StoreError address value (Set.Set value)
+  Unallocated :: address -> StoreError address value (Set.Set value)
   Uninitialized :: address -> StoreError address value value
 
 instance Pretty address => Pretty1 (StoreError address value) where
