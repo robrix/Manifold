@@ -61,13 +61,13 @@ runAllocator :: ( Member NonDet sig
                 , Ord value
                 , Carrier sig m
                 )
-             => Evaluator Monovariant value (AllocatorC value (Evaluator Monovariant value m)) a
+             => Evaluator Monovariant value (AllocatorC (Evaluator Monovariant value m)) a
              -> Evaluator Monovariant value m a
 runAllocator = runAllocatorC . interpret . runEvaluator
 
-newtype AllocatorC value m a = AllocatorC { runAllocatorC :: m a }
+newtype AllocatorC m a = AllocatorC { runAllocatorC :: m a }
 
-instance (Alternative m, Carrier sig m, Ord value, Monad m) => Carrier (Allocator Monovariant value :+: sig) (AllocatorC value m) where
+instance (Member NonDet sig, Carrier sig m, Ord value) => Carrier (Allocator Monovariant value :+: sig) (AllocatorC (Evaluator Monovariant value m)) where
   gen = AllocatorC . gen
   alg = algA \/ (AllocatorC . alg . handlePure runAllocatorC)
     where algA (Alloc name k)            = k (Monovariant name)
