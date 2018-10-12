@@ -81,16 +81,6 @@ instance Effect (REPL usage) where
   handle state handler (TypeOf t k) = TypeOf t (handler . (<$ state) . k)
   handle state handler (Eval   t k) = Eval   t (handler . (<$ state) . k)
 
--- type ValueSig address sig m
---   =   Env address
---   :+: Allocator address (Value address (ValueC address m))
---   :+: State (Store address (Value address (ValueC address m)))
---   :+: Fresh
---   :+: Resumable (EnvError address)
---   :+: Resumable (StoreError address (Value address (ValueC address m)))
---   :+: Resumable (ValueError address (ValueC address m))
---   :+: sig
-
 newtype ValueC m a
   = ValueC (Evaluator Precise (Value Precise (ValueC m)) (Precise.EnvC
            (Evaluator Precise (Value Precise (ValueC m)) (ReaderC (Environment Precise)
