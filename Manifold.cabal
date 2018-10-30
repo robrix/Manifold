@@ -37,6 +37,7 @@ library
                      , Manifold.Proof
                      , Manifold.Proof.Checking
                      , Manifold.Proof.Formation
+                     , Manifold.Proof.Focusing
                      , Manifold.Purpose
                      , Manifold.REPL
                      , Manifold.Substitution

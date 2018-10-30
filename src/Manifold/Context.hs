@@ -1,10 +1,12 @@
 {-# LANGUAGE DeriveFoldable, FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses #-}
 module Manifold.Context
 ( Context
+, (|>)
+, Linear
+, (<|)
 , contextLookup
 , contextFind
 , contextFilter
-, (|>)
 ) where
 
 import Data.Bifunctor
@@ -17,7 +19,7 @@ import Manifold.Name.Annotated
 import Manifold.Pretty
 
 data Context prop
-  = Empty
+  = CEmpty
   | Context prop :|> prop
   deriving (Eq, Foldable, Ord, Show)
 
@@ -28,19 +30,30 @@ infixl 4 :|>
 
 infixl 4 |>
 
+data Linear prop
+  = LEmpty
+  | prop :<| Linear prop
+
+infixr 5 :<|
+
+(<|) :: prop -> Linear prop -> Linear prop
+(<|) = (:<|)
+
+infixr 5 <|
+
 
 contextLookup :: Named prop => Name -> Context prop -> Maybe prop
 contextLookup needle = contextFind ((== needle) . name)
 
 contextFind :: (prop -> Bool) -> Context prop -> Maybe prop
-contextFind _         Empty     = Nothing
+contextFind _         CEmpty    = Nothing
 contextFind predicate (g :|> c)
   | predicate c = Just c
   | otherwise   = contextFind predicate g
 
 
 contextFilter :: (prop -> Bool) -> Context prop -> Context prop
-contextFilter _    Empty     = Empty
+contextFilter _    CEmpty    = CEmpty
 contextFilter keep (g :|> c)
   | keep c    = g' :|> c
   | otherwise = g'
@@ -48,13 +61,13 @@ contextFilter keep (g :|> c)
 
 
 instance Lower (Context prop) where
-  lowerBound = Empty
+  lowerBound = CEmpty
 
 instance (Eq ty, Eq usage, Semigroup usage) => Semigroup (Context (Constraint (Annotated usage) ty)) where
   a1 <> a2
-    | Empty <- a1
-    , Empty <- a2
-    = Empty
+    | CEmpty <- a1
+    , CEmpty <- a2
+    = CEmpty
     | g1 :|> Annotated n1 u1 ::: t1 <- a1
     , g2 :|> Annotated n2 u2 ::: t2 <- a2
     , n1 == n2, t1 == t2
@@ -68,10 +81,14 @@ instance (Eq ty, Eq usage, Semigroup usage) => Monoid (Context (Constraint (Anno
 
 
 instance (Eq ty, Eq usage, Semiring usage) => Module usage (Context (Constraint (Annotated usage) ty)) where
-  _ ><< Empty     = Empty
+  _ ><< CEmpty    = CEmpty
   u ><< (g :|> c) = (u ><< g) :|> first (fmap (u ><)) c
 
 
 instance Pretty prop => Pretty (Context prop) where
-  prettyPrec _ Empty = prettyString "◊"
+  prettyPrec _ CEmpty = prettyString "◊"
   prettyPrec d (g :|> c) = prettyParen (d > 4) $ prettyPrec 4 g <> comma <+> prettyPrec 5 c
+
+
+instance Lower (Linear prop) where
+  lowerBound = LEmpty
